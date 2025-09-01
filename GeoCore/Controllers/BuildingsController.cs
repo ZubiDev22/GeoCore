@@ -34,5 +34,25 @@ namespace GeoCore.Controllers
             });
             return Ok(dtos);
         }
+
+        [HttpGet("{id}")]
+        public async Task<ActionResult<BuildingDto>> GetById(int id)
+        {
+            var building = await _repository.GetByIdAsync(id);
+            if (building == null)
+                return NotFound();
+            var dto = new BuildingDto
+            {
+                Id = building.Id,
+                Name = building.Name,
+                Address = building.Address,
+                City = building.City,
+                Latitude = building.Latitude,
+                Longitude = building.Longitude,
+                PurchaseDate = building.PurchaseDate,
+                Status = building.Status
+            };
+            return Ok(dto);
+        }
     }
 }

@@ -1,0 +1,272 @@
+﻿# 📄 Product Requirements Document (PRD) – GeoCore Backend
+
+---
+
+## 1. Overview
+
+  
+El objetivo es diseñar y desarrollar el backend de la aplicación **GeoGestor de Activos Inmobiliarios** usando .NET Core en Visual Studio. El sistema expondrá APIs RESTful, gestionará datos simulados de propiedades y preparará puntos de integración con otros departamentos (Compra, Mantenimiento, Alquiler, Gestión) para fases posteriores.
+
+---
+
+## 2. Technology Stack
+
+  
+- Lenguaje: C# (.NET 7.0)  
+- IDE: Visual Studio 2022+  
+- ORM: Entity Framework Core  
+- Base de Datos: SQL Server (Docker)  
+- API: ASP.NET Core Web API + Swagger/OpenAPI  
+- Autenticación: JWT + ASP.NET Core Identity  
+- Logging: `ILogger<T>` integrado de .NET o Serilog + Seq  
+- Caching: IMemoryCache / IDistributedCache  
+- Background Services: IHostedService  
+- Health Checks: Microsoft.Extensions.Diagnostics.HealthChecks  
+- Tests: xUnit + Moq  
+- CI/CD: GitHub Actions o Azure DevOps Pipelines  
+
+---
+
+## 3. Architecture & Layers
+
+  
+1. **Presentation (API MVC)**  
+2. **Application (Servicios, MediatR, DTOs, Validaciones)**  
+3. **Domain (Entidades, Reglas de Negocio)**  
+4. **Infrastructure (DbContext, Repositorios, Seeders, ExternalClients)**  
+5. **Cross-Cutting (Logging, Seguridad, Mapeo, Caching)**  
+
+---
+
+## 4. Solution Structure (Visual Studio)
+
+  
+GeoGestor.sln  
+├─ GeoGestor.API  
+│  ├─ Controllers/  
+│  ├─ Middlewares/  
+│  ├─ Program.cs  
+│  └─ appsettings.json  
+├─ GeoGestor.Application  
+│  ├─ Services/  
+│  ├─ Commands/Queries (MediatR)  
+│  ├─ DTOs/Validators (FluentValidation)  
+│  └─ MappingProfiles/  
+├─ GeoGestor.Domain  
+│  ├─ Entities/  
+│  └─ Enums/ValueObjects/  
+├─ GeoGestor.Infrastructure  
+│  ├─ Persistence/  
+│  │  ├─ GeoGestorDbContext.cs  
+│  │  ├─ Migrations/  
+│  │  └─ Seeders/  
+│  ├─ Repositories/  
+│  └─ ExternalClients/  
+└─ GeoGestor.Tests  
+   ├─ UnitTests/  
+   └─ IntegrationTests/  
+
+---
+
+## 5. Data Model
+
+### Buildings
+```sql
+CREATE TABLE Buildings (
+  Id INT PRIMARY KEY,
+  Name NVARCHAR(100),
+  Address NVARCHAR(200),
+  City NVARCHAR(100),
+  Latitude FLOAT,
+  Longitude FLOAT,
+  PurchaseDate DATE,
+  Status NVARCHAR(50) -- "Active","Under Maintenance","Rented"
+);
+```
+
+### CashFlows
+```sql
+CREATE TABLE CashFlows (
+  Id INT PRIMARY KEY,
+  BuildingId INT FOREIGN KEY REFERENCES Buildings(Id),
+  Date DATE,
+  Amount DECIMAL(10,2),
+  Source NVARCHAR(50)  -- "Rent","Subsidy", etc.
+);
+```
+
+### MaintenanceEvents
+```sql
+CREATE TABLE MaintenanceEvents (
+  Id INT PRIMARY KEY,
+  BuildingId INT FOREIGN KEY REFERENCES Buildings(Id),
+  Date DATE,
+  Description NVARCHAR(200),
+  Cost DECIMAL(10,2)
+);
+```
+
+### AssetAssessments
+```sql
+CREATE TABLE AssetAssessments (
+  Id INT PRIMARY KEY,
+  BuildingId INT FOREIGN KEY REFERENCES Buildings(Id),
+  Date DATE,
+  Profitability DECIMAL(5,2),  -- porcentaje
+  RiskLevel NVARCHAR(50),      -- "High","Medium","Low"
+  Recommendation NVARCHAR(200)
+);
+```
+
+---
+
+## 6. API Design (Swagger)
+
+| Método | Ruta                           | Descripción                                   |
+|--------|--------------------------------|-----------------------------------------------|
+| GET    | /api/buildings                 | Listar todas las propiedades                  |
+| GET    | /api/buildings/{id}            | Obtener detalles de una propiedad             |
+| GET    | /api/cashflows                 | Listar todos los flujos de efectivo           |
+| GET    | /api/maintenance-events        | Listar eventos de mantenimiento               |
+| GET    | /api/asset-assessments         | Listar todas las evaluaciones de activos      |
+| POST   | /api/asset-assessments         | Crear nueva evaluación para una propiedad     |
+
+---
+
+## 7. Core Patterns & Services
+
+### 7.1 Inyección de Dependencias (DI)
+
+  
+- Registro en `Program.cs`:
+  ```csharp
+  builder.Services.AddScoped<IBuildingRepository, BuildingRepository>();
+  builder.Services.AddScoped<IAssetAssessmentService, AssetAssessmentService>();
+  builder.Services.AddSingleton<IBackgroundNotifier, BackgroundNotifier>();
+  builder.Services.AddMediatR(typeof(Program));
+  builder.Services.AddFluentValidationAutoValidation();
+  ```
+
+### 7.2 MVC / Controllers
+
+  
+- Controladores heredan de `ControllerBase`  
+- Acciones devuelven `ActionResult<T>`  
+- Convención REST: GET, POST, PUT/PATCH, DELETE  
+
+### 7.3 CRUD Genérico & Repositorios
+
+  
+```csharp
+public interface IGenericRepository<T> where T : class
+{
+  Task<IEnumerable<T>> GetAllAsync();
+  Task<T?> GetByIdAsync(int id);
+  Task AddAsync(T entity);
+  void Update(T entity);
+  void Remove(T entity);
+}
+```
+
+### 7.4 LINQ en Repositorios
+
+  
+- Exponer `IQueryable<T>` para filtros avanzados  
+- Proyecciones directas a DTOs:
+  ```csharp
+  var activeBuildings = await _context.Buildings
+    .Where(b => b.Status == "Active")
+    .Select(b => new BuildingDto { Id = b.Id, Name = b.Name })
+    .ToListAsync();
+  ```
+
+### 7.5 MediatR
+
+  
+- Commands/Queries para separar lógica de lectura y escritura  
+- Handlers inyectados con DI  
+
+### 7.6 Validaciones (FluentValidation)
+
+  
+- Validators asociados a DTOs y Commands  
+- Errores mapeados a respuestas HTTP 400  
+
+---
+
+## 8. Additional Services
+
+### 8.1 Logging con ILogger & Serilog
+
+  
+- Inyección de `ILogger<T>` en Controllers y Servicios  
+- Configuración en `Program.cs` para Console y File or Seq  
+- Middleware global para excepciones  
+
+### 8.2 Caching
+
+  
+- IMemoryCache para datos poco cambiantes (lista de edificios)  
+- IDistrubutedCache si se necesita escala  
+
+### 8.3 Background Services
+
+  
+- Implementar `IHostedService` para tareas periódicas  
+- Ejemplo: reevaluar riesgos cada 24 h  
+
+### 8.4 Health Checks
+
+  
+- Endpoint `/healthz` que verifique DB, memoria y latency  
+
+---
+
+## 9. Error Handling
+
+- Middleware `ExceptionLoggingMiddleware`  
+- Captura y log de excepciones no manejadas  
+- Respuesta uniforme con HTTP 500 y mensaje genérico  
+
+---
+
+## 10. Testing Strategy
+
+1. **Unit Tests** (xUnit + Moq): Servicios, Validadores, Repositorios  
+2. **Integration Tests**: EF Core InMemory para endpoints y DbContext  
+3. **Coverage**: ≥ 80%  
+4. **Pipeline**: Ejecutar tests en cada Pull Request  
+
+---
+
+## 11. CI/CD & Deployment
+
+- **Branching**: GitFlow o Trunk Based  
+- **Pipelines**:
+  1. Restore & Build  
+  2. Static Analysis (SonarCloud)  
+  3. Run Tests  
+  4. Publish Artifact / Docker Image  
+- **Deploy**: Azure App Service o Kubernetes  
+
+---
+
+## 12. Documentation & Versioning
+
+- **Swagger UI** en `/swagger`  
+- **CHANGELOG.md** con «Keep a Changelog»  
+- **Versionado Semántico**: MAJOR.MINOR.PATCH  
+- **README.md** con pasos de instalación y despliegue  
+
+---
+
+## 13. Future Integration Placeholders
+
+- Carpeta `ExternalClients/` con interfaces y DTOs para consumir APIs de:
+  - **Compra**  
+  - **Mantenimiento**  
+  - **Alquiler**  
+  - **Gestión**  
+- Reemplazo de seeders por datos reales en fases posteriores  
+
+---  
