@@ -11,6 +11,9 @@ namespace GeoCore.Controllers
         private readonly IMaintenanceEventRepository _repository;
         public MaintenanceEventsController(IMaintenanceEventRepository repository) { _repository = repository; }
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<MaintenanceEventDto>>> GetAll() { /* Simulado */ return Ok(new List<MaintenanceEventDto>()); }
+        public async Task<ActionResult<IEnumerable<MaintenanceEventDto>>> GetAll() {
+            var result = await _repository.GetAllAsync();
+            return Ok(result);
+        }
     }
 }
