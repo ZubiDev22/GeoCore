@@ -4,6 +4,9 @@ using GeoCore.Repositories;
 using GeoCore.Entities;
 using System.Globalization;
 using System.ComponentModel.DataAnnotations;
+using GeoCore.Logging;
+using MediatR;
+using GeoCore.Application.Commands;
 
 namespace GeoCore.Controllers
 {
@@ -12,9 +15,18 @@ namespace GeoCore.Controllers
     public class CashFlowsController : ControllerBase
     {
         private readonly ICashFlowRepository _repository;
-        public CashFlowsController(ICashFlowRepository repository) { _repository = repository; }
+        private readonly ILoguer _loguer;
+        private readonly IMediator _mediator;
+        public CashFlowsController(ICashFlowRepository repository, ILoguer loguer, IMediator mediator)
+        {
+            _repository = repository;
+            _loguer = loguer;
+            _mediator = mediator;
+        }
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<CashFlowDto>>> GetAll(int page = 1, int pageSize = 10) {
+        public async Task<ActionResult<IEnumerable<CashFlowDto>>> GetAll(int page = 1, int pageSize = 10)
+        {
+            _loguer.LogInfo($"Obteniendo cashflows: página {page}, tamaño {pageSize}");
             var result = await _repository.GetAllAsync();
             var paged = result.Skip((page - 1) * pageSize).Take(pageSize);
             var dtos = paged.Select(c => new CashFlowDto {
@@ -31,19 +43,9 @@ namespace GeoCore.Controllers
         public async Task<IActionResult> Create([FromBody] CashFlowDto dto)
         {
             if (!ModelState.IsValid)
-            {
                 return BadRequest(ModelState);
-            }
-            var entity = new CashFlow
-            {
-                CashFlowId = dto.CashFlowId,
-                BuildingCode = dto.BuildingCode,
-                Date = DateTime.ParseExact(dto.Date, "dd/MM/yyyy", CultureInfo.InvariantCulture),
-                Amount = dto.Amount,
-                Source = dto.Source
-            };
-            await _repository.AddAsync(entity);
-            return Ok(dto);
+            var result = await _mediator.Send(new CreateCashFlowCommand(dto));
+            return Ok(result);
         }
 
         [HttpPatch("{id}")]

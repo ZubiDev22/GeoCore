@@ -5,6 +5,9 @@ using GeoCore.Repositories;
 using GeoCore.Entities;
 using System.Globalization;
 using System.ComponentModel.DataAnnotations;
+using GeoCore.Logging;
+using MediatR;
+using GeoCore.Application.Commands;
 
 namespace GeoCore.Controllers
 {
@@ -13,9 +16,17 @@ namespace GeoCore.Controllers
     public class ManagementBudgetsController : ControllerBase
     {
         private readonly IManagementBudgetRepository _repository;
-        public ManagementBudgetsController(IManagementBudgetRepository repository) { _repository = repository; }
+        private readonly ILoguer _loguer;
+        private readonly IMediator _mediator;
+        public ManagementBudgetsController(IManagementBudgetRepository repository, ILoguer loguer, IMediator mediator)
+        {
+            _repository = repository;
+            _loguer = loguer;
+            _mediator = mediator;
+        }
         [HttpGet]
         public async Task<ActionResult<IEnumerable<ManagementBudgetDto>>> GetAll(int page = 1, int pageSize = 10) {
+            _loguer.LogInfo($"Obteniendo evaluaciones de activos: página {page}, tamaño {pageSize}");
             var result = await _repository.GetAllAsync();
             var paged = result.Skip((page - 1) * pageSize).Take(pageSize);
             var dtos = paged.Select(b => new ManagementBudgetDto {
@@ -32,19 +43,9 @@ namespace GeoCore.Controllers
         public async Task<IActionResult> Create([FromBody] ManagementBudgetDto dto)
         {
             if (!ModelState.IsValid)
-            {
                 return BadRequest(ModelState);
-            }
-            var entity = new ManagementBudget {
-                ManagementBudgetId = dto.ManagementBudgetId,
-                BuildingCode = dto.BuildingCode,
-                Date = DateTime.ParseExact(dto.Date, "dd/MM/yyyy", CultureInfo.InvariantCulture),
-                Profitability = dto.Profitability,
-                RiskLevel = dto.RiskLevel,
-                Recommendation = dto.Recommendation
-            };
-            await _repository.AddAsync(entity);
-            return Ok(dto);
+            var result = await _mediator.Send(new CreateManagementBudgetCommand(dto));
+            return Ok(result);
         }
 
         [HttpPatch("{id}")]

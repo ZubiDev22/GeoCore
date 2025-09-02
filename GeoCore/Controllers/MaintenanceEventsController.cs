@@ -4,6 +4,9 @@ using GeoCore.Repositories;
 using GeoCore.Entities;
 using System.Globalization;
 using System.ComponentModel.DataAnnotations;
+using GeoCore.Logging;
+using MediatR;
+using GeoCore.Application.Commands;
 
 namespace GeoCore.Controllers
 {
@@ -12,9 +15,17 @@ namespace GeoCore.Controllers
     public class MaintenanceEventsController : ControllerBase
     {
         private readonly IMaintenanceEventRepository _repository;
-        public MaintenanceEventsController(IMaintenanceEventRepository repository) { _repository = repository; }
+        private readonly ILoguer _loguer;
+        private readonly IMediator _mediator;
+        public MaintenanceEventsController(IMaintenanceEventRepository repository, ILoguer loguer, IMediator mediator)
+        {
+            _repository = repository;
+            _loguer = loguer;
+            _mediator = mediator;
+        }
         [HttpGet]
         public async Task<ActionResult<IEnumerable<MaintenanceEventDto>>> GetAll(int page = 1, int pageSize = 10) {
+            _loguer.LogInfo($"Obteniendo eventos de mantenimiento: página {page}, tamaño {pageSize}");
             var result = await _repository.GetAllAsync();
             var paged = result.Skip((page - 1) * pageSize).Take(pageSize);
             var dtos = paged.Select(e => new MaintenanceEventDto {
@@ -31,19 +42,9 @@ namespace GeoCore.Controllers
         public async Task<IActionResult> Create([FromBody] MaintenanceEventDto dto)
         {
             if (!ModelState.IsValid)
-            {
                 return BadRequest(ModelState);
-            }
-            var entity = new MaintenanceEvent
-            {
-                MaintenanceEventId = dto.MaintenanceEventId,
-                BuildingCode = dto.BuildingCode,
-                Date = DateTime.ParseExact(dto.Date, "dd/MM/yyyy", CultureInfo.InvariantCulture),
-                Description = dto.Description,
-                Cost = dto.Cost
-            };
-            await _repository.AddAsync(entity);
-            return Ok(dto);
+            var result = await _mediator.Send(new CreateMaintenanceEventCommand(dto));
+            return Ok(result);
         }
 
         [HttpPatch("{id}")]
