@@ -14,9 +14,10 @@ namespace GeoCore.Controllers
         private readonly ICashFlowRepository _repository;
         public CashFlowsController(ICashFlowRepository repository) { _repository = repository; }
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<CashFlowDto>>> GetAll() {
+        public async Task<ActionResult<IEnumerable<CashFlowDto>>> GetAll(int page = 1, int pageSize = 10) {
             var result = await _repository.GetAllAsync();
-            var dtos = result.Select(c => new CashFlowDto {
+            var paged = result.Skip((page - 1) * pageSize).Take(pageSize);
+            var dtos = paged.Select(c => new CashFlowDto {
                 CashFlowId = c.CashFlowId,
                 BuildingCode = c.BuildingCode,
                 Date = c.Date.ToString("dd/MM/yyyy", CultureInfo.InvariantCulture),

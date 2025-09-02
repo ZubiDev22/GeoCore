@@ -15,9 +15,10 @@ namespace GeoCore.Controllers
         private readonly IManagementBudgetRepository _repository;
         public ManagementBudgetsController(IManagementBudgetRepository repository) { _repository = repository; }
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<ManagementBudgetDto>>> GetAll() {
+        public async Task<ActionResult<IEnumerable<ManagementBudgetDto>>> GetAll(int page = 1, int pageSize = 10) {
             var result = await _repository.GetAllAsync();
-            var dtos = result.Select(b => new ManagementBudgetDto {
+            var paged = result.Skip((page - 1) * pageSize).Take(pageSize);
+            var dtos = paged.Select(b => new ManagementBudgetDto {
                 ManagementBudgetId = b.ManagementBudgetId,
                 BuildingCode = b.BuildingCode,
                 Date = b.Date.ToString("dd/MM/yyyy", CultureInfo.InvariantCulture),

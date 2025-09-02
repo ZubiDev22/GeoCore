@@ -14,9 +14,10 @@ namespace GeoCore.Controllers
         private readonly IMaintenanceEventRepository _repository;
         public MaintenanceEventsController(IMaintenanceEventRepository repository) { _repository = repository; }
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<MaintenanceEventDto>>> GetAll() {
+        public async Task<ActionResult<IEnumerable<MaintenanceEventDto>>> GetAll(int page = 1, int pageSize = 10) {
             var result = await _repository.GetAllAsync();
-            var dtos = result.Select(e => new MaintenanceEventDto {
+            var paged = result.Skip((page - 1) * pageSize).Take(pageSize);
+            var dtos = paged.Select(e => new MaintenanceEventDto {
                 MaintenanceEventId = e.MaintenanceEventId,
                 BuildingCode = e.BuildingCode,
                 Date = e.Date.ToString("dd/MM/yyyy", CultureInfo.InvariantCulture),
