@@ -11,11 +11,11 @@ builder.Services.AddControllers();
 builder.Services.AddDbContext<GeoCore.Persistence.GeoCoreDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-// Registro de repositorios simulados (puedes implementar la lógica real luego)
-builder.Services.AddScoped<IBuildingRepository, BuildingRepositoryStub>();
-builder.Services.AddScoped<ICashFlowRepository, CashFlowRepositoryStub>();
-builder.Services.AddScoped<IMaintenanceEventRepository, MaintenanceEventRepositoryStub>();
-builder.Services.AddScoped<IAssetAssessmentRepository, AssetAssessmentRepositoryStub>();
+// Registro de repositorios simulados como Singleton para mantener los datos en memoria
+builder.Services.AddSingleton<IBuildingRepository, BuildingRepositoryStub>();
+builder.Services.AddSingleton<ICashFlowRepository, CashFlowRepositoryStub>();
+builder.Services.AddSingleton<IMaintenanceEventRepository, MaintenanceEventRepositoryStub>();
+builder.Services.AddSingleton<IManagementBudgetRepository, ManagementBudgetRepositoryStub>();
 
 // Swagger/OpenAPI
 builder.Services.AddEndpointsApiExplorer();

@@ -1,0 +1,38 @@
+Table building {
+  building_code varchar [pk]
+  name varchar
+  address varchar
+  city varchar
+  latitude double
+  longitude double
+  purchase_date date
+  status varchar
+}
+
+Table cash_flow {
+  cash_flow_id varchar [pk]
+  building_code varchar
+  date date
+  amount decimal
+  source varchar
+  Ref: building_code > building.building_code
+}
+
+Table maintenance_event {
+  maintenance_event_id varchar [pk]
+  building_code varchar
+  date date
+  description varchar
+  cost decimal
+  Ref: building_code > building.building_code
+}
+
+Table management_budget {
+  management_budget_id varchar [pk]
+  building_code varchar
+  date date
+  profitability decimal
+  risk_level varchar
+  recommendation varchar
+  Ref: building_code > building.building_code
+}

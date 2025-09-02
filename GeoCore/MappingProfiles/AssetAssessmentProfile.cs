@@ -4,11 +4,11 @@ using GeoCore.DTOs;
 
 namespace GeoCore.MappingProfiles
 {
-    public class AssetAssessmentProfile : Profile
+    public class ManagementBudgetProfile : Profile
     {
-        public AssetAssessmentProfile()
+        public ManagementBudgetProfile()
         {
-            CreateMap<AssetAssessment, AssetAssessmentDto>().ReverseMap();
+            CreateMap<ManagementBudget, ManagementBudgetDto>().ReverseMap();
         }
     }
 }

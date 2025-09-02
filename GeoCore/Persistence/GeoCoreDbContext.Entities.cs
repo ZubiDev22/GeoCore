@@ -7,11 +7,11 @@ namespace GeoCore.Persistence
     {
         public DbSet<CashFlow> CashFlows { get; set; }
         public DbSet<MaintenanceEvent> MaintenanceEvents { get; set; }
-        public DbSet<AssetAssessment> AssetAssessments { get; set; }
+        public DbSet<ManagementBudget> ManagementBudgets { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.Entity<AssetAssessment>()
+            modelBuilder.Entity<ManagementBudget>()
                 .Property(a => a.Profitability)
                 .HasPrecision(5, 2);
 
