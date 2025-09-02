@@ -27,13 +27,21 @@ namespace GeoCore.Controllers
         }
 
         [HttpPost]
-        public IActionResult Create([FromBody] MaintenanceEventDto dto)
+        public async Task<IActionResult> Create([FromBody] MaintenanceEventDto dto)
         {
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
-            // Aquí iría la lógica para agregar el MaintenanceEvent
+            var entity = new MaintenanceEvent
+            {
+                MaintenanceEventId = dto.MaintenanceEventId,
+                BuildingCode = dto.BuildingCode,
+                Date = DateTime.ParseExact(dto.Date, "dd/MM/yyyy", CultureInfo.InvariantCulture),
+                Description = dto.Description,
+                Cost = dto.Cost
+            };
+            await _repository.AddAsync(entity);
             return Ok(dto);
         }
 
@@ -135,10 +143,13 @@ namespace GeoCore.Controllers
         }
 
         [HttpDelete("{id}")]
-        public IActionResult Delete(string id)
+        public async Task<IActionResult> Delete(string id)
         {
-            // Simulación: eliminar el MaintenanceEvent por id
-            // Aquí deberías eliminar el real
+            var entity = await _repository.GetByIdAsync(id);
+            if (entity == null)
+                return NotFound();
+
+            _repository.Remove(entity);
             return NoContent();
         }
 

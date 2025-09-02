@@ -27,13 +27,21 @@ namespace GeoCore.Controllers
         }
 
         [HttpPost]
-        public IActionResult Create([FromBody] CashFlowDto dto)
+        public async Task<IActionResult> Create([FromBody] CashFlowDto dto)
         {
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
-            // Aquí iría la lógica para agregar el CashFlow
+            var entity = new CashFlow
+            {
+                CashFlowId = dto.CashFlowId,
+                BuildingCode = dto.BuildingCode,
+                Date = DateTime.ParseExact(dto.Date, "dd/MM/yyyy", CultureInfo.InvariantCulture),
+                Amount = dto.Amount,
+                Source = dto.Source
+            };
+            await _repository.AddAsync(entity);
             return Ok(dto);
         }
 
@@ -143,10 +151,13 @@ namespace GeoCore.Controllers
         }
 
         [HttpDelete("{id}")]
-        public IActionResult Delete(string id)
+        public async Task<IActionResult> Delete(string id)
         {
-            // Simulación: eliminar el CashFlow por id
-            // Aquí deberías eliminar el real
+            var entity = await _repository.GetByIdAsync(id);
+            if (entity == null)
+                return NotFound();
+
+            _repository.Remove(entity);
             return NoContent();
         }
 

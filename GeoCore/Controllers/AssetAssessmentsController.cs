@@ -28,7 +28,7 @@ namespace GeoCore.Controllers
             return Ok(dtos);
         }
         [HttpPost]
-        public IActionResult Create([FromBody] ManagementBudgetDto dto)
+        public async Task<IActionResult> Create([FromBody] ManagementBudgetDto dto)
         {
             if (!ModelState.IsValid)
             {
@@ -42,7 +42,7 @@ namespace GeoCore.Controllers
                 RiskLevel = dto.RiskLevel,
                 Recommendation = dto.Recommendation
             };
-            _repository.AddAsync(entity);
+            await _repository.AddAsync(entity);
             return Ok(dto);
         }
 
@@ -149,10 +149,13 @@ namespace GeoCore.Controllers
         }
 
         [HttpDelete("{id}")]
-        public IActionResult Delete(string id)
+        public async Task<IActionResult> Delete(string id)
         {
-            // Simulación: eliminar el ManagementBudget por id
-            // Aquí deberías eliminar el real
+            var entity = await _repository.GetByIdAsync(id);
+            if (entity == null)
+                return NotFound();
+
+            _repository.Remove(entity);
             return NoContent();
         }
 
