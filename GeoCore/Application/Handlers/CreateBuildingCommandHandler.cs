@@ -30,6 +30,8 @@ namespace GeoCore.Application.Handlers
                 Status = dto.Status
             };
             await _repository.AddAsync(entity);
+            // Asignar el BuildingId generado en el stub
+            dto.BuildingId = entity.BuildingId;
             return dto;
         }
     }

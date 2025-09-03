@@ -23,7 +23,13 @@ namespace GeoCore.Repositories
         public Task<IEnumerable<Building>> GetAllAsync() => Task.FromResult(_buildings.AsEnumerable());
         public Task<Building?> GetByIdAsync(int id) => Task.FromResult(_buildings.FirstOrDefault(b => b.BuildingId == id));
         public Task<Building?> GetByCodeAsync(string code) => Task.FromResult(_buildings.FirstOrDefault(b => b.BuildingCode == code));
-        public Task AddAsync(Building entity) { _buildings.Add(entity); return Task.CompletedTask; }
+        public Task AddAsync(Building entity)
+        {
+            // Asignar un BuildingId único
+            entity.BuildingId = _buildings.Any() ? _buildings.Max(b => b.BuildingId) + 1 : 1;
+            _buildings.Add(entity);
+            return Task.CompletedTask;
+        }
         public void Update(Building entity) { }
         public void Remove(Building entity) { _buildings.Remove(entity); }
     }

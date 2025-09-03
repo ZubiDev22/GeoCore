@@ -104,14 +104,14 @@ namespace GeoCore.Controllers
             return Ok(result);
         }
 
-        [HttpPut("{code}")]
-        public async Task<IActionResult> Update(string code, [FromBody] BuildingDto dto)
-        {
-            var result = await _mediator.Send(new UpdateBuildingCommand(code, dto));
-            if (result == null)
-                return NotFound();
-            return Ok(result);
-        }
+        // [HttpPut("{code}")]
+        // public async Task<IActionResult> Update(string code, [FromBody] BuildingDto dto)
+        // {
+        //     var result = await _mediator.Send(new UpdateBuildingCommand(code, dto));
+        //     if (result == null)
+        //         return NotFound();
+        //     return Ok(result);
+        // }
 
         [HttpPatch("{code}")]
         public async Task<IActionResult> Patch(string code, [FromBody] Dictionary<string, object> patch)
