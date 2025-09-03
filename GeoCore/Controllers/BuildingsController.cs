@@ -30,16 +30,61 @@ namespace GeoCore.Controllers
         public async Task<ActionResult<IEnumerable<BuildingDto>>> GetAll(int page = 1, int pageSize = 10)
         {
             _loguer.LogInfo($"Obteniendo edificios: página {page}, tamaño {pageSize}");
-            var dtos = await _mediator.Send(new GetBuildingsQuery(page, pageSize));
+            var buildings = await _repository.GetAllAsync();
+            var dtos = buildings.Skip((page - 1) * pageSize).Take(pageSize).Select(b => new BuildingDto
+            {
+                BuildingId = b.BuildingId,
+                BuildingCode = b.BuildingCode,
+                Name = b.Name,
+                Address = b.Address,
+                City = b.City,
+                Latitude = b.Latitude,
+                Longitude = b.Longitude,
+                PurchaseDate = b.PurchaseDate.ToString("dd/MM/yyyy", CultureInfo.InvariantCulture),
+                Status = b.Status
+            });
             return Ok(dtos);
         }
 
-        [HttpGet("{code}")]
+        [HttpGet("{id:int}")]
+        public async Task<ActionResult<BuildingDto>> GetById(int id)
+        {
+            var building = await _repository.GetByIdAsync(id);
+            if (building == null)
+                return NotFound();
+            var dto = new BuildingDto
+            {
+                BuildingId = building.BuildingId,
+                BuildingCode = building.BuildingCode,
+                Name = building.Name,
+                Address = building.Address,
+                City = building.City,
+                Latitude = building.Latitude,
+                Longitude = building.Longitude,
+                PurchaseDate = building.PurchaseDate.ToString("dd/MM/yyyy", CultureInfo.InvariantCulture),
+                Status = building.Status
+            };
+            return Ok(dto);
+        }
+
+        [HttpGet("code/{code}")]
         public async Task<ActionResult<BuildingDto>> GetByCode(string code)
         {
-            var dto = await _mediator.Send(new GetBuildingByCodeQuery(code));
-            if (dto == null)
+            var building = await _repository.GetByCodeAsync(code);
+            if (building == null)
                 return NotFound();
+            var dto = new BuildingDto
+            {
+                BuildingId = building.BuildingId,
+                BuildingCode = building.BuildingCode,
+                Name = building.Name,
+                Address = building.Address,
+                City = building.City,
+                Latitude = building.Latitude,
+                Longitude = building.Longitude,
+                PurchaseDate = building.PurchaseDate.ToString("dd/MM/yyyy", CultureInfo.InvariantCulture),
+                Status = building.Status
+            };
             return Ok(dto);
         }
 

@@ -1,14 +1,8 @@
-using AutoMapper;
-using GeoCore.Entities;
-using GeoCore.DTOs;
-
-namespace GeoCore.MappingProfiles
-{
-    public class MaintenanceEventProfile : Profile
-    {
-        public MaintenanceEventProfile()
-        {
-            CreateMap<MaintenanceEvent, MaintenanceEventDto>().ReverseMap();
-        }
-    }
-}
+// using AutoMapper;
+// using GeoCore.Entities;
+// using GeoCore.DTOs;
+//
+// namespace GeoCore.MappingProfiles
+// {
+//     // Mapping profile de MaintenanceEvent completamente deshabilitado
+// }

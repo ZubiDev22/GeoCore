@@ -22,6 +22,7 @@ namespace GeoCore.Application.Handlers
             var filtered = buildings.Where(b => b.Status.Equals(request.Status, System.StringComparison.OrdinalIgnoreCase));
             var dtos = filtered.Select(b => new BuildingDto
             {
+                BuildingId = b.BuildingId,
                 BuildingCode = b.BuildingCode,
                 Name = b.Name,
                 Address = b.Address,

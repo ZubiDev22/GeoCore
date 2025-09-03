@@ -4,11 +4,5 @@ using GeoCore.DTOs;
 
 namespace GeoCore.MappingProfiles
 {
-    public class ManagementBudgetProfile : Profile
-    {
-        public ManagementBudgetProfile()
-        {
-            CreateMap<ManagementBudget, ManagementBudgetDto>().ReverseMap();
-        }
-    }
+    // Mapping profile de AssetAssessment/ManagementBudget completamente deshabilitado
 }

@@ -1,10 +1,9 @@
-using GeoCore.Entities;
-using System.Threading.Tasks;
+// using GeoCore.Entities;
+// using System.Collections.Generic;
+// using System.Threading.Tasks;
+// using System.Linq;
 
-namespace GeoCore.Repositories
-{
-    public interface ICashFlowRepository : IGenericRepository<CashFlow>
-    {
-        Task<CashFlow?> GetByIdAsync(string id);
-    }
-}
+// namespace GeoCore.Repositories
+// {
+//     public interface ICashFlowRepository { }
+// }

@@ -15,6 +15,6 @@ namespace GeoCore.Repositories
 
     public interface IBuildingRepository : IGenericRepository<Building>
     {
-        // Métodos específicos para Building si se requieren
+        Task<Building?> GetByCodeAsync(string code); // Agregado para soporte en el controlador
     }
 }

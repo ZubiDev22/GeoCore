@@ -10,7 +10,7 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 builder.Services.AddControllers().AddFluentValidation(fv =>
 {
-    fv.RegisterValidatorsFromAssemblyContaining<GeoCore.Validators.MaintenanceEventDtoValidator>();
+    // fv.RegisterValidatorsFromAssemblyContaining<GeoCore.Validators.MaintenanceEventDtoValidator>();
 });
 
 // Configuración de DbContext
@@ -19,9 +19,9 @@ builder.Services.AddDbContext<GeoCore.Persistence.GeoCoreDbContext>(options =>
 
 // Registro de repositorios simulados como Singleton para mantener los datos en memoria
 builder.Services.AddSingleton<IBuildingRepository, BuildingRepositoryStub>();
-builder.Services.AddSingleton<ICashFlowRepository, CashFlowRepositoryStub>();
-builder.Services.AddSingleton<IMaintenanceEventRepository, MaintenanceEventRepositoryStub>();
-builder.Services.AddSingleton<IManagementBudgetRepository, ManagementBudgetRepositoryStub>();
+// builder.Services.AddSingleton<ICashFlowRepository, CashFlowRepositoryStub>();
+// builder.Services.AddSingleton<IMaintenanceEventRepository, MaintenanceEventRepositoryStub>();
+// builder.Services.AddSingleton<IManagementBudgetRepository, ManagementBudgetRepositoryStub>();
 
 // Registro de ILoguer y Loguer
 builder.Services.AddScoped<ILoguer, Loguer>();
