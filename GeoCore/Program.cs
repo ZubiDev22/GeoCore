@@ -39,7 +39,19 @@ builder.Services.AddSwaggerGen(c =>
         Version = "v1",
         Description = "API para GeoCore"
     });
-    // Configuración adicional para asegurar la versión
+    // Agrupa y ordena los tags anteponiendo un número para el orden visual
+    c.TagActionsBy(api =>
+    {
+        var controller = api.GroupName ?? api.ActionDescriptor.RouteValues["controller"];
+        return controller switch
+        {
+            "Buildings" => new[] { "1. Buildings" },
+            "CashFlows" => new[] { "2. CashFlows" },
+            "MaintenanceEvents" => new[] { "3. MaintenanceEvents" },
+            "AssetAssessments" => new[] { "4. AssetAssessments" },
+            _ => new[] { controller }
+        };
+    });
     c.DocInclusionPredicate((docName, apiDesc) => true);
 });
 
