@@ -32,5 +32,32 @@ namespace GeoCore.Repositories
         }
         public void Update(Building entity) { }
         public void Remove(Building entity) { _buildings.Remove(entity); }
+
+        // Ejemplo LINQ 1: Filtrar edificios en una ciudad y cuyo nombre contiene una letra, ordenados por nombre
+        public IEnumerable<Building> GetByCityAndNameContains(string city, string letter)
+        {
+            return from building in _buildings
+                   where building.City == city && building.Name.Contains(letter)
+                   orderby building.Name
+                   select building;
+        }
+
+        // Ejemplo LINQ 2: Filtrar edificios por estado
+        public IEnumerable<Building> GetByStatus(string status)
+        {
+            return _buildings.Where(b => b.Status == status);
+        }
+
+        // Ejemplo LINQ 3: Obtener edificios ordenados por nombre
+        public IEnumerable<Building> GetOrderedByName()
+        {
+            return _buildings.OrderBy(b => b.Name);
+        }
+
+        // Ejemplo LINQ 4: Seleccionar nombres de edificios con longitud mayor a 6
+        public IEnumerable<string> GetLongBuildingNames()
+        {
+            return _buildings.Where(b => b.Name.Length > 6).OrderBy(b => b.Name).Select(b => b.Name);
+        }
     }
 }

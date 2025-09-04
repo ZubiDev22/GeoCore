@@ -65,6 +65,21 @@ namespace GeoCore.Application.Handlers
                         break;
                 }
             }
+            // Ejemplo LINQ: Filtrar edificios activos en Madrid y ordenarlos por nombre
+            var edificiosActivosMadrid = (from b in buildings
+                                          where b.Status == "Active" && b.City == "Madrid"
+                                          orderby b.Name
+                                          select b).ToList();
+
+            // Ejemplo LINQ: Obtener nombres de edificios con longitud mayor a 6
+            var nombresLargos = buildings.Where(b => b.Name.Length > 6).OrderBy(b => b.Name).Select(b => b.Name).ToList();
+
+            // Ejemplo LINQ: Filtrar eventos de mantenimiento recientes para el edificio actual
+            var eventosRecientes = (from e in await _maintenanceRepo.GetAllAsync()
+                                    where e.BuildingId == entity.BuildingId && e.Date > DateTime.Now.AddMonths(-6)
+                                    orderby e.Date descending
+                                    select e).ToList();
+
             _repository.Update(entity);
             return true;
         }
