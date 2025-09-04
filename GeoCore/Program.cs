@@ -19,8 +19,8 @@ builder.Services.AddDbContext<GeoCore.Persistence.GeoCoreDbContext>(options =>
 
 // Registro de repositorios simulados como Singleton para mantener los datos en memoria
 builder.Services.AddSingleton<IBuildingRepository, BuildingRepositoryStub>();
-// builder.Services.AddSingleton<ICashFlowRepository, CashFlowRepositoryStub>();
-// builder.Services.AddSingleton<IMaintenanceEventRepository, MaintenanceEventRepositoryStub>();
+builder.Services.AddSingleton<IMaintenanceEventRepository, MaintenanceEventRepositoryStub>();
+builder.Services.AddSingleton<ICashFlowRepository, CashFlowRepositoryStub>();
 // builder.Services.AddSingleton<IManagementBudgetRepository, ManagementBudgetRepositoryStub>();
 
 // Registro de ILoguer y Loguer

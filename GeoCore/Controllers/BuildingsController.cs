@@ -8,6 +8,7 @@ using GeoCore.Logging;
 using MediatR;
 using GeoCore.Application.Commands;
 using GeoCore.Application.Queries;
+using System.Collections.Generic;
 
 namespace GeoCore.Controllers
 {
@@ -88,6 +89,51 @@ namespace GeoCore.Controllers
             return Ok(dto);
         }
 
+        [HttpGet("code/{code}/details")]
+        public async Task<ActionResult<object>> GetDetailsByCode(string code)
+        {
+            var building = await _repository.GetByCodeAsync(code);
+            if (building == null)
+                return NotFound();
+            // Obtener status
+            var status = building.Status;
+            // Obtener descripción del último MaintenanceEvent si el status es Under Maintenance
+            string? description = null;
+            if (status == "Under Maintenance")
+            {
+                var maintenanceRepo = HttpContext.RequestServices.GetService<IMaintenanceEventRepository>();
+                if (maintenanceRepo != null)
+                {
+                    var events = await maintenanceRepo.GetAllAsync();
+                    var lastEvent = events.Where(e => e.BuildingId == building.BuildingId).OrderByDescending(e => e.Date).FirstOrDefault();
+                    description = lastEvent?.Description;
+                }
+            }
+            // Obtener descripción del último CashFlow si el status es Active
+            if (status == "Active")
+            {
+                var cashFlowRepo = HttpContext.RequestServices.GetService<ICashFlowRepository>();
+                if (cashFlowRepo != null)
+                {
+                    var cashflows = await cashFlowRepo.GetAllAsync();
+                    var lastFlow = cashflows.Where(c => c.BuildingId == building.BuildingId).OrderByDescending(c => c.Date).FirstOrDefault();
+                    description = lastFlow?.Source;
+                }
+            }
+            return Ok(new {
+                BuildingId = building.BuildingId,
+                BuildingCode = building.BuildingCode,
+                Name = building.Name,
+                Address = building.Address,
+                City = building.City,
+                Latitude = building.Latitude,
+                Longitude = building.Longitude,
+                PurchaseDate = building.PurchaseDate.ToString("dd/MM/yyyy", CultureInfo.InvariantCulture),
+                Status = status,
+                Description = description
+            });
+        }
+
         [HttpGet("status/{status}")]
         public async Task<ActionResult<IEnumerable<BuildingDto>>> GetByStatus(string status)
         {
@@ -114,21 +160,12 @@ namespace GeoCore.Controllers
         // }
 
         [HttpPatch("{code}")]
-        public async Task<IActionResult> Patch(string code, [FromBody] Dictionary<string, object> patch)
+        public async Task<IActionResult> Patch(string code, [FromBody] List<PatchOperation> operations)
         {
-            var success = await _mediator.Send(new PatchBuildingCommand(code, patch));
+            var success = await _mediator.Send(new PatchBuildingCommand(code, operations));
             if (!success)
                 return NotFound();
             return Ok();
-        }
-
-        [HttpPatch("{code}/status")]
-        public async Task<IActionResult> PatchStatus(string code, [FromBody] string status)
-        {
-            var success = await _mediator.Send(new PatchBuildingStatusCommand(code, status));
-            if (!success)
-                return NotFound();
-            return Ok(new { BuildingCode = code, Status = status });
         }
 
         [HttpDelete("{code}")]
