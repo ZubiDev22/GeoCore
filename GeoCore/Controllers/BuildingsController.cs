@@ -95,10 +95,9 @@ namespace GeoCore.Controllers
             var building = await _repository.GetByCodeAsync(code);
             if (building == null)
                 return NotFound();
-            // Obtener status
             var status = building.Status;
-            // Obtener descripción del último MaintenanceEvent si el status es Under Maintenance
-            string? description = null;
+            string description = "Edificio ingresado en el sistema";
+            // Si hay MaintenanceEvent y status es Under Maintenance
             if (status == "Under Maintenance")
             {
                 var maintenanceRepo = HttpContext.RequestServices.GetService<IMaintenanceEventRepository>();
@@ -106,10 +105,11 @@ namespace GeoCore.Controllers
                 {
                     var events = await maintenanceRepo.GetAllAsync();
                     var lastEvent = events.Where(e => e.BuildingId == building.BuildingId).OrderByDescending(e => e.Date).FirstOrDefault();
-                    description = lastEvent?.Description;
+                    if (!string.IsNullOrWhiteSpace(lastEvent?.Description))
+                        description = lastEvent.Description;
                 }
             }
-            // Obtener descripción del último CashFlow si el status es Active
+            // Si hay CashFlow y status es Active
             if (status == "Active")
             {
                 var cashFlowRepo = HttpContext.RequestServices.GetService<ICashFlowRepository>();
@@ -117,7 +117,20 @@ namespace GeoCore.Controllers
                 {
                     var cashflows = await cashFlowRepo.GetAllAsync();
                     var lastFlow = cashflows.Where(c => c.BuildingId == building.BuildingId).OrderByDescending(c => c.Date).FirstOrDefault();
-                    description = lastFlow?.Source;
+                    if (!string.IsNullOrWhiteSpace(lastFlow?.Source))
+                        description = lastFlow.Source;
+                }
+            }
+            // Si hay ManagementBudget y status es Rented
+            if (status == "Rented")
+            {
+                var budgetRepo = HttpContext.RequestServices.GetService<IManagementBudgetRepository>();
+                if (budgetRepo != null)
+                {
+                    var budgets = await budgetRepo.GetAllAsync();
+                    var lastBudget = budgets.Where(b => b.BuildingId == building.BuildingId).OrderByDescending(b => b.Date).FirstOrDefault();
+                    if (!string.IsNullOrWhiteSpace(lastBudget?.Recommendation))
+                        description = lastBudget.Recommendation;
                 }
             }
             return Ok(new {
