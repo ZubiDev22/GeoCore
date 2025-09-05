@@ -163,15 +163,6 @@ namespace GeoCore.Controllers
             return Ok(result);
         }
 
-        // [HttpPut("{code}")]
-        // public async Task<IActionResult> Update(string code, [FromBody] BuildingDto dto)
-        // {
-        //     var result = await _mediator.Send(new UpdateBuildingCommand(code, dto));
-        //     if (result == null)
-        //         return NotFound();
-        //     return Ok(result);
-        // }
-
         [HttpPatch("{code}")]
         public async Task<IActionResult> Patch(string code, [FromBody] List<PatchOperation> operations)
         {
@@ -188,6 +179,13 @@ namespace GeoCore.Controllers
             if (!success)
                 return NotFound();
             return NoContent();
+        }
+
+        [HttpGet("/api/buildings/{code}/apartments")]
+        public async Task<ActionResult<IEnumerable<ApartmentDto>>> GetApartmentsByBuildingCode(string code)
+        {
+            var result = await _mediator.Send(new GetApartmentsByBuildingCodeQuery(code));
+            return Ok(result);
         }
     }
 }

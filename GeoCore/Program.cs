@@ -22,6 +22,7 @@ builder.Services.AddSingleton<IBuildingRepository, BuildingRepositoryStub>();
 builder.Services.AddSingleton<IMaintenanceEventRepository, MaintenanceEventRepositoryStub>();
 builder.Services.AddSingleton<ICashFlowRepository, CashFlowRepositoryStub>();
 builder.Services.AddSingleton<IManagementBudgetRepository, ManagementBudgetRepositoryStub>();
+builder.Services.AddSingleton<IApartmentRepository, ApartmentRepositoryStub>();
 
 // Registro de ILoguer y Loguer
 builder.Services.AddScoped<ILoguer, Loguer>();
