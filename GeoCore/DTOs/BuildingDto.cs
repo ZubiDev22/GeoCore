@@ -7,7 +7,7 @@ namespace GeoCore.DTOs
 {
     public class BuildingDto
     {
-        public int BuildingId { get; set; }
+        public string BuildingId { get; set; } = string.Empty;
         [Required]
         [MaxLength(10)]
         public string BuildingCode { get; set; } = string.Empty;

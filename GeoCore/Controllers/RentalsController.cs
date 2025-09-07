@@ -36,9 +36,9 @@ namespace GeoCore.Controllers
         }
 
         [HttpGet("{id}")]
-        public async Task<ActionResult<RentalDto>> GetById(int id)
+        public async Task<ActionResult<RentalDto>> GetById(string id)
         {
-            var rental = await _rentalRepo.GetByIdAsync(id);
+            var rental = (await _rentalRepo.GetAllAsync()).FirstOrDefault(r => r.RentalId == id);
             if (rental == null)
                 return NotFound();
             var dto = new RentalDto
@@ -71,7 +71,7 @@ namespace GeoCore.Controllers
                 PostalCode = dto.PostalCode
             };
             await _rentalRepo.AddAsync(entity);
-            return Ok();
+            return Ok(new { entity.RentalId });
         }
 
         [HttpGet("by-building-code/{code}")]
@@ -100,6 +100,74 @@ namespace GeoCore.Controllers
                 PostalCode = r.PostalCode
             });
             return Ok(dtos);
+        }
+
+        [HttpGet("{id}/rental-comparison")]
+        public async Task<ActionResult<object>> GetRentalComparison(string id)
+        {
+            var rental = (await _rentalRepo.GetAllAsync()).FirstOrDefault(r => r.RentalId == id);
+            if (rental == null)
+                return NotFound();
+
+            // Obtener el apartamento asociado
+            var apartmentRepo = HttpContext.RequestServices.GetService<IApartmentRepository>();
+            if (apartmentRepo == null)
+                return StatusCode(500, "Repositorio de apartamentos no disponible");
+            var apartment = (await apartmentRepo.GetAllAsync()).FirstOrDefault(a => a.ApartmentId == rental.ApartmentId);
+            if (apartment == null)
+                return NotFound("No se encontró el apartamento asociado.");
+
+            // Obtener el edificio asociado
+            var buildingRepo = HttpContext.RequestServices.GetService<IBuildingRepository>();
+            if (buildingRepo == null)
+                return StatusCode(500, "Repositorio de edificios no disponible");
+            var building = await buildingRepo.GetByIdAsync(apartment.BuildingId);
+            if (building == null)
+                return NotFound("No se encontró el edificio asociado.");
+
+            // Prioridad: Código Postal > Zona > Ciudad
+            decimal? averagePrice = null;
+            string criterio = "";
+            if (!string.IsNullOrWhiteSpace(rental.PostalCode) &&
+                GeoCore.Seeders.RentalPriceSeeder.AverageRentalPricesByCity.TryGetValue(rental.PostalCode, out var avgByCP))
+            {
+                averagePrice = avgByCP;
+                criterio = $"Código Postal {rental.PostalCode}";
+            }
+            else if (!string.IsNullOrWhiteSpace(rental.Zone) &&
+                GeoCore.Seeders.RentalPriceSeeder.AverageRentalPricesByCity.TryGetValue(rental.Zone, out var avgByZone))
+            {
+                averagePrice = avgByZone;
+                criterio = $"Zona {rental.Zone}";
+            }
+            else if (GeoCore.Seeders.RentalPriceSeeder.AverageRentalPricesByCity.TryGetValue(building.City, out var avgByCity))
+            {
+                averagePrice = avgByCity;
+                criterio = $"Ciudad {building.City}";
+            }
+
+            if (averagePrice == null)
+                return NotFound("No hay datos de precio medio para la localización del alquiler.");
+
+            var diff = rental.Price - averagePrice.Value;
+            var percent = (diff / averagePrice.Value) * 100;
+            var percentFormatted = percent.ToString("0.##", System.Globalization.CultureInfo.InvariantCulture) + "%";
+            string comparison;
+            if (percent > 10) comparison = "Por encima de la media";
+            else if (percent < -10) comparison = "Por debajo de la media";
+            else comparison = "En la media";
+
+            return Ok(new
+            {
+                RentalId = rental.RentalId,
+                ApartmentId = rental.ApartmentId,
+                Price = rental.Price,
+                AveragePrice = averagePrice,
+                Criterio = criterio,
+                Difference = diff,
+                Percentage = percentFormatted,
+                Comparison = comparison
+            });
         }
     }
 }

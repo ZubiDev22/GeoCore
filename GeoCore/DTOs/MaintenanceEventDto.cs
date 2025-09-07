@@ -4,13 +4,9 @@ namespace GeoCore.DTOs
 {
     public class MaintenanceEventDto
     {
-        public int MaintenanceEventId { get; set; }
+        public string MaintenanceEventId { get; set; } = string.Empty;
 
-        [Required]
-        [MaxLength(10)]
-        public string MaintenanceEventCode { get; set; } = string.Empty;
-
-        public int BuildingId { get; set; }
+        public string BuildingId { get; set; } = string.Empty;
 
         [Required]
         [RegularExpression(@"^\d{2}/\d{2}/\d{4}$")]

@@ -22,7 +22,6 @@ namespace GeoCore.Controllers
             var dtos = apartments.Select(a => new ApartmentDto
             {
                 ApartmentId = a.ApartmentId,
-                ApartmentCode = a.ApartmentCode,
                 ApartmentDoor = a.ApartmentDoor,
                 ApartmentFloor = a.ApartmentFloor,
                 ApartmentPrice = a.ApartmentPrice,
@@ -37,7 +36,7 @@ namespace GeoCore.Controllers
         }
 
         [HttpGet("{id}")]
-        public async Task<ActionResult<ApartmentDto>> GetById(int id)
+        public async Task<ActionResult<ApartmentDto>> GetById(string id)
         {
             var apartment = (await _apartmentRepo.GetAllAsync()).FirstOrDefault(a => a.ApartmentId == id);
             if (apartment == null)
@@ -45,7 +44,6 @@ namespace GeoCore.Controllers
             var dto = new ApartmentDto
             {
                 ApartmentId = apartment.ApartmentId,
-                ApartmentCode = apartment.ApartmentCode,
                 ApartmentDoor = apartment.ApartmentDoor,
                 ApartmentFloor = apartment.ApartmentFloor,
                 ApartmentPrice = apartment.ApartmentPrice,
@@ -57,43 +55,6 @@ namespace GeoCore.Controllers
                 CreatedDate = apartment.CreatedDate.ToString("dd/MM/yyyy", System.Globalization.CultureInfo.InvariantCulture)
             };
             return Ok(dto);
-        }
-
-        [HttpGet("{id}/rental-comparison")]
-        public async Task<ActionResult<object>> GetRentalComparison(int id)
-        {
-            var apartments = await _apartmentRepo.GetAllAsync();
-            var apartment = apartments.FirstOrDefault(a => a.ApartmentId == id);
-            if (apartment == null)
-                return NotFound();
-
-            // Obtener ciudad del edificio
-            var city = apartment.Building?.City ?? string.Empty;
-            if (string.IsNullOrEmpty(city))
-                return BadRequest("No se puede determinar la ciudad del apartamento.");
-
-            // Obtener precio medio de alquiler de la ciudad
-            if (!GeoCore.Seeders.RentalPriceSeeder.AverageRentalPricesByCity.TryGetValue(city, out var averagePrice))
-                return NotFound($"No hay datos de precio medio para la ciudad: {city}");
-
-            var myPrice = apartment.ApartmentPrice;
-            var diff = myPrice - averagePrice;
-            var percent = (diff / averagePrice) * 100;
-            string comparison;
-            if (percent > 10) comparison = "Por encima de la media";
-            else if (percent < -10) comparison = "Por debajo de la media";
-            else comparison = "En la media";
-
-            return Ok(new
-            {
-                ApartmentId = apartment.ApartmentId,
-                City = city,
-                ApartmentPrice = myPrice,
-                AveragePrice = averagePrice,
-                Difference = diff,
-                Percentage = percent,
-                Comparison = comparison
-            });
         }
 
         [HttpGet("by-building-code/{code}")]
@@ -111,7 +72,6 @@ namespace GeoCore.Controllers
         var dtos = apartments.Where(a => a.BuildingId == building.BuildingId).Select(a => new ApartmentDto
         {
             ApartmentId = a.ApartmentId,
-            ApartmentCode = a.ApartmentCode,
             ApartmentDoor = a.ApartmentDoor,
             ApartmentFloor = a.ApartmentFloor,
             ApartmentPrice = a.ApartmentPrice,

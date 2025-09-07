@@ -4,11 +4,8 @@ namespace GeoCore.DTOs
 {
     public class CashFlowDto
     {
-        public int CashFlowId { get; set; }
-        [Required]
-        [MaxLength(10)]
-        public string CashFlowCode { get; set; } = string.Empty;
-        public int BuildingId { get; set; }
+        public string CashFlowId { get; set; } = string.Empty;
+        public string BuildingId { get; set; } = string.Empty;
         public string BuildingCode { get; set; } = string.Empty;
         [Required]
         [RegularExpression(@"^\d{2}/\d{2}/\d{4}$")]

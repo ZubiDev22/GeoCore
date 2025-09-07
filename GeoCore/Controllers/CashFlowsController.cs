@@ -62,7 +62,6 @@ namespace GeoCore.Controllers
                 .Select(c => new CashFlowDto
                 {
                     CashFlowId = c.CashFlowId,
-                    CashFlowCode = c.CashFlowCode,
                     BuildingId = c.BuildingId,
                     BuildingCode = buildings.FirstOrDefault(b => b.BuildingId == c.BuildingId)?.BuildingCode ?? string.Empty,
                     Date = c.Date.ToString("dd/MM/yyyy", System.Globalization.CultureInfo.InvariantCulture),
@@ -72,8 +71,8 @@ namespace GeoCore.Controllers
             return Ok(dtos);
         }
 
-        [HttpGet("{id:int}")]
-        public async Task<ActionResult<CashFlowDto>> GetById(int id)
+        [HttpGet("{id}")]
+        public async Task<ActionResult<CashFlowDto>> GetById(string id)
         {
             var cashflow = await _repository.GetByIdAsync(id);
             if (cashflow == null)
@@ -81,7 +80,6 @@ namespace GeoCore.Controllers
             var dto = new CashFlowDto
             {
                 CashFlowId = cashflow.CashFlowId,
-                CashFlowCode = cashflow.CashFlowCode,
                 BuildingId = cashflow.BuildingId,
                 Date = cashflow.Date.ToString("dd/MM/yyyy", CultureInfo.InvariantCulture),
                 Amount = cashflow.Amount,
@@ -106,7 +104,6 @@ namespace GeoCore.Controllers
                 .Select(c => new CashFlowDto
                 {
                     CashFlowId = c.CashFlowId,
-                    CashFlowCode = c.CashFlowCode,
                     BuildingId = c.BuildingId,
                     BuildingCode = code,
                     Date = c.Date.ToString("dd/MM/yyyy", System.Globalization.CultureInfo.InvariantCulture),

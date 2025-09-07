@@ -7,8 +7,8 @@ namespace GeoCore.Repositories
     public interface IApartmentRepository
     {
         Task<IEnumerable<Apartment>> GetAllAsync();
-        Task<Apartment?> GetByIdAsync(int id);
-        Task<IEnumerable<Apartment>> GetByBuildingIdAsync(int buildingId);
+        Task<Apartment?> GetByIdAsync(string id);
+        Task<IEnumerable<Apartment>> GetByBuildingIdAsync(string buildingId);
         Task AddAsync(Apartment entity);
         void Update(Apartment entity);
         void Remove(Apartment entity);

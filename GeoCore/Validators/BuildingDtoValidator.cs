@@ -8,7 +8,7 @@ namespace GeoCore.Validators
     {
         public BuildingDtoValidator()
         {
-            RuleFor(x => x.BuildingId).GreaterThan(0);
+            // Elimina la regla de validación para BuildingId como entero
             RuleFor(x => x.BuildingCode).NotEmpty().MaximumLength(10);
             RuleFor(x => x.Name).NotEmpty().MaximumLength(100);
             RuleFor(x => x.Address).NotEmpty().MaximumLength(200);

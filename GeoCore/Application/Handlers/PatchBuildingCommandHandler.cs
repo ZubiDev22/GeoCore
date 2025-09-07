@@ -43,7 +43,7 @@ namespace GeoCore.Application.Handlers
                         {
                             var descOp = request.Operations.First(o => o.Path == "/description");
                             var events = await _maintenanceRepo.GetAllAsync();
-                            var lastEvent = events.Where(e => e.BuildingId == entity.BuildingId).OrderByDescending(e => e.Date).FirstOrDefault();
+                            var lastEvent = events.Where(e => e.BuildingId == entity.BuildingId.ToString()).OrderByDescending(e => e.Date).FirstOrDefault();
                             if (lastEvent != null)
                             {
                                 lastEvent.Description = descOp.Value?.ToString() ?? lastEvent.Description;
@@ -55,7 +55,7 @@ namespace GeoCore.Application.Handlers
                         {
                             var descOp = request.Operations.First(o => o.Path == "/description");
                             var cashflows = await _cashFlowRepo.GetAllAsync();
-                            var lastFlow = cashflows.Where(c => c.BuildingId == entity.BuildingId).OrderByDescending(c => c.Date).FirstOrDefault();
+                            var lastFlow = cashflows.Where(c => c.BuildingId == entity.BuildingId.ToString()).OrderByDescending(c => c.Date).FirstOrDefault();
                             if (lastFlow != null)
                             {
                                 lastFlow.Source = descOp.Value?.ToString() ?? lastFlow.Source;
@@ -76,7 +76,7 @@ namespace GeoCore.Application.Handlers
 
             // Ejemplo LINQ: Filtrar eventos de mantenimiento recientes para el edificio actual
             var eventosRecientes = (from e in await _maintenanceRepo.GetAllAsync()
-                                    where e.BuildingId == entity.BuildingId && e.Date > DateTime.Now.AddMonths(-6)
+                                    where e.BuildingId == entity.BuildingId.ToString() && e.Date > DateTime.Now.AddMonths(-6)
                                     orderby e.Date descending
                                     select e).ToList();
 

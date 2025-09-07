@@ -7,7 +7,7 @@ namespace GeoCore.Repositories
     public interface IRentalRepository
     {
         Task<IEnumerable<Rental>> GetAllAsync();
-        Task<Rental?> GetByIdAsync(int id);
+        Task<Rental?> GetByIdAsync(string id);
         Task AddAsync(Rental entity);
         void Update(Rental entity);
         void Remove(Rental entity);

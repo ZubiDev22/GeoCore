@@ -17,7 +17,7 @@ namespace GeoCore.Application.Handlers
         public async Task<bool> Handle(GeoCore.Application.Commands.PatchMaintenanceEventCommand request, CancellationToken cancellationToken)
         {
             var events = await _repository.GetAllAsync();
-            var entity = events.FirstOrDefault(e => e.MaintenanceEventId == request.MaintenanceEventId);
+            var entity = events.FirstOrDefault(e => e.MaintenanceEventId == request.MaintenanceEventId.ToString());
             if (entity == null) return false;
             foreach (var kvp in request.Patch)
             {

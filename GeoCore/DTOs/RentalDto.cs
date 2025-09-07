@@ -4,9 +4,9 @@ namespace GeoCore.DTOs
 {
     public class RentalDto
     {
-        public int RentalId { get; set; }
+        public string RentalId { get; set; } = string.Empty;
         [Required]
-        public int ApartmentId { get; set; }
+        public string ApartmentId { get; set; } = string.Empty;
         [Required]
         [RegularExpression(@"^\d{2}/\d{2}/\d{4}$")]
         public string StartDate { get; set; } = string.Empty;

@@ -8,7 +8,7 @@ namespace GeoCore.Repositories
     public interface IMaintenanceEventRepository
     {
         Task<IEnumerable<MaintenanceEvent>> GetAllAsync();
-        Task<MaintenanceEvent?> GetByIdAsync(int id);
+        Task<MaintenanceEvent?> GetByIdAsync(string id);
         Task AddAsync(MaintenanceEvent entity);
         void Update(MaintenanceEvent entity);
         void Remove(MaintenanceEvent entity);

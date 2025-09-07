@@ -28,7 +28,7 @@ namespace GeoCore.Controllers
         public async Task<ActionResult<IEnumerable<MaintenanceEventDto>>> GetAll(
             [FromQuery] string? from = null,
             [FromQuery] string? to = null,
-            [FromQuery] int? buildingId = null,
+            [FromQuery] string? buildingId = null,
             [FromQuery] int page = 1,
             [FromQuery] int pageSize = 10)
         {
@@ -42,8 +42,8 @@ namespace GeoCore.Controllers
                 events = events.Where(e => e.Date <= toDate);
 
             // Filtro por edificio
-            if (buildingId.HasValue)
-                events = events.Where(e => e.BuildingId == buildingId.Value);
+            if (buildingId != null)
+                events = events.Where(e => e.BuildingId == buildingId.ToString());
 
             var dtos = events
                 .OrderByDescending(e => e.Date)
@@ -52,7 +52,6 @@ namespace GeoCore.Controllers
                 .Select(e => new MaintenanceEventDto
                 {
                     MaintenanceEventId = e.MaintenanceEventId,
-                    MaintenanceEventCode = e.MaintenanceEventCode,
                     BuildingId = e.BuildingId,
                     Date = e.Date.ToString("dd/MM/yyyy", CultureInfo.InvariantCulture),
                     Description = e.Description,
@@ -61,8 +60,8 @@ namespace GeoCore.Controllers
             return Ok(dtos);
         }
 
-        [HttpGet("{id:int}")]
-        public async Task<ActionResult<MaintenanceEventDto>> GetById(int id)
+        [HttpGet("{id}")]
+        public async Task<ActionResult<MaintenanceEventDto>> GetById(string id)
         {
             var e = await _repository.GetByIdAsync(id);
             if (e == null)
@@ -70,7 +69,6 @@ namespace GeoCore.Controllers
             var dto = new MaintenanceEventDto
             {
                 MaintenanceEventId = e.MaintenanceEventId,
-                MaintenanceEventCode = e.MaintenanceEventCode,
                 BuildingId = e.BuildingId,
                 Date = e.Date.ToString("dd/MM/yyyy", CultureInfo.InvariantCulture),
                 Description = e.Description,

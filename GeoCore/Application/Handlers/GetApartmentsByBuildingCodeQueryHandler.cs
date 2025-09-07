@@ -26,7 +26,6 @@ namespace GeoCore.Application.Handlers
             return apartments.Select(a => new ApartmentDto
             {
                 ApartmentId = a.ApartmentId,
-                ApartmentCode = a.ApartmentCode,
                 ApartmentDoor = a.ApartmentDoor,
                 ApartmentFloor = a.ApartmentFloor,
                 ApartmentPrice = a.ApartmentPrice,

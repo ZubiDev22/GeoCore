@@ -4,10 +4,7 @@ namespace GeoCore.DTOs
 {
     public class ApartmentDto
     {
-        public int ApartmentId { get; set; }
-        [Required]
-        [MaxLength(10)]
-        public string ApartmentCode { get; set; } = string.Empty;
+        public string ApartmentId { get; set; } = string.Empty;
         [Required]
         [MaxLength(10)]
         public string ApartmentDoor { get; set; } = string.Empty;
@@ -21,7 +18,7 @@ namespace GeoCore.DTOs
         [Required]
         public int NumberOfBathrooms { get; set; }
         [Required]
-        public int BuildingId { get; set; }
+        public string BuildingId { get; set; } = string.Empty;
         public bool HasLift { get; set; }
         public bool HasGarage { get; set; }
         public string CreatedDate { get; set; } = string.Empty;

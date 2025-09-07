@@ -21,7 +21,6 @@ namespace GeoCore.Application.Handlers
             var dto = request.MaintenanceEvent;
             var entity = new MaintenanceEvent
             {
-                MaintenanceEventCode = dto.MaintenanceEventCode,
                 BuildingId = dto.BuildingId,
                 Date = DateTime.ParseExact(dto.Date, "dd/MM/yyyy", CultureInfo.InvariantCulture),
                 Description = dto.Description,

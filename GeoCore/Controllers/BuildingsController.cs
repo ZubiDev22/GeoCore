@@ -50,7 +50,7 @@ namespace GeoCore.Controllers
         [HttpGet("{id:int}")]
         public async Task<ActionResult<BuildingDto>> GetById(int id)
         {
-            var building = await _repository.GetByIdAsync(id);
+            var building = await _repository.GetByIdAsync(id.ToString());
             if (building == null)
                 return NotFound();
             var dto = new BuildingDto
@@ -221,6 +221,7 @@ namespace GeoCore.Controllers
             var inversion = cashflows.Where(c => c.Source != null && c.Source.ToLower().Contains("compra")).OrderBy(c => c.Date).FirstOrDefault()?.Amount ?? 0;
             // Rentabilidad
             var rentabilidad = inversion > 0 ? (ingresos - gastos) / inversion : 0;
+            var rentabilidadFormatted = (rentabilidad * 100).ToString("0.##", CultureInfo.InvariantCulture) + "%";
 
             return Ok(new
             {
@@ -228,7 +229,7 @@ namespace GeoCore.Controllers
                 Ingresos = ingresos,
                 Gastos = gastos,
                 Inversion = inversion,
-                Rentabilidad = rentabilidad,
+                Rentabilidad = rentabilidadFormatted,
                 Detalle = new {
                     Alquileres = rentals.Select(r => new { r.RentalId, r.ApartmentId, r.Price, r.StartDate, r.EndDate }),
                     CashFlows = cashflows.Select(c => new { c.CashFlowId, c.Source, c.Amount, c.Date }),
@@ -260,7 +261,7 @@ namespace GeoCore.Controllers
             var maintenances = await maintenanceRepo.GetAllAsync();
 
             // Filtrado de edificios según prioridad: postalCode > zone > city
-            IEnumerable<int> buildingIds = Enumerable.Empty<int>();
+            IEnumerable<string> buildingIds = Enumerable.Empty<string>();
             if (!string.IsNullOrEmpty(postalCode))
             {
                 var apartmentIds = rentals.Where(r => r.PostalCode == postalCode).Select(r => r.ApartmentId).Distinct();
@@ -300,6 +301,7 @@ namespace GeoCore.Controllers
                 var gastos = gastosCashFlow + gastosMantenimiento;
                 var inversion = buildingCashflows.Where(c => c.Source != null && c.Source.ToLower().Contains("compra")).OrderBy(c => c.Date).FirstOrDefault()?.Amount ?? 0;
                 var rentabilidad = inversion > 0 ? (ingresos - gastos) / inversion : 0;
+                var rentabilidadFormatted = (rentabilidad * 100).ToString("0.##", CultureInfo.InvariantCulture) + "%";
 
                 totalIngresos += ingresos;
                 totalGastos += gastos;
@@ -311,11 +313,12 @@ namespace GeoCore.Controllers
                     Ingresos = ingresos,
                     Gastos = gastos,
                     Inversion = inversion,
-                    Rentabilidad = rentabilidad
+                    Rentabilidad = rentabilidadFormatted
                 });
             }
 
             var rentabilidadMedia = totalInversion > 0 ? (totalIngresos - totalGastos) / totalInversion : 0;
+            var rentabilidadMediaFormatted = (rentabilidadMedia * 100).ToString("0.##", CultureInfo.InvariantCulture) + "%";
 
             return Ok(new
             {
@@ -323,7 +326,7 @@ namespace GeoCore.Controllers
                 TotalIngresos = totalIngresos,
                 TotalGastos = totalGastos,
                 TotalInversion = totalInversion,
-                RentabilidadMedia = rentabilidadMedia,
+                RentabilidadMedia = rentabilidadMediaFormatted,
                 Detalle = resultados
             });
         }
