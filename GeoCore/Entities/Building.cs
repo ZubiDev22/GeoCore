@@ -18,7 +18,6 @@ namespace GeoCore.Entities
         // Relaciones de navegación
         public ICollection<CashFlow> CashFlows { get; set; } = new List<CashFlow>();
         public ICollection<MaintenanceEvent> MaintenanceEvents { get; set; } = new List<MaintenanceEvent>();
-        public ICollection<ManagementBudget> ManagementBudgets { get; set; } = new List<ManagementBudget>();
         public ICollection<Apartment> Apartments { get; set; } = new List<Apartment>();
     }
 }

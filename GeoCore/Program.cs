@@ -21,8 +21,8 @@ builder.Services.AddDbContext<GeoCore.Persistence.GeoCoreDbContext>(options =>
 builder.Services.AddSingleton<IBuildingRepository, BuildingRepositoryStub>();
 builder.Services.AddSingleton<IMaintenanceEventRepository, MaintenanceEventRepositoryStub>();
 builder.Services.AddSingleton<ICashFlowRepository, CashFlowRepositoryStub>();
-builder.Services.AddSingleton<IManagementBudgetRepository, ManagementBudgetRepositoryStub>();
 builder.Services.AddSingleton<IApartmentRepository, ApartmentRepositoryStub>();
+builder.Services.AddSingleton<IRentalRepository, RentalRepositoryStub>();
 
 // Registro de ILoguer y Loguer
 builder.Services.AddScoped<ILoguer, Loguer>();
