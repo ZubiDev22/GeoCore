@@ -4,12 +4,12 @@ using GeoCore.Repositories;
 using GeoCore.Entities;
 using System.Linq;
 using System.Globalization;
-using GeoCore.Logging;
 using MediatR;
 using GeoCore.Application.Commands;
 using GeoCore.Application.Queries;
 using System.Collections.Generic;
 using GeoCore.Application.Common;
+using Microsoft.Extensions.Logging;
 
 namespace GeoCore.Controllers
 {
@@ -18,22 +18,19 @@ namespace GeoCore.Controllers
     public class BuildingsController : ControllerBase
     {
         private readonly IBuildingRepository _repository;
-        private readonly ILoguer _loguer;
         private readonly IMediator _mediator;
+        private readonly ILogger<BuildingsController> _logger;
 
-        public BuildingsController(IBuildingRepository repository, ILoguer loguer, IMediator mediator)
+        public BuildingsController(IBuildingRepository repository, IMediator mediator, ILogger<BuildingsController> logger)
         {
             _repository = repository;
-            _loguer = loguer;
             _mediator = mediator;
+            _logger = logger;
         }
 
-        [HttpGet]
-        public async Task<ActionResult<IEnumerable<BuildingDto>>> GetAll(int page = 1, int pageSize = 10)
+        private BuildingDto MapToDto(Building b)
         {
-            _loguer.LogInfo($"Obteniendo edificios: página {page}, tamaño {pageSize}");
-            var buildings = await _repository.GetAllAsync();
-            var dtos = buildings.Skip((page - 1) * pageSize).Take(pageSize).Select(b => new BuildingDto
+            return new BuildingDto
             {
                 BuildingId = b.BuildingId,
                 BuildingCode = b.BuildingCode,
@@ -44,7 +41,15 @@ namespace GeoCore.Controllers
                 Longitude = b.Longitude,
                 PurchaseDate = b.PurchaseDate.ToString("dd/MM/yyyy", CultureInfo.InvariantCulture),
                 Status = b.Status
-            });
+            };
+        }
+
+        [HttpGet]
+        public async Task<ActionResult<IEnumerable<BuildingDto>>> GetAll(int page = 1, int pageSize = 10)
+        {
+            _logger.LogInformation($"Obteniendo edificios: página {page}, tamaño {pageSize}");
+            var buildings = await _repository.GetAllAsync();
+            var dtos = buildings.Skip((page - 1) * pageSize).Take(pageSize).Select(MapToDto);
             return Ok(dtos);
         }
 
@@ -54,18 +59,7 @@ namespace GeoCore.Controllers
             var building = await _repository.GetByIdAsync(id.ToString());
             if (building == null)
                 return NotFound();
-            var dto = new BuildingDto
-            {
-                BuildingId = building.BuildingId,
-                BuildingCode = building.BuildingCode,
-                Name = building.Name,
-                Address = building.Address,
-                City = building.City,
-                Latitude = building.Latitude,
-                Longitude = building.Longitude,
-                PurchaseDate = building.PurchaseDate.ToString("dd/MM/yyyy", CultureInfo.InvariantCulture),
-                Status = building.Status
-            };
+            var dto = MapToDto(building);
             return Ok(dto);
         }
 
@@ -77,23 +71,12 @@ namespace GeoCore.Controllers
                 var building = await _repository.GetByCodeAsync(code);
                 if (building == null)
                     return NotFound(Result<BuildingDto>.Failure(new NotFoundError($"Building with code '{code}' not found.")));
-                var dto = new BuildingDto
-                {
-                    BuildingId = building.BuildingId,
-                    BuildingCode = building.BuildingCode,
-                    Name = building.Name,
-                    Address = building.Address,
-                    City = building.City,
-                    Latitude = building.Latitude,
-                    Longitude = building.Longitude,
-                    PurchaseDate = building.PurchaseDate.ToString("dd/MM/yyyy", CultureInfo.InvariantCulture),
-                    Status = building.Status
-                };
+                var dto = MapToDto(building);
                 return Ok(Result<BuildingDto>.Success(dto));
             }
             catch (Exception ex)
             {
-                // Aquí podrías loguear el error si usas ILogger
+                _logger.LogError(ex, $"Error al obtener el edificio con código {code}");
                 return StatusCode(500, Result<BuildingDto>.Failure(new UnexpectedError($"Unexpected error: {ex.Message}")));
             }
         }
@@ -167,16 +150,29 @@ namespace GeoCore.Controllers
         public async Task<IActionResult> Create([FromBody] BuildingDto dto)
         {
             if (!ModelState.IsValid)
+            {
+                _logger.LogError($"Error de validación al crear edificio: {string.Join(", ", ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage))}");
                 return BadRequest(ModelState);
+            }
             var result = await _mediator.Send(new CreateBuildingCommand(dto));
             if (!result.IsSuccess)
             {
                 if (result.Error is ValidationError)
+                {
+                    _logger.LogError($"Error de validación al crear edificio: {result.Error.Message}");
                     return BadRequest(result.Error.Message);
+                }
                 if (result.Error is BusinessRuleError)
+                {
+                    _logger.LogError($"Error de regla de negocio al crear edificio: {result.Error.Message}");
                     return Conflict(result.Error.Message);
+                }
                 if (result.Error is NotFoundError)
+                {
+                    _logger.LogError($"Error NotFound al crear edificio: {result.Error.Message}");
                     return NotFound(result.Error.Message);
+                }
+                _logger.LogError($"Error inesperado al crear edificio: {result.Error.Message}");
                 return StatusCode(500, result.Error.Message);
             }
             return Ok(result.Value);
@@ -187,7 +183,10 @@ namespace GeoCore.Controllers
         {
             var success = await _mediator.Send(new PatchBuildingCommand(code, operations));
             if (!success)
+            {
+                _logger.LogError($"Error al hacer patch al edificio con código {code}: no encontrado");
                 return NotFound();
+            }
             return Ok();
         }
 
@@ -196,7 +195,10 @@ namespace GeoCore.Controllers
         {
             var success = await _mediator.Send(new DeleteBuildingCommand(code));
             if (!success)
+            {
+                _logger.LogError($"Error al eliminar edificio con código {code}: no encontrado");
                 return NotFound();
+            }
             return NoContent();
         }
 
@@ -210,7 +212,7 @@ namespace GeoCore.Controllers
         [HttpGet("code/{code}/profitability")]
         public async Task<ActionResult<object>> GetProfitabilityByBuildingCode(string code)
         {
-            _loguer.LogInfo($"Calculando rentabilidad para el edificio {code}");
+            _logger.LogInformation($"Calculando rentabilidad para el edificio {code}");
             var building = await _repository.GetByCodeAsync(code);
             if (building == null)
                 return NotFound();
@@ -263,7 +265,7 @@ namespace GeoCore.Controllers
             [FromQuery] string? zone = null,
             [FromQuery] string? city = null)
         {
-            _loguer.LogInfo($"Calculando rentabilidad por localización: postalCode={postalCode}, zone={zone}, city={city}");
+            _logger.LogInformation($"Calculando rentabilidad por localización: postalCode={postalCode}, zone={zone}, city={city}");
             var buildingRepo = _repository;
             var apartmentRepo = HttpContext.RequestServices.GetService<IApartmentRepository>();
             var rentalRepo = HttpContext.RequestServices.GetService<IRentalRepository>();

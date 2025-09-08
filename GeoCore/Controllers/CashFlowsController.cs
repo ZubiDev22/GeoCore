@@ -5,8 +5,8 @@ using GeoCore.Repositories;
 using GeoCore.Entities;
 using System.Linq;
 using System.Globalization;
-using GeoCore.Logging;
 using System.Collections.Generic;
+using Microsoft.Extensions.Logging;
 
 namespace GeoCore.Controllers
 {
@@ -15,12 +15,12 @@ namespace GeoCore.Controllers
     public class CashFlowsController : ControllerBase
     {
         private readonly ICashFlowRepository _repository;
-        private readonly ILoguer _loguer;
+        private readonly ILogger<CashFlowsController> _logger;
 
-        public CashFlowsController(ICashFlowRepository repository, ILoguer loguer)
+        public CashFlowsController(ICashFlowRepository repository, ILogger<CashFlowsController> logger)
         {
             _repository = repository;
-            _loguer = loguer;
+            _logger = logger;
         }
 
         [HttpGet]
@@ -35,7 +35,7 @@ namespace GeoCore.Controllers
         {
             try
             {
-                _loguer.LogInfo($"Obteniendo cashflows. Página: {page}, tamaño: {pageSize}, orden descendente: {orderByDateDesc}, from: {from}, to: {to}, minAmount: {minAmount}, maxAmount: {maxAmount}");
+                _logger.LogInformation($"Obteniendo cashflows. Página: {page}, tamaño: {pageSize}, orden descendente: {orderByDateDesc}, from: {from}, to: {to}, minAmount: {minAmount}, maxAmount: {maxAmount}");
                 var cashflows = await _repository.GetAllAsync();
                 var buildings = await new BuildingRepositoryStub().GetAllAsync();
 
@@ -65,7 +65,7 @@ namespace GeoCore.Controllers
             }
             catch (Exception ex)
             {
-                _loguer.LogError("Error inesperado al obtener cashflows", ex);
+                _logger.LogError(ex, "Error inesperado al obtener cashflows");
                 return StatusCode(500, Result<IEnumerable<CashFlowDto>>.Failure(new UnexpectedError($"Unexpected error: {ex.Message}")));
             }
         }
@@ -90,7 +90,7 @@ namespace GeoCore.Controllers
             }
             catch (Exception ex)
             {
-                _loguer.LogError($"Error inesperado al obtener cashflow {id}", ex);
+                _logger.LogError(ex, $"Error inesperado al obtener cashflow {id}");
                 return StatusCode(500, Result<CashFlowDto>.Failure(new UnexpectedError($"Unexpected error: {ex.Message}")));
             }
         }
@@ -100,7 +100,7 @@ namespace GeoCore.Controllers
         {
             try
             {
-                _loguer.LogInfo($"Obteniendo cashflows para el edificio {code}, página: {page}, tamaño: {pageSize}");
+                _logger.LogInformation($"Obteniendo cashflows para el edificio {code}, página: {page}, tamaño: {pageSize}");
                 var buildings = await new BuildingRepositoryStub().GetAllAsync();
                 var building = buildings.FirstOrDefault(b => b.BuildingCode == code);
                 if (building == null)
@@ -123,7 +123,7 @@ namespace GeoCore.Controllers
             }
             catch (Exception ex)
             {
-                _loguer.LogError($"Error inesperado al obtener cashflows para el edificio {code}", ex);
+                _logger.LogError(ex, $"Error inesperado al obtener cashflows para el edificio {code}");
                 return StatusCode(500, Result<IEnumerable<CashFlowDto>>.Failure(new UnexpectedError($"Unexpected error: {ex.Message}")));
             }
         }

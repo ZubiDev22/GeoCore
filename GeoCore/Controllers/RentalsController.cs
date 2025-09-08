@@ -5,6 +5,7 @@ using GeoCore.Repositories;
 using GeoCore.Entities;
 using System.Globalization;
 using System.Linq;
+using Microsoft.Extensions.Logging;
 
 namespace GeoCore.Controllers
 {
@@ -13,9 +14,11 @@ namespace GeoCore.Controllers
     public class RentalsController : ControllerBase
     {
         private readonly IRentalRepository _rentalRepo;
-        public RentalsController(IRentalRepository rentalRepo)
+        private readonly ILogger<RentalsController> _logger;
+        public RentalsController(IRentalRepository rentalRepo, ILogger<RentalsController> logger)
         {
             _rentalRepo = rentalRepo;
+            _logger = logger;
         }
 
         [HttpGet]
@@ -39,6 +42,7 @@ namespace GeoCore.Controllers
             }
             catch (Exception ex)
             {
+                _logger.LogError(ex, "Error inesperado al obtener rentals");
                 return StatusCode(500, Result<IEnumerable<RentalDto>>.Failure(new UnexpectedError($"Unexpected error: {ex.Message}")));
             }
         }
@@ -66,6 +70,7 @@ namespace GeoCore.Controllers
             }
             catch (Exception ex)
             {
+                _logger.LogError(ex, $"Error inesperado al obtener rental {id}");
                 return StatusCode(500, Result<RentalDto>.Failure(new UnexpectedError($"Unexpected error: {ex.Message}")));
             }
         }
@@ -92,10 +97,12 @@ namespace GeoCore.Controllers
             }
             catch (FormatException)
             {
+                _logger.LogError("Formato de fecha inválido al crear rental");
                 return BadRequest(Result<object>.Failure(new ValidationError("Formato de fecha inválido.")));
             }
             catch (Exception ex)
             {
+                _logger.LogError(ex, "Error inesperado al crear rental");
                 return StatusCode(500, Result<object>.Failure(new UnexpectedError($"Unexpected error: {ex.Message}")));
             }
         }
@@ -130,6 +137,7 @@ namespace GeoCore.Controllers
             }
             catch (Exception ex)
             {
+                _logger.LogError(ex, $"Error inesperado al obtener rentals por código de edificio {code}");
                 return StatusCode(500, Result<IEnumerable<RentalDto>>.Failure(new UnexpectedError($"Unexpected error: {ex.Message}")));
             }
         }
@@ -196,6 +204,7 @@ namespace GeoCore.Controllers
             }
             catch (Exception ex)
             {
+                _logger.LogError(ex, $"Error inesperado al comparar rental {id}");
                 return StatusCode(500, Result<object>.Failure(new UnexpectedError($"Unexpected error: {ex.Message}")));
             }
         }

@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using GeoCore.DTOs;
 using GeoCore.Repositories;
 using System.Globalization;
+using Microsoft.Extensions.Logging;
 
 namespace GeoCore.Controllers
 {
@@ -11,9 +12,11 @@ namespace GeoCore.Controllers
     public class ApartmentsController : ControllerBase
     {
         private readonly IApartmentRepository _apartmentRepo;
-        public ApartmentsController(IApartmentRepository apartmentRepo)
+        private readonly ILogger<ApartmentsController> _logger;
+        public ApartmentsController(IApartmentRepository apartmentRepo, ILogger<ApartmentsController> logger)
         {
             _apartmentRepo = apartmentRepo;
+            _logger = logger;
         }
 
         [HttpGet]
@@ -39,6 +42,7 @@ namespace GeoCore.Controllers
             }
             catch (Exception ex)
             {
+                _logger.LogError(ex, "Error inesperado al obtener apartments");
                 return StatusCode(500, Result<IEnumerable<ApartmentDto>>.Failure(new UnexpectedError($"Unexpected error: {ex.Message}")));
             }
         }
@@ -68,6 +72,7 @@ namespace GeoCore.Controllers
             }
             catch (Exception ex)
             {
+                _logger.LogError(ex, $"Error inesperado al obtener apartment {id}");
                 return StatusCode(500, Result<ApartmentDto>.Failure(new UnexpectedError($"Unexpected error: {ex.Message}")));
             }
         }
@@ -101,6 +106,7 @@ namespace GeoCore.Controllers
             }
             catch (Exception ex)
             {
+                _logger.LogError(ex, $"Error inesperado al obtener apartments por código de edificio {code}");
                 return StatusCode(500, Result<IEnumerable<ApartmentDto>>.Failure(new UnexpectedError($"Unexpected error: {ex.Message}")));
             }
         }

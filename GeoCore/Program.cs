@@ -1,17 +1,25 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
 using GeoCore.Repositories;
-using FluentValidation.AspNetCore;
-using GeoCore.Logging;
 using MediatR;
+using Serilog;
+using Serilog.Sinks.ApplicationInsights.TelemetryConverters;
+using FluentValidation; // <-- necesario para AddValidatorsFromAssemblyContaining
 
 var builder = WebApplication.CreateBuilder(args);
 
+// Configuración de Serilog para Application Insights
+builder.Host.UseSerilog((ctx, lc) => lc
+    .WriteTo.ApplicationInsights(
+        builder.Configuration["ApplicationInsights:ConnectionString"],
+        TelemetryConverter.Traces
+    )
+    .ReadFrom.Configuration(ctx.Configuration)
+);
+
 // Add services to the container.
-builder.Services.AddControllers().AddFluentValidation(fv =>
-{
-    // fv.RegisterValidatorsFromAssemblyContaining<GeoCore.Validators.MaintenanceEventDtoValidator>();
-});
+builder.Services.AddControllers();
+builder.Services.AddValidatorsFromAssemblyContaining<GeoCore.Validators.MaintenanceEventDtoValidator>();
 
 // Configuración de DbContext
 builder.Services.AddDbContext<GeoCore.Persistence.GeoCoreDbContext>(options =>
@@ -23,9 +31,6 @@ builder.Services.AddSingleton<IMaintenanceEventRepository, MaintenanceEventRepos
 builder.Services.AddSingleton<ICashFlowRepository, CashFlowRepositoryStub>();
 builder.Services.AddSingleton<IApartmentRepository, ApartmentRepositoryStub>();
 builder.Services.AddSingleton<IRentalRepository, RentalRepositoryStub>();
-
-// Registro de ILoguer y Loguer
-builder.Services.AddScoped<ILoguer, Loguer>();
 
 // Registro de MediatR
 builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(typeof(Program).Assembly));
