@@ -9,6 +9,7 @@ using MediatR;
 using GeoCore.Application.Commands;
 using GeoCore.Application.Queries;
 using System.Collections.Generic;
+using GeoCore.Application.Common;
 
 namespace GeoCore.Controllers
 {
@@ -71,22 +72,30 @@ namespace GeoCore.Controllers
         [HttpGet("code/{code}")]
         public async Task<ActionResult<BuildingDto>> GetByCode(string code)
         {
-            var building = await _repository.GetByCodeAsync(code);
-            if (building == null)
-                return NotFound();
-            var dto = new BuildingDto
+            try
             {
-                BuildingId = building.BuildingId,
-                BuildingCode = building.BuildingCode,
-                Name = building.Name,
-                Address = building.Address,
-                City = building.City,
-                Latitude = building.Latitude,
-                Longitude = building.Longitude,
-                PurchaseDate = building.PurchaseDate.ToString("dd/MM/yyyy", CultureInfo.InvariantCulture),
-                Status = building.Status
-            };
-            return Ok(dto);
+                var building = await _repository.GetByCodeAsync(code);
+                if (building == null)
+                    return NotFound(Result<BuildingDto>.Failure(new NotFoundError($"Building with code '{code}' not found.")));
+                var dto = new BuildingDto
+                {
+                    BuildingId = building.BuildingId,
+                    BuildingCode = building.BuildingCode,
+                    Name = building.Name,
+                    Address = building.Address,
+                    City = building.City,
+                    Latitude = building.Latitude,
+                    Longitude = building.Longitude,
+                    PurchaseDate = building.PurchaseDate.ToString("dd/MM/yyyy", CultureInfo.InvariantCulture),
+                    Status = building.Status
+                };
+                return Ok(Result<BuildingDto>.Success(dto));
+            }
+            catch (Exception ex)
+            {
+                // Aquí podrías loguear el error si usas ILogger
+                return StatusCode(500, Result<BuildingDto>.Failure(new UnexpectedError($"Unexpected error: {ex.Message}")));
+            }
         }
 
         [HttpGet("code/{code}/details")]
@@ -160,7 +169,17 @@ namespace GeoCore.Controllers
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
             var result = await _mediator.Send(new CreateBuildingCommand(dto));
-            return Ok(result);
+            if (!result.IsSuccess)
+            {
+                if (result.Error is ValidationError)
+                    return BadRequest(result.Error.Message);
+                if (result.Error is BusinessRuleError)
+                    return Conflict(result.Error.Message);
+                if (result.Error is NotFoundError)
+                    return NotFound(result.Error.Message);
+                return StatusCode(500, result.Error.Message);
+            }
+            return Ok(result.Value);
         }
 
         [HttpPatch("{code}")]
