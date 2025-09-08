@@ -61,6 +61,15 @@ builder.Services.AddSwaggerGen(c =>
     c.DocInclusionPredicate((docName, apiDesc) => true);
 });
 
+// Configuración de CORS para permitir Angular en desarrollo
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowAngularDev",
+        builder => builder.WithOrigins("http://localhost:4200")
+                          .AllowAnyHeader()
+                          .AllowAnyMethod());
+});
+
 var app = builder.Build();
 
 if (app.Environment.IsDevelopment())
@@ -76,6 +85,8 @@ if (app.Environment.IsDevelopment())
 
 app.UseMiddleware<GeoCore.Middlewares.ExceptionLoggingMiddleware>();
 app.UseHttpsRedirection();
+// Usar la política CORS antes de Authorization y MapControllers
+app.UseCors("AllowAngularDev");
 app.UseAuthorization();
 app.MapControllers();
 app.Run();
