@@ -1,0 +1,32 @@
+:root {
+  --footer-bg: #222;
+  --footer-color: #fff;
+  --footer-height: 50px;
+}
+.footer {
+  background: var(--footer-bg);
+  color: var(--footer-color);
+  height: var(--footer-height);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  z-index: 1000;
+}
+.footer-content {
+  font-size: 1rem;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --footer-bg: #111;
+    --footer-color: #eee;
+  }
+}
+@media (max-width: 768px) {
+  .footer-content {
+    font-size: 0.9rem;
+  }
+}
