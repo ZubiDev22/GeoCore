@@ -1,15 +1,25 @@
 
 import { Component, signal } from '@angular/core';
+import { HttpClientModule } from '@angular/common/http';
 import { RouterOutlet } from '@angular/router';
-import { HeaderComponent } from './components/header.component';
-import { FooterComponent } from './components/footer.component';
+import { HeaderComponent } from './components/header/header.component';
+import { FooterComponent } from './components/footer/footer.component';
+import { HomeComponent } from './pages/home.component';
+import { AppRoutingModule } from './app-routing.module';
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet, HeaderComponent, FooterComponent],
-  templateUrl: './app.html',
-  styleUrl: './app.scss'
+  standalone: true,
+  imports: [
+    RouterOutlet,
+    HeaderComponent,
+    FooterComponent,
+    AppRoutingModule,
+    HttpClientModule
+  ],
+  templateUrl: './app.component.html',
+  styleUrls: []
 })
-export class App {
-  protected readonly title = signal('app-geo-core');
+export class AppComponent {
+  title = 'app-geo-core';
 }
