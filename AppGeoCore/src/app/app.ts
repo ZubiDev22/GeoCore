@@ -4,8 +4,6 @@ import { HttpClientModule } from '@angular/common/http';
 import { RouterOutlet } from '@angular/router';
 import { HeaderComponent } from './components/header/header.component';
 import { FooterComponent } from './components/footer/footer.component';
-import { HomeComponent } from './pages/home.component';
-import { AppRoutingModule } from './app-routing.module';
 
 @Component({
   selector: 'app-root',
@@ -14,7 +12,6 @@ import { AppRoutingModule } from './app-routing.module';
     RouterOutlet,
     HeaderComponent,
     FooterComponent,
-    AppRoutingModule,
     HttpClientModule
   ],
   templateUrl: './app.component.html',

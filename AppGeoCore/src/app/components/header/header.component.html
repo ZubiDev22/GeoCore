@@ -1,15 +1,17 @@
 <header class="header">
-  <div class="logo">GeoCore</div>
+  <div class="logo">
+    <img src="assets/logo.png" alt="GeoCore Logo" style="height:32px;vertical-align:middle;margin-right:8px;">
+    <span style="font-weight:bold;font-size:1.3rem;vertical-align:middle;">GeoCore</span>
+  </div>
   <nav class="nav">
-    <ul>
-      <li><a routerLink="/home">Inicio</a></li>
-      <li><a routerLink="/peticiones">Peticiones</a></li>
-      <li><a routerLink="/presupuestos">Presupuestos</a></li>
-      <li><a routerLink="/historial">Historial</a></li>
-      <li><a routerLink="/patrimonio">Patrimonio</a></li>
+    <ul class="nav-list">
+      <li><a routerLink="/dashboard" routerLinkActive="active">Home</a></li>
+      <li><a routerLink="/buildings" routerLinkActive="active">Edificios</a></li>
+      <li><a routerLink="/apartments" routerLinkActive="active">Apartamentos</a></li>
+      <li><a routerLink="/rentals" routerLinkActive="active">Alquileres</a></li>
+      <li><a routerLink="/maintenance-events" routerLinkActive="active">Mantenimientos</a></li>
+      <li><a routerLink="/cashflows" routerLinkActive="active">Flujos de Caja</a></li>
+      <li><a routerLink="/profitability" routerLinkActive="active">Rentabilidad</a></li>
     </ul>
-    <button class="menu-toggle" aria-label="Abrir menú">
-      <span></span><span></span><span></span>
-    </button>
   </nav>
 </header>
