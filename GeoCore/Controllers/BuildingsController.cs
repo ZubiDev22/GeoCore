@@ -47,7 +47,7 @@ namespace GeoCore.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<BuildingDto>>> GetAll(int page = 1, int pageSize = 10)
         {
-            _logger.LogInformation($"Obteniendo edificios: página {page}, tamaño {pageSize}");
+            _logger.LogInformation($"[BuildingsController] Obteniendo edificios: página {page}, tamaño {pageSize}");
             var buildings = await _repository.GetAllAsync();
             var dtos = buildings.Skip((page - 1) * pageSize).Take(pageSize).Select(MapToDto);
             return Ok(dtos);
@@ -76,7 +76,7 @@ namespace GeoCore.Controllers
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, $"Error al obtener el edificio con código {code}");
+                _logger.LogError(ex, $"[BuildingsController] Error al obtener el edificio con código {code}");
                 return StatusCode(500, Result<BuildingDto>.Failure(new UnexpectedError($"Unexpected error: {ex.Message}")));
             }
         }
@@ -151,7 +151,7 @@ namespace GeoCore.Controllers
         {
             if (!ModelState.IsValid)
             {
-                _logger.LogError($"Error de validación al crear edificio: {string.Join(", ", ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage))}");
+                _logger.LogError($"[BuildingsController] Error de validación al crear edificio: {string.Join(", ", ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage))}");
                 return BadRequest(ModelState);
             }
             var result = await _mediator.Send(new CreateBuildingCommand(dto));
@@ -159,20 +159,20 @@ namespace GeoCore.Controllers
             {
                 if (result.Error is ValidationError)
                 {
-                    _logger.LogError($"Error de validación al crear edificio: {result.Error.Message}");
+                    _logger.LogError($"[BuildingsController] Error de validación al crear edificio: {result.Error.Message}");
                     return BadRequest(result.Error.Message);
                 }
                 if (result.Error is BusinessRuleError)
                 {
-                    _logger.LogError($"Error de regla de negocio al crear edificio: {result.Error.Message}");
+                    _logger.LogError($"[BuildingsController] Error de regla de negocio al crear edificio: {result.Error.Message}");
                     return Conflict(result.Error.Message);
                 }
                 if (result.Error is NotFoundError)
                 {
-                    _logger.LogError($"Error NotFound al crear edificio: {result.Error.Message}");
+                    _logger.LogError($"[BuildingsController] Error NotFound al crear edificio: {result.Error.Message}");
                     return NotFound(result.Error.Message);
                 }
-                _logger.LogError($"Error inesperado al crear edificio: {result.Error.Message}");
+                _logger.LogError($"[BuildingsController] Error inesperado al crear edificio: {result.Error.Message}");
                 return StatusCode(500, result.Error.Message);
             }
             return Ok(result.Value);
@@ -184,7 +184,7 @@ namespace GeoCore.Controllers
             var success = await _mediator.Send(new PatchBuildingCommand(code, operations));
             if (!success)
             {
-                _logger.LogError($"Error al hacer patch al edificio con código {code}: no encontrado");
+                _logger.LogError($"[BuildingsController] Error al hacer patch al edificio con código {code}: no encontrado");
                 return NotFound();
             }
             return Ok();
@@ -196,7 +196,7 @@ namespace GeoCore.Controllers
             var success = await _mediator.Send(new DeleteBuildingCommand(code));
             if (!success)
             {
-                _logger.LogError($"Error al eliminar edificio con código {code}: no encontrado");
+                _logger.LogError($"[BuildingsController] Error al eliminar edificio con código {code}: no encontrado");
                 return NotFound();
             }
             return NoContent();
@@ -212,7 +212,7 @@ namespace GeoCore.Controllers
         [HttpGet("code/{code}/profitability")]
         public async Task<ActionResult<object>> GetProfitabilityByBuildingCode(string code)
         {
-            _logger.LogInformation($"Calculando rentabilidad para el edificio {code}");
+            _logger.LogInformation($"[BuildingsController] Calculando rentabilidad para el edificio {code}");
             var building = await _repository.GetByCodeAsync(code);
             if (building == null)
                 return NotFound();
@@ -265,7 +265,7 @@ namespace GeoCore.Controllers
             [FromQuery] string? zone = null,
             [FromQuery] string? city = null)
         {
-            _logger.LogInformation($"Calculando rentabilidad por localización: postalCode={postalCode}, zone={zone}, city={city}");
+            _logger.LogInformation($"[BuildingsController] Calculando rentabilidad por localización: postalCode={postalCode}, zone={zone}, city={city}");
             var buildingRepo = _repository;
             var apartmentRepo = HttpContext.RequestServices.GetService<IApartmentRepository>();
             var rentalRepo = HttpContext.RequestServices.GetService<IRentalRepository>();

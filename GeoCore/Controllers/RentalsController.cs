@@ -26,6 +26,7 @@ namespace GeoCore.Controllers
         {
             try
             {
+                _logger.LogInformation("[RentalsController] Obteniendo todos los rentals");
                 var rentals = await _rentalRepo.GetAllAsync();
                 var dtos = rentals.Select(r => new RentalDto
                 {
@@ -42,7 +43,7 @@ namespace GeoCore.Controllers
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error inesperado al obtener rentals");
+                _logger.LogError(ex, "[RentalsController] Error inesperado al obtener rentals");
                 return StatusCode(500, Result<IEnumerable<RentalDto>>.Failure(new UnexpectedError($"Unexpected error: {ex.Message}")));
             }
         }
@@ -70,7 +71,7 @@ namespace GeoCore.Controllers
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, $"Error inesperado al obtener rental {id}");
+                _logger.LogError(ex, $"[RentalsController] Error inesperado al obtener rental {id}");
                 return StatusCode(500, Result<RentalDto>.Failure(new UnexpectedError($"Unexpected error: {ex.Message}")));
             }
         }
@@ -137,7 +138,7 @@ namespace GeoCore.Controllers
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, $"Error inesperado al obtener rentals por código de edificio {code}");
+                _logger.LogError(ex, $"[RentalsController] Error inesperado al obtener rentals por código de edificio {code}");
                 return StatusCode(500, Result<IEnumerable<RentalDto>>.Failure(new UnexpectedError($"Unexpected error: {ex.Message}")));
             }
         }

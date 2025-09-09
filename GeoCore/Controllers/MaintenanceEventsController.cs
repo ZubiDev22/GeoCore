@@ -35,7 +35,7 @@ namespace GeoCore.Controllers
         {
             try
             {
-                _logger.LogInformation($"Obteniendo eventos de mantenimiento. Filtros: from={from}, to={to}, buildingId={buildingId}, página={page}, tamaño={pageSize}");
+                _logger.LogInformation($"[MaintenanceEventsController] Obteniendo eventos de mantenimiento. Filtros: from={from}, to={to}, buildingId={buildingId}, página={page}, tamaño={pageSize}");
                 var events = await _repository.GetAllAsync();
                 if (DateTime.TryParseExact(from, "dd/MM/yyyy", CultureInfo.InvariantCulture, DateTimeStyles.None, out var fromDate))
                     events = events.Where(e => e.Date >= fromDate);
@@ -59,7 +59,7 @@ namespace GeoCore.Controllers
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error inesperado al obtener eventos de mantenimiento");
+                _logger.LogError(ex, "[MaintenanceEventsController] Error inesperado al obtener eventos de mantenimiento");
                 return StatusCode(500, Result<IEnumerable<MaintenanceEventDto>>.Failure(new UnexpectedError($"Unexpected error: {ex.Message}")));
             }
         }
@@ -84,7 +84,7 @@ namespace GeoCore.Controllers
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, $"Error inesperado al obtener evento de mantenimiento {id}");
+                _logger.LogError(ex, $"[MaintenanceEventsController] Error inesperado al obtener evento de mantenimiento {id}");
                 return StatusCode(500, Result<MaintenanceEventDto>.Failure(new UnexpectedError($"Unexpected error: {ex.Message}")));
             }
         }

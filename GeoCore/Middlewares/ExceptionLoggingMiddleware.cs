@@ -25,7 +25,7 @@ namespace GeoCore.Middlewares
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Unhandled exception");
+                _logger.LogError(ex, "[ExceptionLoggingMiddleware] Unhandled exception");
                 context.Response.StatusCode = 500;
                 await context.Response.WriteAsync("An unexpected error occurred.");
             }
