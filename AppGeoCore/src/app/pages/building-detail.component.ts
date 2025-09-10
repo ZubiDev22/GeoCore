@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { CommonModule } from '@angular/common';
+import { BuildingMapComponent } from './building-map.component';
 import { BuildingsService } from '../services/buildings.service';
 import { ApartmentsService } from '../services/apartments.service';
 import { MaintenanceEventsService } from '../services/maintenance-events.service';
@@ -9,14 +10,14 @@ import { CashFlowsService } from '../services/cashflows.service';
 @Component({
   selector: 'app-building-detail',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, BuildingMapComponent],
   template: `
     <div class="container mt-4" *ngIf="loading">
       <div class="spinner-border" role="status"><span class="visually-hidden">Cargando...</span></div>
     </div>
     <div class="container mt-4" *ngIf="!loading && building">
       <h2>Detalle de Edificio</h2>
-      <table class="table table-bordered">
+  <table class="table table-bordered">
         <tr><th>Código</th><td>{{ building.buildingCode }}</td></tr>
         <tr><th>Nombre</th><td>{{ building.name }}</td></tr>
         <tr><th>Dirección</th><td>{{ building.address }}</td></tr>
@@ -26,6 +27,15 @@ import { CashFlowsService } from '../services/cashflows.service';
         <tr><th>Latitud</th><td>{{ building.latitude }}</td></tr>
         <tr><th>Longitud</th><td>{{ building.longitude }}</td></tr>
       </table>
+      <div class="mt-4">
+        <h4>Ubicación en el mapa</h4>
+        <app-building-map
+          *ngIf="building.latitude && building.longitude"
+          [latitude]="building.latitude"
+          [longitude]="building.longitude"
+          [zoom]="17">
+        </app-building-map>
+      </div>
       <div class="mt-4">
         <h4>Apartamentos asociados</h4>
         <div *ngIf="loadingApartments" class="text-center"><div class="spinner-border"></div></div>

@@ -1,3 +1,4 @@
+import { GestionComponent } from './pages/gestion.component';
 import { Routes } from '@angular/router';
 import { BuildingDetailComponent } from './pages/building-detail.component';
 import { BuildingFormComponent } from './pages/building-form.component';
@@ -10,6 +11,7 @@ import { CashFlowsComponent } from './pages/cashflows.component';
 import { ProfitabilityComponent } from './pages/profitability.component';
 
 export const routes: Routes = [
+	{ path: 'gestion', component: GestionComponent },
 	{ path: 'dashboard', component: DashboardComponent },
 	{ path: 'buildings', component: BuildingsComponent },
 	{ path: 'buildings/new', component: BuildingFormComponent },
