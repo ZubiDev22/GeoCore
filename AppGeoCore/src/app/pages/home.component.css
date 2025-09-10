@@ -1,5 +1,60 @@
 .home {
-  margin-top: 80px;
-  margin-bottom: 60px;
+  margin-top: 30px;
+  margin-bottom: 30px;
   text-align: center;
+}
+.main-title {
+  font-size: 2.5rem;
+  font-weight: 800;
+  color: var(--color-primary);
+  margin-bottom: 0.5rem;
+}
+.subtitle {
+  font-size: 1.3rem;
+  color: var(--color-text);
+  margin-bottom: 2.5rem;
+}
+.features {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2rem;
+  justify-content: center;
+}
+.feature {
+  background: #fff;
+  border-radius: 14px;
+  box-shadow: 0 2px 12px rgba(25, 118, 210, 0.07);
+  padding: 2rem 1.5rem 1.5rem 1.5rem;
+  max-width: 320px;
+  min-width: 220px;
+  flex: 1 1 220px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  transition: box-shadow 0.2s, transform 0.2s;
+}
+.feature:hover {
+  box-shadow: 0 6px 24px rgba(25, 118, 210, 0.13);
+  transform: translateY(-4px) scale(1.03);
+}
+.feature i {
+  font-size: 2.5rem;
+  color: var(--color-primary);
+  margin-bottom: 0.7rem;
+}
+.feature h2 {
+  font-size: 1.2rem;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+}
+.feature p {
+  font-size: 1rem;
+  color: var(--color-text);
+}
+@media (max-width: 900px) {
+  .features {
+    flex-direction: column;
+    gap: 1.2rem;
+    align-items: center;
+  }
 }
