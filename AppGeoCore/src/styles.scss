@@ -1,7 +1,33 @@
 @use 'bootstrap/scss/bootstrap' as *;
 @import 'bootstrap-icons/font/bootstrap-icons.css';
+/* Variables globales para temas y colores */
+:root {
+	--color-primary: #1976d2;
+	--color-secondary: #43e97b;
+	--color-bg: #f5f7fa;
+	--color-text: #222;
+	--color-footer-bg: #222;
+	--color-footer-text: #fff;
+	--color-header-bg-gradient: linear-gradient(90deg, #1976d2 0%, #43e97b 100%);
+	--color-header-link-hover: #ffb347;
+	--color-header-link-active: #ffe082;
+}
+
+@media (prefers-color-scheme: dark) {
+	:root {
+		--color-bg: #181c1f;
+		--color-text: #eee;
+		--color-footer-bg: #111;
+		--color-footer-text: #eee;
+		--color-header-link-hover: #43e97b;
+		--color-header-link-active: #1976d2;
+	}
+}
+
 body {
 	padding-top: 70px;
 	padding-bottom: 60px;
+	background: var(--color-bg);
+	color: var(--color-text);
 }
 /* You can add global styles to this file, and also import other style files */

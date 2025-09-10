@@ -1,16 +1,12 @@
-:root {
-  --footer-bg: #222;
-  --footer-color: #fff;
-  --footer-height: 50px;
-}
+/* Usar variables globales centralizadas */
 .footer {
-  background: var(--footer-bg);
-  color: var(--footer-color);
-  height: var(--footer-height);
+  background: var(--color-footer-bg);
+  color: var(--color-footer-text);
+  height: 50px;
   display: flex;
   align-items: center;
   justify-content: center;
-  position: sticky;
+  position: fixed;
   bottom: 0;
   left: 0;
   width: 100%;
@@ -18,12 +14,6 @@
 }
 .footer-content {
   font-size: 1rem;
-}
-@media (prefers-color-scheme: dark) {
-  :root {
-    --footer-bg: #111;
-    --footer-color: #eee;
-  }
 }
 @media (max-width: 768px) {
   .footer-content {
