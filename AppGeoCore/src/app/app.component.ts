@@ -1,8 +1,9 @@
+
 import { Component } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { HeaderComponent } from './components/header/header.component';
 import { FooterComponent } from './components/footer/footer.component';
-import { HttpClientModule } from '@angular/common/http';
+import { provideHttpClient, withInterceptors } from '@angular/common/http';
 
 @Component({
   selector: 'app-root',
@@ -10,8 +11,7 @@ import { HttpClientModule } from '@angular/common/http';
   imports: [
     RouterOutlet,
     HeaderComponent,
-    FooterComponent,
-    HttpClientModule
+    FooterComponent
   ],
   templateUrl: './app.component.html',
   styleUrls: []

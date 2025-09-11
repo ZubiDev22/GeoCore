@@ -1,4 +1,18 @@
-<div class="container mt-4">
-  <h1>Bienvenido a GeoCore</h1>
-  <p class="lead">Este es tu dashboard principal.</p>
+<div class="dashboard-wrapper d-flex align-items-center justify-content-center">
+  <div class="dashboard-card text-center">
+    <i class="bi bi-geo-alt-fill display-1 text-primary mb-3"></i>
+    <h1 class="mb-3">Bienvenido a GeoCore</h1>
+    <p class="lead mb-4">Gestiona tus edificios, alquileres y reportes desde un solo lugar.</p>
+    <div class="row g-3 justify-content-center">
+      <div class="col-auto">
+        <a routerLink="/gestion" class="btn btn-success btn-lg"><i class="bi bi-gear"></i> Ir a Gestión</a>
+      </div>
+      <div class="col-auto">
+        <a routerLink="/rentals" class="btn btn-outline-primary btn-lg"><i class="bi bi-cash-coin"></i> Alquileres</a>
+      </div>
+      <div class="col-auto">
+        <a routerLink="/profitability" class="btn btn-outline-info btn-lg"><i class="bi bi-bar-chart"></i> Reportes</a>
+      </div>
+    </div>
+  </div>
 </div>

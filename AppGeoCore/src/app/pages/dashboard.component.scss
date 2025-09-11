@@ -1,5 +1,17 @@
-.container {
-  background: #f8f9fa;
-  border-radius: 8px;
-  padding: 2rem;
+.dashboard-wrapper {
+  min-height: 60vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.dashboard-card {
+  background: #fff;
+  border-radius: 1.5rem;
+  box-shadow: 0 4px 24px rgba(25,118,210,0.10);
+  padding: 3rem 2.5rem;
+  max-width: 520px;
+  width: 100%;
+}
+.dashboard-card i {
+  font-size: 3.5rem;
 }
