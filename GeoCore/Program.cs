@@ -33,7 +33,7 @@ builder.Services.AddSingleton<IApartmentRepository, ApartmentRepositoryStub>();
 builder.Services.AddSingleton<IRentalRepository, RentalRepositoryStub>();
 
 // Registro de MediatR
-builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(typeof(Program).Assembly));
+builder.Services.AddMediatR(typeof(Program).Assembly);
 
 // Swagger/OpenAPI
 builder.Services.AddEndpointsApiExplorer();

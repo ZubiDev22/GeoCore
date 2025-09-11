@@ -1,12 +1,30 @@
+
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { HttpClient, HttpErrorResponse } from '@angular/common/http';
+import { Observable, throwError } from 'rxjs';
+import { catchError } from 'rxjs/operators';
 
 @Injectable({ providedIn: 'root' })
 export class CashFlowsService {
   constructor(private http: HttpClient) {}
 
+  // Listado de flujos de caja por edificio
   getCashFlowsByBuilding(code: string): Observable<any> {
-    return this.http.get(`/api/buildings/${code}/cashflows`);
+    return this.http.get(`/api/buildings/${code}/cashflows`).pipe(
+      catchError(this.handleError)
+    );
+  }
+
+  // Manejo de errores para mostrar mensajes claros
+  private handleError(error: HttpErrorResponse) {
+    let msg = 'Error desconocido';
+    if (error.error && error.error.message) {
+      msg = error.error.message;
+    } else if (error.status === 0) {
+      msg = 'No se pudo conectar con el servidor';
+    } else if (error.status >= 400) {
+      msg = error.statusText || 'Error en la solicitud';
+    }
+    return throwError(() => msg);
   }
 }

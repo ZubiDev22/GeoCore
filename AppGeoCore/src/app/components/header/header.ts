@@ -6,8 +6,8 @@ import { CommonModule } from '@angular/common';
   selector: 'app-header',
   standalone: true,
   imports: [RouterModule, CommonModule],
-  templateUrl: './header.component.html',
-  styleUrls: ['./header.component.css']
+  templateUrl: './header.html',
+  styleUrls: ['./header.css']
 })
 export class HeaderComponent {
   menuOpen = false;
