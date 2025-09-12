@@ -2,15 +2,17 @@
 .footer {
   background: var(--color-footer-bg);
   color: var(--color-footer-text);
-  height: 50px;
+  min-height: 40px;
   display: flex;
   align-items: center;
   justify-content: center;
-  position: fixed;
-  bottom: 0;
-  left: 0;
   width: 100%;
   z-index: 1000;
+  position: fixed;
+  left: 0;
+  bottom: 0;
+  box-shadow: 0 -2px 12px rgba(25, 118, 210, 0.07);
+  padding: 0.3rem 0;
 }
 .footer-content {
   font-size: 1rem;

@@ -1,18 +1,33 @@
+
 import { Component } from '@angular/core';
 import { BuildingsService } from '../services/buildings.service';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
+import { GoogleMapsModule } from '@angular/google-maps';
 
 @Component({
   selector: 'app-buildings',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, GoogleMapsModule],
   template: `
     <div class="container mt-4">
       <div class="d-flex justify-content-between align-items-center mb-3">
         <h2>Edificios</h2>
         <button class="btn btn-success" (click)="goToCreate()"><i class="bi bi-plus-lg"></i> Nuevo edificio</button>
+      </div>
+      <!-- Mapa de edificios -->
+      <div class="mb-4" *ngIf="!loading && buildingsWithCoords.length">
+        <google-map height="400px" width="100%"
+          [center]="mapCenter"
+          [zoom]="mapZoom"
+          [options]="mapOptions">
+          <map-marker *ngFor="let b of buildingsWithCoords"
+            [position]="{lat: b.latitude, lng: b.longitude}"
+            [title]="b.name"
+            (mapClick)="goToDetail(b.buildingCode)">
+          </map-marker>
+        </google-map>
       </div>
       <form class="row g-3 mb-3" (ngSubmit)="onFilter()">
         <div class="col-md-3">
@@ -91,11 +106,22 @@ export class BuildingsComponent {
   totalPages = 1;
   filters = { code: '', city: '', status: '' };
 
+  // Para el mapa
+  mapCenter: google.maps.LatLngLiteral = { lat: 0, lng: 0 };
+  mapZoom = 6;
+  mapOptions: google.maps.MapOptions = {
+    mapTypeId: 'roadmap',
+    streetViewControl: false,
+    fullscreenControl: true,
+    zoomControl: true
+  };
+  buildingsWithCoords: any[] = [];
+
   constructor(private buildingsService: BuildingsService, router: Router) {
     this.router = router;
     this.loadBuildings();
   }
-  
+
   goToDetail(code: string) {
     this.router.navigate(['/buildings', code]);
   }
@@ -120,6 +146,19 @@ export class BuildingsComponent {
       next: (res) => {
         this.buildings = res.items || res;
         this.totalPages = res.totalPages || 1;
+        // Filtrar edificios con lat/lng válidos
+        this.buildingsWithCoords = this.buildings.filter(b => b.latitude && b.longitude);
+        // Centrar el mapa en el primer edificio válido, o en España si no hay
+        if (this.buildingsWithCoords.length) {
+          this.mapCenter = {
+            lat: this.buildingsWithCoords[0].latitude,
+            lng: this.buildingsWithCoords[0].longitude
+          };
+          this.mapZoom = 12;
+        } else {
+          this.mapCenter = { lat: 40.4168, lng: -3.7038 }; // Madrid por defecto
+          this.mapZoom = 6;
+        }
         this.loading = false;
       },
       error: (err) => {
