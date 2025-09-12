@@ -9,8 +9,7 @@ namespace GeoCore.DTOs
         public string BuildingId { get; set; } = string.Empty;
 
         [Required]
-        [RegularExpression(@"^\d{2}/\d{2}/\d{4}$")]
-        public string Date { get; set; } = string.Empty;
+        public DateTime Date { get; set; } // ISO 8601 para Angular
 
         [Required]
         [MaxLength(200)]

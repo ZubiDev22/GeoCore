@@ -27,7 +27,7 @@ namespace GeoCore.Application.Handlers
                 City = building.City,
                 Latitude = building.Latitude,
                 Longitude = building.Longitude,
-                PurchaseDate = building.PurchaseDate.ToString("dd/MM/yyyy", CultureInfo.InvariantCulture),
+                PurchaseDate = building.PurchaseDate,
                 Status = building.Status
             };
         }

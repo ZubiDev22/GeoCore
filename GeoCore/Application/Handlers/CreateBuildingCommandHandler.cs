@@ -32,16 +32,12 @@ namespace GeoCore.Application.Handlers
                     City = dto.City,
                     Latitude = dto.Latitude,
                     Longitude = dto.Longitude,
-                    PurchaseDate = DateTime.ParseExact(dto.PurchaseDate, "dd/MM/yyyy", CultureInfo.InvariantCulture),
+                    PurchaseDate = dto.PurchaseDate,
                     Status = dto.Status
                 };
                 await _repository.AddAsync(entity);
                 dto.BuildingId = entity.BuildingId;
                 return Result<BuildingDto>.Success(dto);
-            }
-            catch (FormatException)
-            {
-                return Result<BuildingDto>.Failure(new ValidationError("Invalid date format for PurchaseDate."));
             }
             catch (Exception ex)
             {

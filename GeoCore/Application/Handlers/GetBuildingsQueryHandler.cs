@@ -28,7 +28,7 @@ namespace GeoCore.Application.Handlers
                 City = b.City,
                 Latitude = b.Latitude,
                 Longitude = b.Longitude,
-                PurchaseDate = b.PurchaseDate.ToString("dd/MM/yyyy", CultureInfo.InvariantCulture),
+                PurchaseDate = b.PurchaseDate,
                 Status = b.Status
             });
             return dtos;

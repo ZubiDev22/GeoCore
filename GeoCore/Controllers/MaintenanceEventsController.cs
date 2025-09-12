@@ -27,8 +27,8 @@ namespace GeoCore.Controllers
 
         [HttpGet]
         public async Task<ActionResult<Result<IEnumerable<MaintenanceEventDto>>>> GetAll(
-            [FromQuery] string? from = null,
-            [FromQuery] string? to = null,
+            [FromQuery] DateTime? from = null,
+            [FromQuery] DateTime? to = null,
             [FromQuery] string? buildingId = null,
             [FromQuery] int page = 1,
             [FromQuery] int pageSize = 10)
@@ -37,12 +37,14 @@ namespace GeoCore.Controllers
             {
                 _logger.LogInformation($"[MaintenanceEventsController] Obteniendo eventos de mantenimiento. Filtros: from={from}, to={to}, buildingId={buildingId}, página={page}, tamaño={pageSize}");
                 var events = await _repository.GetAllAsync();
-                if (DateTime.TryParseExact(from, "dd/MM/yyyy", CultureInfo.InvariantCulture, DateTimeStyles.None, out var fromDate))
-                    events = events.Where(e => e.Date >= fromDate);
-                if (DateTime.TryParseExact(to, "dd/MM/yyyy", CultureInfo.InvariantCulture, DateTimeStyles.None, out var toDate))
-                    events = events.Where(e => e.Date <= toDate);
-                if (buildingId != null)
-                    events = events.Where(e => e.BuildingId == buildingId.ToString());
+                if (from.HasValue)
+                    events = events.Where(e => e.Date >= from.Value);
+                if (to.HasValue)
+                    events = events.Where(e => e.Date <= to.Value);
+                if (!string.IsNullOrEmpty(buildingId))
+                    events = events.Where(e => e.BuildingId == buildingId);
+                var totalItems = events.Count();
+                var totalPages = (int)Math.Ceiling(totalItems / (double)pageSize);
                 var dtos = events
                     .OrderByDescending(e => e.Date)
                     .Skip((page - 1) * pageSize)
@@ -51,11 +53,11 @@ namespace GeoCore.Controllers
                     {
                         MaintenanceEventId = e.MaintenanceEventId,
                         BuildingId = e.BuildingId,
-                        Date = e.Date.ToString("dd/MM/yyyy", CultureInfo.InvariantCulture),
+                        Date = e.Date, // DateTime para formato ISO 8601
                         Description = e.Description,
                         Cost = e.Cost
-                    });
-                return Ok(Result<IEnumerable<MaintenanceEventDto>>.Success(dtos));
+                    }).ToList();
+                return Ok(new { items = dtos, totalPages });
             }
             catch (Exception ex)
             {
@@ -76,7 +78,7 @@ namespace GeoCore.Controllers
                 {
                     MaintenanceEventId = e.MaintenanceEventId,
                     BuildingId = e.BuildingId,
-                    Date = e.Date.ToString("dd/MM/yyyy", CultureInfo.InvariantCulture),
+                    Date = e.Date, // DateTime para formato ISO 8601
                     Description = e.Description,
                     Cost = e.Cost
                 };

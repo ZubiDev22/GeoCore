@@ -23,8 +23,7 @@ namespace GeoCore.DTOs
         public double Latitude { get; set; }
         public double Longitude { get; set; }
         [Required]
-        [RegularExpression(@"^\d{2}/\d{2}/\d{4}$")]
-        public string PurchaseDate { get; set; } = string.Empty;
+        public DateTime PurchaseDate { get; set; } // ISO 8601 para Angular
         [Required]
         [MaxLength(50)]
         public string Status { get; set; } = string.Empty;

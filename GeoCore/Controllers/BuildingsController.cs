@@ -39,18 +39,29 @@ namespace GeoCore.Controllers
                 City = b.City,
                 Latitude = b.Latitude,
                 Longitude = b.Longitude,
-                PurchaseDate = b.PurchaseDate.ToString("dd/MM/yyyy", CultureInfo.InvariantCulture),
+                PurchaseDate = b.PurchaseDate, // DateTime para formato ISO 8601
                 Status = b.Status
             };
         }
 
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<BuildingDto>>> GetAll(int page = 1, int pageSize = 10)
+        public async Task<ActionResult<object>> GetAll(
+            [FromQuery] int page = 1,
+            [FromQuery] int pageSize = 10,
+            [FromQuery] string? city = null,
+            [FromQuery] string? status = null)
         {
-            _logger.LogInformation($"[BuildingsController] Obteniendo edificios: página {page}, tamaño {pageSize}");
+            _logger.LogInformation($"[BuildingsController] Obteniendo edificios: página {page}, tamaño {pageSize}, city={city}, status={status}");
             var buildings = await _repository.GetAllAsync();
-            var dtos = buildings.Skip((page - 1) * pageSize).Take(pageSize).Select(MapToDto);
-            return Ok(dtos);
+            var query = buildings.AsQueryable();
+            if (!string.IsNullOrEmpty(city))
+                query = query.Where(b => b.City.ToLower() == city.ToLower());
+            if (!string.IsNullOrEmpty(status))
+                query = query.Where(b => b.Status.ToLower() == status.ToLower());
+            var totalItems = query.Count();
+            var totalPages = (int)Math.Ceiling(totalItems / (double)pageSize);
+            var items = query.Skip((page - 1) * pageSize).Take(pageSize).Select(MapToDto).ToList();
+            return Ok(new { items, totalPages });
         }
 
         [HttpGet("{id:int}")]
@@ -133,7 +144,7 @@ namespace GeoCore.Controllers
                 City = building.City,
                 Latitude = building.Latitude,
                 Longitude = building.Longitude,
-                PurchaseDate = building.PurchaseDate.ToString("dd/MM/yyyy", CultureInfo.InvariantCulture),
+                PurchaseDate = building.PurchaseDate, // DateTime para formato ISO 8601
                 Status = status,
                 Description = description
             });

@@ -22,7 +22,7 @@ namespace GeoCore.Application.Handlers
             var entity = new MaintenanceEvent
             {
                 BuildingId = dto.BuildingId,
-                Date = DateTime.ParseExact(dto.Date, "dd/MM/yyyy", CultureInfo.InvariantCulture),
+                Date = dto.Date,
                 Description = dto.Description,
                 Cost = dto.Cost
             };
