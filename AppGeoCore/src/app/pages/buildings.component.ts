@@ -16,19 +16,7 @@ import { GoogleMapsModule } from '@angular/google-maps';
         <h2>Edificios</h2>
         <button class="btn btn-success" (click)="goToCreate()"><i class="bi bi-plus-lg"></i> Nuevo edificio</button>
       </div>
-      <!-- Mapa de edificios -->
-      <div class="mb-4" *ngIf="!loading && buildingsWithCoords.length">
-        <google-map height="400px" width="100%"
-          [center]="mapCenter"
-          [zoom]="mapZoom"
-          [options]="mapOptions">
-          <map-marker *ngFor="let b of buildingsWithCoords"
-            [position]="{lat: b.latitude, lng: b.longitude}"
-            [title]="b.name"
-            (mapClick)="goToDetail(b.buildingCode)">
-          </map-marker>
-        </google-map>
-      </div>
+
       <form class="row g-3 mb-3" (ngSubmit)="onFilter()">
         <div class="col-md-3">
           <input type="text" class="form-control" placeholder="Código" [(ngModel)]="filters.code" name="code">

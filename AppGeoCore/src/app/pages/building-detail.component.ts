@@ -15,26 +15,32 @@ import { CashFlowsService } from '../services/cashflows.service';
     <div class="container mt-4" *ngIf="loading">
       <div class="spinner-border" role="status"><span class="visually-hidden">Cargando...</span></div>
     </div>
-    <div class="container mt-4" *ngIf="!loading && building">
-      <h2>Detalle de Edificio</h2>
-  <table class="table table-bordered">
-        <tr><th>Código</th><td>{{ building.buildingCode }}</td></tr>
-        <tr><th>Nombre</th><td>{{ building.name }}</td></tr>
-        <tr><th>Dirección</th><td>{{ building.address }}</td></tr>
-        <tr><th>Ciudad</th><td>{{ building.city }}</td></tr>
-        <tr><th>Estado</th><td>{{ building.status }}</td></tr>
-        <tr><th>Fecha de compra</th><td>{{ building.purchaseDate | date:'yyyy-MM-dd' }}</td></tr>
-        <tr><th>Latitud</th><td>{{ building.latitude }}</td></tr>
-        <tr><th>Longitud</th><td>{{ building.longitude }}</td></tr>
-      </table>
-      <div class="mt-4">
-        <h4>Ubicación en el mapa</h4>
-        <app-building-map
-          *ngIf="building.latitude && building.longitude"
-          [latitude]="building.latitude"
-          [longitude]="building.longitude"
-          [zoom]="17">
-        </app-building-map>
+    <div class="container mt-4 building-detail-page" *ngIf="!loading && building">
+      <div class="row">
+        <div class="col-lg-6 col-md-12 mb-3">
+          <h2 class="mb-3">{{ building.name }}</h2>
+          <div class="building-info-box p-3 mb-3">
+            <app-building-map
+              [latitude]="isFiniteNumber(building.latitude) ? building.latitude * 1 : 40.4168"
+              [longitude]="isFiniteNumber(building.longitude) ? building.longitude * 1 : -3.7038"
+              [zoom]="17">
+            </app-building-map>
+            <div class="mb-2"><strong>Código:</strong> {{ building.buildingCode }}</div>
+            <div class="mb-2"><strong>Dirección:</strong> {{ building.address }}</div>
+            <div class="mb-2"><strong>Ciudad:</strong> {{ building.city }}</div>
+            <div class="mb-2"><strong>Estado:</strong> {{ building.status }}</div>
+            <div class="mb-2"><strong>Fecha de compra:</strong> {{ building.purchaseDate | date:'yyyy-MM-dd' }}</div>
+            <div class="mb-2 text-muted small">Lat: {{ building.latitude }} | Lng: {{ building.longitude }}</div>
+          </div>
+        </div>
+        <div class="col-lg-6 col-md-12 mb-3">
+          <app-building-map
+            *ngIf="isFiniteNumber(building.latitude) && isFiniteNumber(building.longitude)"
+            [latitude]="isFiniteNumber(building.latitude) ? building.latitude * 1 : 40.4168"
+            [longitude]="isFiniteNumber(building.longitude) ? building.longitude * 1 : -3.7038"
+            [zoom]="17">
+          </app-building-map>
+        </div>
       </div>
       <div class="mt-4">
         <h4>Apartamentos asociados</h4>
@@ -86,7 +92,24 @@ import { CashFlowsService } from '../services/cashflows.service';
     </div>
     <div *ngIf="error" class="alert alert-danger container mt-4">{{ error }}</div>
   `,
-  styleUrls: []
+  styles: [`
+    .building-detail-page {
+      max-width: 1100px;
+      background: #fff;
+      border-radius: 16px;
+      box-shadow: 0 2px 16px rgba(0,0,0,0.07);
+      padding: 2rem 2rem 1.5rem 2rem;
+      margin-bottom: 2rem;
+    }
+    .building-info-box {
+      background: #f8f9fa;
+      border-radius: 12px;
+      box-shadow: 0 1px 6px rgba(25,118,210,0.07);
+    }
+    @media (max-width: 991px) {
+      .building-detail-page { padding: 1rem; }
+    }
+  `]
 })
 export class BuildingDetailComponent {
   building: any = null;
@@ -98,6 +121,11 @@ export class BuildingDetailComponent {
   loadingEvents = true;
   loadingCashflows = true;
   error = '';
+
+  isFiniteNumber(val: any): boolean {
+    return typeof val === 'number' && isFinite(val) ||
+           (typeof val === 'string' && val.trim() !== '' && isFinite(Number(val)));
+  }
 
   constructor(
     private route: ActivatedRoute,

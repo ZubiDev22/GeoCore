@@ -7,21 +7,22 @@ import { GoogleMapsModule, MapMarker } from '@angular/google-maps';
   standalone: true,
   imports: [CommonModule, GoogleMapsModule],
   template: `
-    <div class="map-container position-relative">
+    <div class="map-container">
       <google-map height="400px" width="100%"
         [center]="center"
         [zoom]="zoom"
         [options]="mapOptions">
         <map-marker [position]="center" [title]="'Ubicación del edificio'"></map-marker>
       </google-map>
-      <button class="btn btn-outline-secondary streetview-btn" (click)="openStreetView()" title="Ver Street View">
+      <button class="btn btn-outline-primary streetview-btn" (click)="openStreetView()" title="Ver Street View">
         <i class="bi bi-person-arms-up"></i> Street View
       </button>
     </div>
   `,
   styles: [`
-    .map-container { width: 100%; height: 400px; border-radius: 12px; overflow: hidden; box-shadow: 0 2px 12px rgba(25,118,210,0.10); margin: 1rem 0; position: relative; }
-    .streetview-btn { position: absolute; top: 16px; right: 16px; z-index: 10; }
+    .map-container { width: 100%; height: 400px; border-radius: 12px; overflow: hidden; box-shadow: 0 2px 12px rgba(25,118,210,0.10); margin: 0 0 2rem 0; position: relative; }
+    .streetview-btn { position: absolute; top: 20px; right: 20px; z-index: 10; background: white; border-radius: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+    .streetview-btn i { margin-right: 4px; }
   `]
 })
 export class BuildingMapComponent {
