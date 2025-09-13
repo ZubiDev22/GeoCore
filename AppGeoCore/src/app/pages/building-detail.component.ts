@@ -31,7 +31,7 @@ import { CashFlowsService } from '../services/cashflows.service';
             <div class="mb-2"><strong>Estado:</strong> {{ building.status }}</div>
             <div class="mb-2"><strong>Fecha de compra:</strong> {{ building.purchaseDate | date:'yyyy-MM-dd' }}</div>
             <div class="mb-2 text-muted small">Lat: {{ building.latitude }} | Lng: {{ building.longitude }}</div>
-            <div class="mb-2 text-danger small">DEBUG: {{ debugCoords | json }}</div>
+            <!-- DEBUG visual eliminado -->
           </div>
         </div>
         <!-- Mapa duplicado eliminado -->
