@@ -7,6 +7,5 @@ export const appConfig: ApplicationConfig = {
   providers: [
     provideRouter(routes),
     provideHttpClient(),
-    //provideGoogleMaps('AIzaSyBD6tJQnmib3hSFJ9ccCvkmNSMcVCBvZx4')
   ]
 };

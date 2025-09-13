@@ -31,16 +31,10 @@ import { CashFlowsService } from '../services/cashflows.service';
             <div class="mb-2"><strong>Estado:</strong> {{ building.status }}</div>
             <div class="mb-2"><strong>Fecha de compra:</strong> {{ building.purchaseDate | date:'yyyy-MM-dd' }}</div>
             <div class="mb-2 text-muted small">Lat: {{ building.latitude }} | Lng: {{ building.longitude }}</div>
+            <div class="mb-2 text-danger small">DEBUG: {{ debugCoords | json }}</div>
           </div>
         </div>
-        <div class="col-lg-6 col-md-12 mb-3">
-          <app-building-map
-            *ngIf="isFiniteNumber(building.latitude) && isFiniteNumber(building.longitude)"
-            [latitude]="isFiniteNumber(building.latitude) ? building.latitude * 1 : 40.4168"
-            [longitude]="isFiniteNumber(building.longitude) ? building.longitude * 1 : -3.7038"
-            [zoom]="17">
-          </app-building-map>
-        </div>
+        <!-- Mapa duplicado eliminado -->
       </div>
       <div class="mt-4">
         <h4>Apartamentos asociados</h4>
@@ -122,19 +116,14 @@ export class BuildingDetailComponent {
   loadingCashflows = true;
   error = '';
 
-  isFiniteNumber(val: any): boolean {
-    return typeof val === 'number' && isFinite(val) ||
-           (typeof val === 'string' && val.trim() !== '' && isFinite(Number(val)));
-  }
-
   constructor(
     private route: ActivatedRoute,
     private buildingsService: BuildingsService,
     private apartmentsService: ApartmentsService,
-    private maintenanceEventsService: MaintenanceEventsService,
-    private cashFlowsService: CashFlowsService
+    private eventsService: MaintenanceEventsService,
+    private cashflowsService: CashFlowsService
   ) {
-    this.route.params.subscribe(params => {
+    this.route.params.subscribe((params: any) => {
       const code = params['code'];
       if (code) {
         this.loadBuilding(code);
@@ -145,16 +134,30 @@ export class BuildingDetailComponent {
     });
   }
 
+  isFiniteNumber(val: any): boolean {
+    return (typeof val === 'number' && isFinite(val)) ||
+           (typeof val === 'string' && val.trim() !== '' && isFinite(Number(val)));
+  }
+
+  get debugCoords() {
+    return {
+      lat: this.building?.latitude,
+      lng: this.building?.longitude,
+      typeLat: typeof this.building?.latitude,
+      typeLng: typeof this.building?.longitude
+    };
+  }
+
   loadBuilding(code: string) {
     this.loading = true;
     this.error = '';
-    this.buildingsService.getBuildingByCode(code).subscribe({
-      next: (res) => {
-        this.building = res;
+    this.buildingsService.getBuildingDetailsByCode(code).subscribe({
+      next: (data: any) => {
+        this.building = data;
         this.loading = false;
       },
-      error: () => {
-        this.error = 'No se pudo cargar el edificio';
+      error: (err: any) => {
+        this.error = 'Error cargando el edificio';
         this.loading = false;
       }
     });
@@ -163,12 +166,11 @@ export class BuildingDetailComponent {
   loadApartments(code: string) {
     this.loadingApartments = true;
     this.apartmentsService.getApartmentsByBuilding(code).subscribe({
-      next: (res) => {
-        this.apartments = res.items || res;
+      next: (data: any) => {
+        this.apartments = data;
         this.loadingApartments = false;
       },
       error: () => {
-        this.apartments = [];
         this.loadingApartments = false;
       }
     });
@@ -176,13 +178,13 @@ export class BuildingDetailComponent {
 
   loadEvents(code: string) {
     this.loadingEvents = true;
-    this.maintenanceEventsService.getMaintenanceEvents({ buildingCode: code }).subscribe({
-      next: (res) => {
-        this.events = res.items || res;
+    // No hay un método getEventsByBuilding, así que filtramos por parámetro
+    this.eventsService.getMaintenanceEvents({ buildingCode: code }).subscribe({
+      next: (data: any) => {
+        this.events = data;
         this.loadingEvents = false;
       },
       error: () => {
-        this.events = [];
         this.loadingEvents = false;
       }
     });
@@ -190,13 +192,12 @@ export class BuildingDetailComponent {
 
   loadCashflows(code: string) {
     this.loadingCashflows = true;
-    this.cashFlowsService.getCashFlowsByBuilding(code).subscribe({
-      next: (res) => {
-        this.cashflows = res.items || res;
+    this.cashflowsService.getCashFlowsByBuilding(code).subscribe({
+      next: (data: any) => {
+        this.cashflows = data;
         this.loadingCashflows = false;
       },
       error: () => {
-        this.cashflows = [];
         this.loadingCashflows = false;
       }
     });
