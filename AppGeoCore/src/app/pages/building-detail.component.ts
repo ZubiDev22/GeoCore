@@ -23,7 +23,9 @@ import { CashFlowsService } from '../services/cashflows.service';
             <app-building-map
               [latitude]="isFiniteNumber(building.latitude) ? building.latitude * 1 : 40.4168"
               [longitude]="isFiniteNumber(building.longitude) ? building.longitude * 1 : -3.7038"
-              [zoom]="17">
+              [zoom]="17"
+              [height]="'300px'"
+              [width]="'100%'">
             </app-building-map>
             <div class="mb-2"><strong>Código:</strong> {{ building.buildingCode }}</div>
             <div class="mb-2"><strong>Dirección:</strong> {{ building.address }}</div>
