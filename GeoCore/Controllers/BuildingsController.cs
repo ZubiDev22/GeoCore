@@ -40,7 +40,8 @@ namespace GeoCore.Controllers
                 Latitude = b.Latitude,
                 Longitude = b.Longitude,
                 PurchaseDate = b.PurchaseDate, // DateTime para formato ISO 8601
-                Status = b.Status
+                Status = b.Status,
+                PostalCode = b.PostalCode
             };
         }
 

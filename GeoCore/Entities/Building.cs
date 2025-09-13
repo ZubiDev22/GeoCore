@@ -14,6 +14,7 @@ namespace GeoCore.Entities
         public double Longitude { get; set; }
         public DateTime PurchaseDate { get; set; }
         public string Status { get; set; } = string.Empty; // "Active", "Under Maintenance", "Rented"
+        public string PostalCode { get; set; } = string.Empty;
 
         // Relaciones de navegación
         public ICollection<CashFlow> CashFlows { get; set; } = new List<CashFlow>();

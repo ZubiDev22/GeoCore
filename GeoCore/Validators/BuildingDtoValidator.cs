@@ -17,6 +17,7 @@ namespace GeoCore.Validators
             RuleFor(x => x.Longitude).InclusiveBetween(-180, 180);
             RuleFor(x => x.PurchaseDate).NotEmpty();
             RuleFor(x => x.Status).NotEmpty().MaximumLength(50);
+            RuleFor(x => x.PostalCode).NotEmpty().MaximumLength(20);
         }
     }
 }

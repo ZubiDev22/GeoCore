@@ -9,7 +9,9 @@ namespace GeoCore.MappingProfiles
     {
         public BuildingProfile()
         {
-            CreateMap<Building, BuildingDto>().ReverseMap();
+            CreateMap<Building, BuildingDto>()
+                .ForMember(dest => dest.PostalCode, opt => opt.MapFrom(src => src.PostalCode))
+                .ReverseMap();
         }
     }
 }

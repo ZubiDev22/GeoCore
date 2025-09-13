@@ -27,5 +27,8 @@ namespace GeoCore.DTOs
         [Required]
         [MaxLength(50)]
         public string Status { get; set; } = string.Empty;
+        [Required]
+        [MaxLength(20)]
+        public string PostalCode { get; set; } = string.Empty;
     }
 }
