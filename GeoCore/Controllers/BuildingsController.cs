@@ -46,7 +46,7 @@ namespace GeoCore.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<object>> GetAll(
+        public async Task<ActionResult<PagedResultDto<BuildingDto>>> GetAll(
             [FromQuery] int page = 1,
             [FromQuery] int pageSize = 10,
             [FromQuery] string? city = null,
@@ -62,7 +62,7 @@ namespace GeoCore.Controllers
             var totalItems = query.Count();
             var totalPages = (int)Math.Ceiling(totalItems / (double)pageSize);
             var items = query.Skip((page - 1) * pageSize).Take(pageSize).Select(MapToDto).ToList();
-            return Ok(new { items, totalPages });
+            return Ok(new PagedResultDto<BuildingDto> { Items = items, TotalPages = totalPages });
         }
 
         [HttpGet("{id:int}")]
@@ -94,7 +94,7 @@ namespace GeoCore.Controllers
         }
 
         [HttpGet("code/{code}/details")]
-        public async Task<ActionResult<object>> GetDetailsByCode(string code)
+        public async Task<ActionResult<BuildingDetailsDto>> GetDetailsByCode(string code)
         {
             var building = await _repository.GetByCodeAsync(code);
             if (building == null)
@@ -105,39 +105,31 @@ namespace GeoCore.Controllers
             if (status == "Under Maintenance")
             {
                 var maintenanceRepo = HttpContext.RequestServices.GetService<IMaintenanceEventRepository>();
-                if (maintenanceRepo != null)
+                if (maintenanceRepo == null)
                 {
-                    var events = await maintenanceRepo.GetAllAsync();
-                    var lastEvent = events.Where(e => e.BuildingId == building.BuildingId).OrderByDescending(e => e.Date).FirstOrDefault();
-                    if (!string.IsNullOrWhiteSpace(lastEvent?.Description))
-                        description = lastEvent.Description;
+                    _logger.LogError("[BuildingsController] IMaintenanceEventRepository no disponible");
+                    return StatusCode(500, "Dependencia IMaintenanceEventRepository no disponible");
                 }
+                var events = await maintenanceRepo.GetAllAsync();
+                var lastEvent = events.Where(e => e.BuildingId == building.BuildingId).OrderByDescending(e => e.Date).FirstOrDefault();
+                if (!string.IsNullOrWhiteSpace(lastEvent?.Description))
+                    description = lastEvent.Description;
             }
             // Si hay CashFlow y status es Active
             if (status == "Active")
             {
                 var cashFlowRepo = HttpContext.RequestServices.GetService<ICashFlowRepository>();
-                if (cashFlowRepo != null)
+                if (cashFlowRepo == null)
                 {
-                    var cashflows = await cashFlowRepo.GetAllAsync();
-                    var lastFlow = cashflows.Where(c => c.BuildingId == building.BuildingId).OrderByDescending(c => c.Date).FirstOrDefault();
-                    if (!string.IsNullOrWhiteSpace(lastFlow?.Source))
-                        description = lastFlow.Source;
+                    _logger.LogError("[BuildingsController] ICashFlowRepository no disponible");
+                    return StatusCode(500, "Dependencia ICashFlowRepository no disponible");
                 }
+                var cashflows = await cashFlowRepo.GetAllAsync();
+                var lastFlow = cashflows.Where(c => c.BuildingId == building.BuildingId).OrderByDescending(c => c.Date).FirstOrDefault();
+                if (!string.IsNullOrWhiteSpace(lastFlow?.Source))
+                    description = lastFlow.Source;
             }
-            // Si hay ManagementBudget y status es Rented
-            // if (status == "Rented")
-            // {
-            //     var budgetRepo = HttpContext.RequestServices.GetService<IManagementBudgetRepository>();
-            //     if (budgetRepo != null)
-            //     {
-            //         var budgets = await budgetRepo.GetAllAsync();
-            //         var lastBudget = budgets.Where(b => b.BuildingId == building.BuildingId).OrderByDescending(b => b.Date).FirstOrDefault();
-            //         if (!string.IsNullOrWhiteSpace(lastBudget?.Recommendation))
-            //             description = lastBudget.Recommendation;
-            //     }
-            // }
-            return Ok(new {
+            return Ok(new BuildingDetailsDto {
                 BuildingId = building.BuildingId,
                 BuildingCode = building.BuildingCode,
                 Name = building.Name,
@@ -145,8 +137,9 @@ namespace GeoCore.Controllers
                 City = building.City,
                 Latitude = building.Latitude,
                 Longitude = building.Longitude,
-                PurchaseDate = building.PurchaseDate, // DateTime para formato ISO 8601
+                PurchaseDate = building.PurchaseDate,
                 Status = status,
+                PostalCode = building.PostalCode,
                 Description = description
             });
         }
@@ -217,19 +210,36 @@ namespace GeoCore.Controllers
         [HttpGet("/api/buildings/{code}/apartments")]
         public async Task<ActionResult<IEnumerable<ApartmentDto>>> GetApartmentsByBuildingCode(string code)
         {
-            var result = await _mediator.Send(new GetApartmentsByBuildingCodeQuery(code));
-            return Ok(result);
+            try
+            {
+                var buildingRepo = HttpContext.RequestServices.GetService<IBuildingRepository>();
+                if (buildingRepo == null)
+                    return StatusCode(500, "Repositorio de edificios no disponible");
+                var building = await buildingRepo.GetByCodeAsync(code);
+                if (building == null)
+                    return NotFound($"No se encontró el edificio con código {code}");
+                var apartmentRepo = HttpContext.RequestServices.GetService<IApartmentRepository>();
+                if (apartmentRepo == null)
+                    return StatusCode(500, "Repositorio de apartamentos no disponible");
+                var apartments = await apartmentRepo.GetAllAsync();
+                var result = apartments.Where(a => a.BuildingId == building.BuildingId).ToList();
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"[BuildingsController] Error inesperado al obtener apartamentos para el edificio {code}");
+                return StatusCode(500, $"Unexpected error: {ex.Message}");
+            }
         }
 
         [HttpGet("code/{code}/profitability")]
-        public async Task<ActionResult<object>> GetProfitabilityByBuildingCode(string code)
+        public async Task<ActionResult<ProfitabilityDto>> GetProfitabilityByBuildingCode(string code)
         {
             _logger.LogInformation($"[BuildingsController] Calculando rentabilidad para el edificio {code}");
             var building = await _repository.GetByCodeAsync(code);
             if (building == null)
                 return NotFound();
 
-            // Obtener apartamentos del edificio
             var apartmentRepo = HttpContext.RequestServices.GetService<IApartmentRepository>();
             var rentalRepo = HttpContext.RequestServices.GetService<IRentalRepository>();
             var cashFlowRepo = HttpContext.RequestServices.GetService<ICashFlowRepository>();
@@ -244,35 +254,52 @@ namespace GeoCore.Controllers
             var cashflows = (await cashFlowRepo.GetAllAsync()).Where(c => c.BuildingId == building.BuildingId);
             var maintenances = (await maintenanceRepo.GetAllAsync()).Where(m => m.BuildingId == building.BuildingId);
 
-            // Ingresos: suma de precios de alquiler confirmados
             var ingresos = rentals.Sum(r => r.Price);
-            // Gastos: suma de cashflows de tipo gasto y mantenimientos
             var gastosCashFlow = cashflows.Where(c => c.Source != null && (c.Source.ToLower().Contains("compra") || c.Source.ToLower().Contains("reforma") || c.Source.ToLower().Contains("gasto"))).Sum(c => c.Amount);
             var gastosMantenimiento = maintenances.Sum(m => m.Cost);
             var gastos = gastosCashFlow + gastosMantenimiento;
-            // Inversión inicial: primer cashflow de tipo compra
             var inversion = cashflows.Where(c => c.Source != null && c.Source.ToLower().Contains("compra")).OrderBy(c => c.Date).FirstOrDefault()?.Amount ?? 0;
-            // Rentabilidad
             var rentabilidad = inversion > 0 ? (ingresos - gastos) / inversion : 0;
             var rentabilidadFormatted = (rentabilidad * 100).ToString("0.##", CultureInfo.InvariantCulture) + "%";
 
-            return Ok(new
+            var dto = new ProfitabilityDto
             {
                 BuildingCode = code,
                 Ingresos = ingresos,
                 Gastos = gastos,
                 Inversion = inversion,
                 Rentabilidad = rentabilidadFormatted,
-                Detalle = new {
-                    Alquileres = rentals.Select(r => new { r.RentalId, r.ApartmentId, r.Price, r.StartDate, r.EndDate }),
-                    CashFlows = cashflows.Select(c => new { c.CashFlowId, c.Source, c.Amount, c.Date }),
-                    Mantenimientos = maintenances.Select(m => new { m.MaintenanceEventId, m.Description, m.Cost, m.Date })
+                Detalle = new ProfitabilityDetailDto
+                {
+                    Alquileres = rentals.Select(r => new RentalSummaryDto
+                    {
+                        RentalId = r.RentalId,
+                        ApartmentId = r.ApartmentId,
+                        Price = r.Price,
+                        StartDate = r.StartDate,
+                        EndDate = r.EndDate
+                    }),
+                    CashFlows = cashflows.Select(c => new CashFlowSummaryDto
+                    {
+                        CashFlowId = c.CashFlowId,
+                        Source = c.Source,
+                        Amount = c.Amount,
+                        Date = c.Date
+                    }),
+                    Mantenimientos = maintenances.Select(m => new MaintenanceSummaryDto
+                    {
+                        MaintenanceEventId = m.MaintenanceEventId,
+                        Description = m.Description,
+                        Cost = m.Cost,
+                        Date = m.Date
+                    })
                 }
-            });
+            };
+            return Ok(dto);
         }
 
         [HttpGet("profitability-by-location")]
-        public async Task<ActionResult<object>> GetProfitabilityByLocation(
+        public async Task<ActionResult<ProfitabilityByLocationDto>> GetProfitabilityByLocation(
             [FromQuery] string? postalCode = null,
             [FromQuery] string? zone = null,
             [FromQuery] string? city = null)
@@ -318,7 +345,7 @@ namespace GeoCore.Controllers
             if (!filteredBuildings.Any())
                 return NotFound("No se encontraron edificios para la localización indicada.");
 
-            var resultados = new List<object>();
+            var resultados = new List<ProfitabilityByLocationDetailDto>();
             decimal totalIngresos = 0, totalGastos = 0, totalInversion = 0;
             foreach (var building in filteredBuildings)
             {
@@ -340,7 +367,7 @@ namespace GeoCore.Controllers
                 totalGastos += gastos;
                 totalInversion += inversion;
 
-                resultados.Add(new
+                resultados.Add(new ProfitabilityByLocationDetailDto
                 {
                     BuildingCode = building.BuildingCode,
                     Ingresos = ingresos,
@@ -353,7 +380,7 @@ namespace GeoCore.Controllers
             var rentabilidadMedia = totalInversion > 0 ? (totalIngresos - totalGastos) / totalInversion : 0;
             var rentabilidadMediaFormatted = (rentabilidadMedia * 100).ToString("0.##", CultureInfo.InvariantCulture) + "%";
 
-            return Ok(new
+            var dto = new ProfitabilityByLocationDto
             {
                 TotalEdificios = resultados.Count,
                 TotalIngresos = totalIngresos,
@@ -361,7 +388,8 @@ namespace GeoCore.Controllers
                 TotalInversion = totalInversion,
                 RentabilidadMedia = rentabilidadMediaFormatted,
                 Detalle = resultados
-            });
+            };
+            return Ok(dto);
         }
     }
 }

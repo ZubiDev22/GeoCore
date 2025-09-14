@@ -25,10 +25,12 @@ import { CashFlowsService } from '../services/cashflows.service';
               [longitude]="isFiniteNumber(building.longitude) ? building.longitude * 1 : -3.7038"
               [zoom]="17"
               [height]="'300px'"
-              [width]="'100%'">
+              [width]="'100%'"
+              [address]="building.address ? (building.address + (building.city ? ', ' + building.city : '') + (building.PostalCode ? ', ' + building.PostalCode : '') + (building.country ? ', ' + building.country : '')) : undefined">
             </app-building-map>
             <div class="mb-2"><strong>Código:</strong> {{ building.buildingCode }}</div>
             <div class="mb-2"><strong>Dirección:</strong> {{ building.address }}</div>
+            <div class="mb-2" *ngIf="building.PostalCode"><strong>Código Postal:</strong> {{ building.PostalCode }}</div>
             <div class="mb-2"><strong>Ciudad:</strong> {{ building.city }}</div>
             <div class="mb-2"><strong>Estado:</strong> {{ building.status }}</div>
             <div class="mb-2"><strong>Fecha de compra:</strong> {{ building.purchaseDate | date:'yyyy-MM-dd' }}</div>
@@ -156,6 +158,7 @@ export class BuildingDetailComponent {
     this.buildingsService.getBuildingDetailsByCode(code).subscribe({
       next: (data: any) => {
         this.building = data;
+        console.log('DEBUG building:', this.building);
         this.loading = false;
       },
       error: (err: any) => {

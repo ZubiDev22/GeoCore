@@ -1,4 +1,5 @@
-import { Component, Input } from '@angular/core';
+import { Component, Input, OnInit } from '@angular/core';
+import { GeocodingService } from '../services/geocoding.service';
 import { GoogleMapsModule } from '@angular/google-maps';
 
 @Component({
@@ -28,17 +29,43 @@ import { GoogleMapsModule } from '@angular/google-maps';
     }
   `]
 })
-export class BuildingMapComponent {
+export class BuildingMapComponent implements OnInit {
   @Input() latitude: number = 40.4168;
   @Input() longitude: number = -3.7038;
   @Input() zoom: number = 17;
   @Input() height: string = '300px';
   @Input() width: string = '100%';
+  @Input() address?: string;
+
+  loadingGeocode = false;
+  errorGeocode = '';
+
+  constructor(private geocodingService: GeocodingService) {}
 
   mapOptions: google.maps.MapOptions = {
     mapTypeId: 'roadmap',
     disableDefaultUI: false
   };
+
+  ngOnInit() {
+    if (this.address) {
+      this.loadingGeocode = true;
+      this.geocodingService.getCoordinates(this.address).subscribe({
+        next: (result: any) => {
+          const loc = result?.results?.[0]?.geometry?.location;
+          if (loc) {
+            this.latitude = loc.lat;
+            this.longitude = loc.lng;
+          }
+          this.loadingGeocode = false;
+        },
+        error: () => {
+          this.errorGeocode = 'No se pudo geocodificar la dirección.';
+          this.loadingGeocode = false;
+        }
+      });
+    }
+  }
 
   openStreetView() {
     const url = `https://www.google.com/maps/@?api=1&map_action=pano&viewpoint=${this.latitude},${this.longitude}`;

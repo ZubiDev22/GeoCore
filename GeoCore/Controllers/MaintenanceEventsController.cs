@@ -26,7 +26,7 @@ namespace GeoCore.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<Result<IEnumerable<MaintenanceEventDto>>>> GetAll(
+        public async Task<ActionResult<PagedResultDto<MaintenanceEventDto>>> GetAll(
             [FromQuery] DateTime? from = null,
             [FromQuery] DateTime? to = null,
             [FromQuery] string? buildingId = null,
@@ -53,11 +53,11 @@ namespace GeoCore.Controllers
                     {
                         MaintenanceEventId = e.MaintenanceEventId,
                         BuildingId = e.BuildingId,
-                        Date = e.Date, // DateTime para formato ISO 8601
+                        Date = e.Date,
                         Description = e.Description,
                         Cost = e.Cost
                     }).ToList();
-                return Ok(new { items = dtos, totalPages });
+                return Ok(new PagedResultDto<MaintenanceEventDto> { Items = dtos, TotalPages = totalPages });
             }
             catch (Exception ex)
             {
