@@ -26,7 +26,16 @@ import { CashFlowsService } from '../services/cashflows.service';
               [zoom]="17"
               [height]="'300px'"
               [width]="'100%'"
-              [address]="building.address ? (building.address + (building.city ? ', ' + building.city : '') + (building.PostalCode ? ', ' + building.PostalCode : '') + (building.country ? ', ' + building.country : '')) : undefined">
+              [street]="building.address"
+              [number]="building.number"
+              [city]="building.city"
+              [province]="
+                building.city === 'Madrid' ? 'Madrid' :
+                building.city === 'Pamplona' ? 'Navarra' :
+                ''
+              "
+              [postalCode]="building.postalCode || building.PostalCode"
+              [country]="'España'">
             </app-building-map>
             <div class="mb-2"><strong>Código:</strong> {{ building.buildingCode }}</div>
             <div class="mb-2"><strong>Dirección:</strong> {{ building.address }}</div>
