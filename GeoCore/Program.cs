@@ -64,8 +64,8 @@ builder.Services.AddSwaggerGen(c =>
 // Configuración de CORS para permitir Angular en desarrollo
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy("AllowAngularDev",
-        builder => builder.WithOrigins("http://localhost:4200")
+    options.AddPolicy("AllowFrontend",
+        builder => builder.WithOrigins("http://localhost:4200", "https://appgeocore.netlify.app")
                           .AllowAnyHeader()
                           .AllowAnyMethod());
 });
@@ -86,7 +86,8 @@ if (app.Environment.IsDevelopment())
 app.UseMiddleware<GeoCore.Middlewares.ExceptionLoggingMiddleware>();
 app.UseHttpsRedirection();
 // Usar la política CORS antes de Authorization y MapControllers
-app.UseCors("AllowAngularDev");
+//app.UseCors("AllowAngularDev");
+app.UseCors("AllowFrontend");
 app.UseAuthorization();
 app.MapControllers();
 app.Run();
