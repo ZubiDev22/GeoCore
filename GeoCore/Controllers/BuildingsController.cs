@@ -571,11 +571,18 @@ namespace GeoCore.Controllers
                 }
                 return b.City;
             }
-            var zones = buildings
-                .Select(b => new { b.BuildingId, b.Name, Zone = GetZoneForBuilding(b) })
+            var buildingsList = buildings
+                .Select(b => new {
+                    b.BuildingId,
+                    b.Name,
+                    City = b.City,
+                    Zone = GetZoneForBuilding(b),
+                    CityZone = $"{b.City} - {GetZoneForBuilding(b)}"
+                })
                 .ToList();
-            var uniqueZones = zones.Select(z => z.Zone).Distinct().OrderBy(z => z).ToList();
-            return Ok(new { zones = uniqueZones, buildings = zones });
+            var uniqueZones = buildingsList.Select(z => z.Zone).Distinct().OrderBy(z => z).ToList();
+            var uniqueCityZones = buildingsList.Select(z => z.CityZone).Distinct().OrderBy(z => z).ToList();
+            return Ok(new { zones = uniqueZones, cityZones = uniqueCityZones, buildings = buildingsList });
         }
     }
 }
