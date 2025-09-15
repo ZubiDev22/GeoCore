@@ -47,6 +47,7 @@ import { GoogleMapsModule } from '@angular/google-maps';
             <th>Nombre</th>
             <th>Dirección</th>
             <th>Ciudad</th>
+            <th>CP</th>
             <th>Estado</th>
             <th>Fecha de compra</th>
             <th></th>
@@ -54,14 +55,15 @@ import { GoogleMapsModule } from '@angular/google-maps';
         </thead>
         <tbody>
           <tr *ngFor="let b of buildings">
-            <td (click)="goToDetail(b.buildingCode)" style="cursor:pointer;">{{ b.buildingCode }}</td>
-            <td (click)="goToDetail(b.buildingCode)" style="cursor:pointer;">{{ b.name }}</td>
-            <td (click)="goToDetail(b.buildingCode)" style="cursor:pointer;">{{ b.address }}</td>
-            <td (click)="goToDetail(b.buildingCode)" style="cursor:pointer;">{{ b.city }}</td>
-            <td (click)="goToDetail(b.buildingCode)" style="cursor:pointer;">{{ b.status }}</td>
-            <td (click)="goToDetail(b.buildingCode)" style="cursor:pointer;">{{ b.purchaseDate | date:'yyyy-MM-dd' }}</td>
+            <td (click)="goToDetail(b.BuildingCode)" style="cursor:pointer;">{{ b.BuildingCode }}</td>
+            <td (click)="goToDetail(b.BuildingCode)" style="cursor:pointer;">{{ b.Name }}</td>
+            <td (click)="goToDetail(b.BuildingCode)" style="cursor:pointer;">{{ b.Address }}</td>
+            <td (click)="goToDetail(b.BuildingCode)" style="cursor:pointer;">{{ b.City }}</td>
+            <td (click)="goToDetail(b.BuildingCode)" style="cursor:pointer;">{{ b.PostalCode }}</td>
+            <td (click)="goToDetail(b.BuildingCode)" style="cursor:pointer;">{{ b.Status }}</td>
+            <td (click)="goToDetail(b.BuildingCode)" style="cursor:pointer;">{{ b.PurchaseDate | date:'yyyy-MM-dd' }}</td>
             <td>
-              <button class="btn btn-sm btn-outline-primary me-2" (click)="goToEdit(b.buildingCode); $event.stopPropagation()"><i class="bi bi-pencil"></i> Editar</button>
+              <button class="btn btn-sm btn-outline-primary me-2" (click)="goToEdit(b.BuildingCode); $event.stopPropagation()"><i class="bi bi-pencil"></i> Editar</button>
             </td>
           </tr>
         </tbody>
@@ -124,23 +126,24 @@ export class BuildingsComponent {
     this.loading = true;
     this.error = '';
     const params: any = {
-      page: this.page,
-      pageSize: this.pageSize,
+      Page: this.page,
+      PageSize: this.pageSize,
       ...(this.filters.code && { code: this.filters.code }),
       ...(this.filters.city && { city: this.filters.city }),
       ...(this.filters.status && { status: this.filters.status })
     };
     this.buildingsService.getBuildings(params).subscribe({
       next: (res) => {
-        this.buildings = res.items || res;
-        this.totalPages = res.totalPages || 1;
+        const adaptado = this.adaptarRespuestaEdificios(res);
+        this.buildings = adaptado.items || adaptado;
+        this.totalPages = adaptado.totalPages || 1;
         // Filtrar edificios con lat/lng válidos
-        this.buildingsWithCoords = this.buildings.filter(b => b.latitude && b.longitude);
+        this.buildingsWithCoords = this.buildings.filter(b => b.Latitude && b.Longitude);
         // Centrar el mapa en el primer edificio válido, o en España si no hay
         if (this.buildingsWithCoords.length) {
           this.mapCenter = {
-            lat: this.buildingsWithCoords[0].latitude,
-            lng: this.buildingsWithCoords[0].longitude
+            lat: this.buildingsWithCoords[0].Latitude,
+            lng: this.buildingsWithCoords[0].Longitude
           };
           this.mapZoom = 12;
         } else {
@@ -154,6 +157,37 @@ export class BuildingsComponent {
         this.loading = false;
       }
     });
+  }
+
+  // Adapta la respuesta del backend a mayúsculas según el modelo esperado
+  private adaptarRespuestaEdificios(data: any): any {
+    if (!data) return [];
+    // Si es array plano
+    if (Array.isArray(data)) {
+      return data.map(this.adaptarEdificio);
+    }
+    // Si es paginado
+    return {
+      items: Array.isArray(data.items) ? data.items.map(this.adaptarEdificio) : [],
+      totalPages: data.totalPages ?? data.TotalPages ?? 1
+    };
+  }
+
+  // Adapta un edificio individual
+  private adaptarEdificio(ed: any): any {
+    if (!ed) return ed;
+    return {
+      BuildingCode: ed.buildingCode ?? ed.BuildingCode ?? ed.building_code,
+      Name: ed.name ?? ed.Name,
+      Address: ed.address ?? ed.Address,
+      City: ed.city ?? ed.City,
+      PostalCode: ed.postalCode ?? ed.PostalCode ?? ed.codigoPostal ?? ed.CodigoPostal,
+  Zone: ed.zone ?? ed.Zone ?? ed.zona ?? ed.Zona,
+  Status: ed.status ?? ed.Status,
+      PurchaseDate: ed.purchaseDate ?? ed.PurchaseDate,
+      Latitude: ed.latitude ?? ed.Latitude,
+      Longitude: ed.longitude ?? ed.Longitude
+    };
   }
 
   setPage(p: number) {

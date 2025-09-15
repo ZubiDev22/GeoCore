@@ -65,14 +65,46 @@ namespace GeoCore.DTOs
         public decimal TotalGastos { get; set; }
         public decimal TotalInversion { get; set; }
         public string RentabilidadMedia { get; set; } = string.Empty;
-        public IEnumerable<ProfitabilityByLocationDetailDto> Detalle { get; set; } = new List<ProfitabilityByLocationDetailDto>();
+        public List<ProfitabilityByLocationDetailDto> Detalle { get; set; } = new();
+        public List<ZoneProfitabilityDto> RentabilidadPorZona { get; set; } = new();
+        public List<CityProfitabilityDto> RentabilidadPorCiudad { get; set; } = new();
+        public List<PostalCodeProfitabilityDto> RentabilidadPorPostalCode { get; set; } = new();
+        public string EscalaBaremosDescripcion { get; set; } = "Baja < 3%, Media 3-6%, Alta > 6%";
     }
     public class ProfitabilityByLocationDetailDto
     {
+        public string BuildingId { get; set; } = string.Empty;
         public string BuildingCode { get; set; } = string.Empty;
+        public string Name { get; set; } = string.Empty;
+        public string Address { get; set; } = string.Empty;
+        public string City { get; set; } = string.Empty;
+        public double Latitude { get; set; }
+        public double Longitude { get; set; }
+        public DateTime PurchaseDate { get; set; }
+        public string Status { get; set; } = string.Empty;
+        public string PostalCode { get; set; } = string.Empty;
         public decimal Ingresos { get; set; }
         public decimal Gastos { get; set; }
         public decimal Inversion { get; set; }
         public string Rentabilidad { get; set; } = string.Empty;
+        public string TipoRentabilidad { get; set; } = string.Empty; // "Real" o "Potencial"
+    }
+    public class ZoneProfitabilityDto
+    {
+        public string Zone { get; set; } = string.Empty;
+        public string Rentabilidad { get; set; } = string.Empty;
+        public string Baremo { get; set; } = string.Empty;
+    }
+    public class CityProfitabilityDto
+    {
+        public string City { get; set; } = string.Empty;
+        public string Rentabilidad { get; set; } = string.Empty;
+        public string Baremo { get; set; } = string.Empty;
+    }
+    public class PostalCodeProfitabilityDto
+    {
+        public string PostalCode { get; set; } = string.Empty;
+        public string Rentabilidad { get; set; } = string.Empty;
+        public string Baremo { get; set; } = string.Empty;
     }
 }

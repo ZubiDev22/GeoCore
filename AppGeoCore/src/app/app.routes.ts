@@ -8,7 +8,7 @@ import { ApartmentsComponent } from './pages/apartments.component';
 import { RentalsComponent } from './pages/rentals.component';
 import { MaintenanceEventsComponent } from './pages/maintenance-events.component';
 import { CashFlowsComponent } from './pages/cashflows.component';
-import { ProfitabilityComponent } from './pages/profitability.component';
+import { ReportesComponent } from './pages/reportes.component';
 
 export const routes: Routes = [
 	{ path: 'gestion', component: GestionComponent },
@@ -21,7 +21,7 @@ export const routes: Routes = [
 	{ path: 'rentals', component: RentalsComponent },
 	{ path: 'maintenance-events', component: MaintenanceEventsComponent },
 	{ path: 'cashflows', component: CashFlowsComponent },
-	{ path: 'profitability', component: ProfitabilityComponent },
+	{ path: 'profitability', component: ReportesComponent },
 	{ path: '', redirectTo: '/dashboard', pathMatch: 'full' },
 	{ path: '**', redirectTo: '/dashboard' }
 ];

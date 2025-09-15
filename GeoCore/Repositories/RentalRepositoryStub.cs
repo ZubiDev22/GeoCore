@@ -11,7 +11,17 @@ namespace GeoCore.Repositories
         {
             new Rental { RentalId = "REN001", ApartmentId = "APT001", StartDate = new DateTime(2023, 1, 1), EndDate = new DateTime(2023, 12, 31), IsConfirmed = true, Price = 1200, Zone = "Centro", PostalCode = "28001" },
             new Rental { RentalId = "REN002", ApartmentId = "APT002", StartDate = new DateTime(2023, 2, 1), EndDate = new DateTime(2023, 8, 31), IsConfirmed = true, Price = 1100, Zone = "Eixample", PostalCode = "08009" },
-            new Rental { RentalId = "REN003", ApartmentId = "APT003", StartDate = new DateTime(2023, 3, 1), EndDate = new DateTime(2023, 9, 30), IsConfirmed = false, Price = 900, Zone = "Ruzafa", PostalCode = "46004" }
+            new Rental { RentalId = "REN003", ApartmentId = "APT003", StartDate = new DateTime(2023, 3, 1), EndDate = new DateTime(2023, 9, 30), IsConfirmed = false, Price = 900, Zone = "Ruzafa", PostalCode = "46004" },
+            // BLD011 (Pérez Goyena 28, Pamplona)
+            new Rental { RentalId = "REN004", ApartmentId = "APT031", StartDate = new DateTime(2023, 3, 1), EndDate = new DateTime(2023, 12, 31), IsConfirmed = true, Price = 950, Zone = "Iturrama", PostalCode = "31620" },
+            new Rental { RentalId = "REN005", ApartmentId = "APT032", StartDate = new DateTime(2023, 4, 1), EndDate = new DateTime(2023, 10, 31), IsConfirmed = true, Price = 1000, Zone = "Iturrama", PostalCode = "31620" },
+            // BLD010 (Estafeta, Pamplona)
+            new Rental { RentalId = "REN006", ApartmentId = "APT028", StartDate = new DateTime(2023, 5, 1), EndDate = new DateTime(2023, 12, 31), IsConfirmed = true, Price = 870, Zone = "Casco Viejo", PostalCode = "31001" },
+            new Rental { RentalId = "REN007", ApartmentId = "APT029", StartDate = new DateTime(2023, 6, 1), EndDate = new DateTime(2023, 11, 30), IsConfirmed = false, Price = 900, Zone = "Casco Viejo", PostalCode = "31001" },
+            // BLD004 (Valencia) - Rentabilidad BAJA
+            new Rental { RentalId = "REN008", ApartmentId = "APT010", StartDate = new DateTime(2023, 5, 1), EndDate = new DateTime(2023, 12, 31), IsConfirmed = true, Price = 1000, Zone = "Blasco Ibañez", PostalCode = "46022" },
+            // BLD006 (Granada) - Rentabilidad MEDIA
+            new Rental { RentalId = "REN009", ApartmentId = "APT016", StartDate = new DateTime(2023, 5, 1), EndDate = new DateTime(2023, 12, 31), IsConfirmed = true, Price = 4200, Zone = "Alhamar", PostalCode = "18004" }
         };
         public Task<IEnumerable<Rental>> GetAllAsync() => Task.FromResult(_rentals.AsEnumerable());
         public Task<Rental?> GetByIdAsync(string id) => Task.FromResult(_rentals.FirstOrDefault(r => r.RentalId == id));

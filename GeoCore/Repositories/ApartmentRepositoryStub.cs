@@ -48,7 +48,13 @@ namespace GeoCore.Repositories
             // BLD010
             new Apartment { ApartmentId = "APT028", ApartmentDoor = "1A", ApartmentFloor = "1", ApartmentPrice = 128000, NumberOfRooms = 3, NumberOfBathrooms = 2, BuildingId = "BLD010", HasLift = true, HasGarage = false, CreatedDate = DateTime.Parse("2023-01-28") },
             new Apartment { ApartmentId = "APT029", ApartmentDoor = "2A", ApartmentFloor = "2", ApartmentPrice = 133000, NumberOfRooms = 4, NumberOfBathrooms = 2, BuildingId = "BLD010", HasLift = true, HasGarage = true, CreatedDate = DateTime.Parse("2023-01-29") },
-            new Apartment { ApartmentId = "APT030", ApartmentDoor = "3A", ApartmentFloor = "3", ApartmentPrice = 138000, NumberOfRooms = 2, NumberOfBathrooms = 1, BuildingId = "BLD010", HasLift = false, HasGarage = false, CreatedDate = DateTime.Parse("2023-01-30") }
+            new Apartment { ApartmentId = "APT030", ApartmentDoor = "3A", ApartmentFloor = "3", ApartmentPrice = 138000, NumberOfRooms = 2, NumberOfBathrooms = 1, BuildingId = "BLD010", HasLift = false, HasGarage = false, CreatedDate = DateTime.Parse("2023-01-30") },
+            // BLD011 (Pérez Goyena 28, Pamplona)
+            new Apartment { ApartmentId = "APT031", ApartmentDoor = "1A", ApartmentFloor = "1", ApartmentPrice = 150000, NumberOfRooms = 3, NumberOfBathrooms = 2, BuildingId = "BLD011", HasLift = true, HasGarage = true, CreatedDate = DateTime.Parse("2023-02-01") },
+            new Apartment { ApartmentId = "APT032", ApartmentDoor = "2A", ApartmentFloor = "2", ApartmentPrice = 155000, NumberOfRooms = 3, NumberOfBathrooms = 2, BuildingId = "BLD011", HasLift = true, HasGarage = false, CreatedDate = DateTime.Parse("2023-02-02") },
+            new Apartment { ApartmentId = "APT033", ApartmentDoor = "3A", ApartmentFloor = "3", ApartmentPrice = 160000, NumberOfRooms = 4, NumberOfBathrooms = 2, BuildingId = "BLD011", HasLift = true, HasGarage = true, CreatedDate = DateTime.Parse("2023-02-03") },
+            new Apartment { ApartmentId = "APT034", ApartmentDoor = "4A", ApartmentFloor = "4", ApartmentPrice = 165000, NumberOfRooms = 3, NumberOfBathrooms = 2, BuildingId = "BLD011", HasLift = true, HasGarage = false, CreatedDate = DateTime.Parse("2023-02-04") },
+            new Apartment { ApartmentId = "APT035", ApartmentDoor = "Atico", ApartmentFloor = "5", ApartmentPrice = 180000, NumberOfRooms = 2, NumberOfBathrooms = 2, BuildingId = "BLD011", HasLift = true, HasGarage = true, CreatedDate = DateTime.Parse("2023-02-05") }
         };
         public Task<IEnumerable<Apartment>> GetAllAsync() => Task.FromResult(_apartments.AsEnumerable());
         public Task<Apartment?> GetByIdAsync(string id) => Task.FromResult(_apartments.FirstOrDefault(a => a.ApartmentId == id));

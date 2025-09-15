@@ -3,6 +3,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Observable, throwError } from 'rxjs';
 import { catchError } from 'rxjs/operators';
+import { ProfitabilityDto, ProfitabilityByLocationDto } from '../models/reportes.model';
 
 @Injectable({ providedIn: 'root' })
 export class BuildingsService {
@@ -74,15 +75,15 @@ export class BuildingsService {
   }
 
   // Rentabilidad por edificio
-  getProfitabilityByBuilding(code: string): Observable<any> {
-    return this.http.get(`${this.apiUrl}/code/${code}/profitability`).pipe(
+  getProfitabilityByBuilding(code: string): Observable<ProfitabilityDto> {
+    return this.http.get<ProfitabilityDto>(`${this.apiUrl}/code/${code}/profitability`).pipe(
       catchError(this.handleError)
     );
   }
 
   // Rentabilidad por localización
-  getProfitabilityByLocation(params?: any): Observable<any> {
-    return this.http.get(`${this.apiUrl}/profitability-by-location`, { params }).pipe(
+  getProfitabilityByLocation(params?: any): Observable<ProfitabilityByLocationDto> {
+    return this.http.get<ProfitabilityByLocationDto>(`${this.apiUrl}/profitability-by-location`, { params }).pipe(
       catchError(this.handleError)
     );
   }

@@ -1,0 +1,22 @@
+
+<header class="header shadow-sm" role="banner">
+	<div class="logo d-flex align-items-center">
+		<a routerLink="/dashboard" tabindex="0" class="d-flex align-items-center">
+			<img src="assets/logo.png" alt="GeoCore Logo" class="logo-img me-2" />
+			<span class="brand">GeoCore</span>
+		</a>
+	</div>
+	<button class="menu-toggle" aria-label="Abrir menú de navegación" aria-expanded="{{menuOpen}}" (click)="toggleMenu()" tabindex="0">
+		<span class="bar"></span>
+		<span class="bar"></span>
+		<span class="bar"></span>
+	</button>
+	<nav class="nav" [class.open]="menuOpen" role="navigation" aria-label="Menú principal">
+		<ul class="nav-list" [class.open]="menuOpen">
+			<li><a routerLink="/dashboard" routerLinkActive="active" (click)="closeMenu()"><i class="bi bi-house-door"></i> Inicio</a></li>
+			<li><a routerLink="/gestion" routerLinkActive="active" (click)="closeMenu()"><i class="bi bi-gear"></i> Gestión</a></li>
+			<li><a routerLink="/rentals" routerLinkActive="active" (click)="closeMenu()"><i class="bi bi-cash-coin"></i> Alquileres</a></li>
+			<li><a routerLink="/profitability" routerLinkActive="active" (click)="closeMenu()"><i class="bi bi-bar-chart"></i> Reportes</a></li>
+		</ul>
+	</nav>
+</header>
