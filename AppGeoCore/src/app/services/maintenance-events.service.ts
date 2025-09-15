@@ -1,6 +1,7 @@
 
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
+import { environment } from '../../environments/environment';
 import { Observable, throwError } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 
@@ -10,14 +11,14 @@ export class MaintenanceEventsService {
 
   // Listado de eventos con filtros
   getMaintenanceEvents(params?: any): Observable<any> {
-    return this.http.get('/api/maintenance-events', { params }).pipe(
+  return this.http.get(`${environment.apiUrl}/api/maintenance-events`, { params }).pipe(
       catchError(this.handleError)
     );
   }
 
   // Detalle de evento
   getMaintenanceEventById(id: number): Observable<any> {
-    return this.http.get(`/api/maintenance-events/${id}`).pipe(
+  return this.http.get(`${environment.apiUrl}/maintenance-events/${id}`).pipe(
       catchError(this.handleError)
     );
   }

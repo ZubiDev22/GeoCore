@@ -1,13 +1,14 @@
 
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
+import { environment } from '../../environments/environment';
 import { Observable, throwError } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 import { ProfitabilityDto, ProfitabilityByLocationDto } from '../models/reportes.model';
 
 @Injectable({ providedIn: 'root' })
 export class BuildingsService {
-  private apiUrl = '/api/buildings';
+  private apiUrl = `${environment.apiUrl}/api/buildings`;
 
   constructor(private http: HttpClient) {}
 

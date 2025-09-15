@@ -1,6 +1,7 @@
 
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
+import { environment } from '../../environments/environment';
 import { Observable, throwError } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 
@@ -10,7 +11,7 @@ export class CashFlowsService {
 
   // Listado de flujos de caja por edificio
   getCashFlowsByBuilding(code: string): Observable<any> {
-    return this.http.get(`/api/buildings/${code}/cashflows`).pipe(
+  return this.http.get(`${environment.apiUrl}/api/buildings/${code}/cashflows`).pipe(
       catchError(this.handleError)
     );
   }

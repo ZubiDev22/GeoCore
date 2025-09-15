@@ -1,6 +1,7 @@
 
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
+import { environment } from '../../environments/environment';
 import { Observable, throwError } from 'rxjs';
 import { catchError, map } from 'rxjs/operators';
 import { RentalDto, Result } from '../models/reportes.model';
@@ -11,14 +12,14 @@ export class RentalsService {
 
   // Listado de alquileres con filtros
   getRentals(params?: any): Observable<Result<RentalDto[]>> {
-    return this.http.get<Result<RentalDto[]>>('/api/rentals', { params }).pipe(
+  return this.http.get<Result<RentalDto[]>>(`${environment.apiUrl}/api/rentals`, { params }).pipe(
       catchError(this.handleError)
     );
   }
 
   // Detalle de alquiler
   getRentalById(id: string): Observable<Result<RentalDto>> {
-    return this.http.get<Result<RentalDto>>(`/api/rentals/${id}`).pipe(
+  return this.http.get<Result<RentalDto>>(`${environment.apiUrl}/rentals/${id}`).pipe(
       catchError(this.handleError)
     );
   }
@@ -34,7 +35,7 @@ export class RentalsService {
   }
   // Crear alquiler
   createRental(rental: RentalDto): Observable<Result<{ RentalId: string }>> {
-    return this.http.post<Result<{ RentalId: string }>>('/api/rentals', rental).pipe(
+  return this.http.post<Result<{ RentalId: string }>>(`${environment.apiUrl}/rentals`, rental).pipe(
       catchError(this.handleError)
     );
   }
