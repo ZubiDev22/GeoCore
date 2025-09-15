@@ -1,3 +1,11 @@
+// Modelo base para apartamentos asociados a edificio
+export interface Apartment {
+  ApartmentId?: string;
+  apartmentId?: string;
+  status?: string;
+  Status?: string;
+  // ...otros campos relevantes
+}
 // Modelos para Alquileres y Reportes según los DTOs del backend
 
 export interface RentalDto {
@@ -54,6 +62,8 @@ export interface ProfitabilityByLocationDetailDto {
   Gastos: number;
   Inversion: number;
   Rentabilidad: string;
+  TipoRentabilidad?: string; // "Real" o "Potencial"
+  Baremo?: string; // "Baja", "Media", "Alta"
   Address?: string;
   City?: string;
   PostalCode?: string;

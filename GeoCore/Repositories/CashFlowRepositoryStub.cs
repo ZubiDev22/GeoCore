@@ -23,7 +23,9 @@ namespace GeoCore.Repositories
             // BLD010 (Estafeta, Pamplona)
             new CashFlow { CashFlowId = "CAF014", BuildingId = "BLD010", Date = DateTime.Parse("2020-03-18"), Amount = 420000, Source = "Compra inicial" },
             new CashFlow { CashFlowId = "CAF015", BuildingId = "BLD010", Date = DateTime.Parse("2020-04-10"), Amount = 870, Source = "Alquiler primer mes" },
-            new CashFlow { CashFlowId = "CAF016", BuildingId = "BLD010", Date = DateTime.Parse("2020-05-10"), Amount = 350, Source = "Gasto comunidad" }
+            new CashFlow { CashFlowId = "CAF016", BuildingId = "BLD010", Date = DateTime.Parse("2020-05-10"), Amount = 350, Source = "Gasto comunidad" },
+            // BLD011 (Pérez Goyena, Pamplona)
+            new CashFlow { CashFlowId = "CAF023", BuildingId = "BLD011", Date = DateTime.Parse("2021-09-01"), Amount = 250000, Source = "Compra inicial" }
         };
         public Task<IEnumerable<CashFlow>> GetAllAsync() => Task.FromResult(_cashFlows.AsEnumerable());
         public Task<CashFlow?> GetByIdAsync(string id) => Task.FromResult(_cashFlows.FirstOrDefault(c => c.CashFlowId == id));

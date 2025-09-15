@@ -45,6 +45,35 @@ namespace GeoCore.Controllers
             };
         }
 
+        private async Task<string> GetBuildingStatusFromApartments(string buildingId)
+        {
+            var apartmentRepo = HttpContext.RequestServices.GetService<IApartmentRepository>();
+            if (apartmentRepo == null)
+                return string.Empty;
+            var apartments = (await apartmentRepo.GetByBuildingIdAsync(buildingId)).ToList();
+            if (!apartments.Any())
+                return string.Empty; // Mantener el estado actual si no hay apartamentos
+            // Si al menos uno en Maintenance
+            if (apartments.Any(a => a.GetType().GetProperty("Status")?.GetValue(a)?.ToString() == "Maintenance"))
+                return "Maintenance";
+            // Si al menos uno en Active
+            if (apartments.Any(a => a.GetType().GetProperty("Status")?.GetValue(a)?.ToString() == "Active"))
+                return "Active";
+            // Si todos en Rented
+            if (apartments.All(a => a.GetType().GetProperty("Status")?.GetValue(a)?.ToString() == "Rented"))
+                return "Rented";
+            return string.Empty;
+        }
+
+        private async Task<BuildingDto> MapToDtoWithApartmentStatus(Building b)
+        {
+            var dto = MapToDto(b);
+            var statusFromApts = await GetBuildingStatusFromApartments(b.BuildingId);
+            if (!string.IsNullOrEmpty(statusFromApts))
+                dto.Status = statusFromApts;
+            return dto;
+        }
+
         [HttpGet]
         public async Task<ActionResult<PagedResultDto<BuildingDto>>> GetAll(
             [FromQuery] int page = 1,
@@ -61,7 +90,11 @@ namespace GeoCore.Controllers
                 query = query.Where(b => b.Status.ToLower() == status.ToLower());
             var totalItems = query.Count();
             var totalPages = (int)Math.Ceiling(totalItems / (double)pageSize);
-            var items = query.Skip((page - 1) * pageSize).Take(pageSize).Select(MapToDto).ToList();
+            var items = new List<BuildingDto>();
+            foreach (var b in query.Skip((page - 1) * pageSize).Take(pageSize))
+            {
+                items.Add(await MapToDtoWithApartmentStatus(b));
+            }
             return Ok(new PagedResultDto<BuildingDto> { Items = items, TotalPages = totalPages });
         }
 
@@ -83,7 +116,7 @@ namespace GeoCore.Controllers
                 var building = await _repository.GetByCodeAsync(code);
                 if (building == null)
                     return NotFound(Result<BuildingDto>.Failure(new NotFoundError($"Building with code '{code}' not found.")));
-                var dto = MapToDto(building);
+                var dto = await MapToDtoWithApartmentStatus(building);
                 return Ok(Result<BuildingDto>.Success(dto));
             }
             catch (Exception ex)
@@ -99,7 +132,8 @@ namespace GeoCore.Controllers
             var building = await _repository.GetByCodeAsync(code);
             if (building == null)
                 return NotFound();
-            var status = building.Status;
+            var statusFromApts = await GetBuildingStatusFromApartments(building.BuildingId);
+            var status = !string.IsNullOrEmpty(statusFromApts) ? statusFromApts : building.Status;
             string description = "Edificio ingresado en el sistema";
             // Si hay MaintenanceEvent y status es Under Maintenance
             if (status == "Under Maintenance")
@@ -222,7 +256,21 @@ namespace GeoCore.Controllers
                 if (apartmentRepo == null)
                     return StatusCode(500, "Repositorio de apartamentos no disponible");
                 var apartments = await apartmentRepo.GetAllAsync();
-                var result = apartments.Where(a => a.BuildingId == building.BuildingId).ToList();
+                var result = apartments.Where(a => a.BuildingId == building.BuildingId)
+                    .Select(a => new ApartmentDto {
+                        ApartmentId = a.ApartmentId,
+                        ApartmentDoor = a.ApartmentDoor,
+                        ApartmentFloor = a.ApartmentFloor,
+                        ApartmentPrice = a.ApartmentPrice,
+                        NumberOfRooms = a.NumberOfRooms,
+                        NumberOfBathrooms = a.NumberOfBathrooms,
+                        BuildingId = a.BuildingId,
+                        HasLift = a.HasLift,
+                        HasGarage = a.HasGarage,
+                        CreatedDate = a.CreatedDate.ToString("yyyy-MM-dd"),
+                        Status = a.Status // Usar el estado real del apartamento
+                    })
+                    .ToList();
                 return Ok(result);
             }
             catch (Exception ex)
@@ -304,6 +352,9 @@ namespace GeoCore.Controllers
             [FromQuery] string? zone = null,
             [FromQuery] string? city = null)
         {
+            // Declarar getBaremo al principio del método
+            Func<decimal, string> getBaremo = r => r < 0.03m ? "Baja" : (r < 0.06m ? "Media" : "Alta");
+
             _logger.LogInformation($"[BuildingsController] Calculando rentabilidad por localización: postalCode={postalCode}, zone={zone}, city={city}");
             var buildingRepo = _repository;
             var apartmentRepo = HttpContext.RequestServices.GetService<IApartmentRepository>();
@@ -320,20 +371,20 @@ namespace GeoCore.Controllers
             var cashflows = await cashFlowRepo.GetAllAsync();
             var maintenances = await maintenanceRepo.GetAllAsync();
 
-            // Asignación dinámica de estado "Rented" si hay alquiler confirmado
-            foreach (var building in buildings)
-            {
-                var buildingApartments = apartments.Where(a => a.BuildingId == building.BuildingId).ToList();
-                var buildingApartmentIds = buildingApartments.Select(a => a.ApartmentId).ToList();
-                var hasConfirmedRental = rentals.Any(r => buildingApartmentIds.Contains(r.ApartmentId) && r.IsConfirmed);
-                if (hasConfirmedRental)
-                {
-                    building.Status = "Rented";
-                }
-            }
-
             // Función para normalizar texto (quitar espacios y pasar a minúsculas)
             string Normalize(string? s) => string.IsNullOrWhiteSpace(s) ? string.Empty : string.Join(" ", s.Trim().ToLower().Split(' ', StringSplitOptions.RemoveEmptyEntries));
+
+            // Asignar zone representativo a cada edificio
+            string GetZoneForBuilding(GeoCore.Entities.Building b)
+            {
+                if (b.City.ToLower() == "pamplona")
+                {
+                    if (b.Address.ToLower().Contains("estafeta")) return "Centro";
+                    if (b.Address.ToLower().Contains("pérez goyena") || b.Address.ToLower().Contains("perez goyena")) return "Huarte";
+                }
+                // Para el resto de edificios, usar el nombre de la ciudad como zona
+                return b.City;
+            }
 
             // Filtrado de edificios según prioridad: postalCode > zone > city
             IEnumerable<string> buildingIds = Enumerable.Empty<string>();
@@ -351,16 +402,9 @@ namespace GeoCore.Controllers
             {
                 var normalizedZone = Normalize(zone);
                 _logger.LogDebug($"Filtro zone normalizado: '{normalizedZone}'");
-                var apartmentIds = rentals
-                    .Where(r => Normalize(r.Zone).Contains(normalizedZone))
-                    .Select(r => r.ApartmentId)
-                    .Distinct()
-                    .ToList();
-                _logger.LogDebug($"ApartmentIds encontrados por zone: {string.Join(",", apartmentIds)}");
-                buildingIds = apartments
-                    .Where(a => apartmentIds.Contains(a.ApartmentId))
-                    .Select(a => a.BuildingId)
-                    .Distinct()
+                buildingIds = buildings
+                    .Where(b => Normalize(GetZoneForBuilding(b)).Contains(normalizedZone))
+                    .Select(b => b.BuildingId)
                     .ToList();
                 _logger.LogDebug($"BuildingIds encontrados por zone: {string.Join(",", buildingIds)}");
             }
@@ -386,9 +430,31 @@ namespace GeoCore.Controllers
 
             var resultados = new List<ProfitabilityByLocationDetailDto>();
             decimal totalIngresos = 0, totalGastos = 0, totalInversion = 0;
-            // Precalcular promedios de edificios Rented por localización
-            var rentedBuildingsForAvg = new List<ProfitabilityByLocationDetailDto>();
-            // Primero, calcular los datos reales para edificios Rented
+            // Calcular promedios globales de edificios Rented para rentabilidad potencial
+            var rentedBuildings = filteredBuildings.Where(b => b.Status == "Rented").ToList();
+            decimal avgIngresos = 0, avgGastos = 0, avgInversion = 0;
+            if (rentedBuildings.Any())
+            {
+                avgIngresos = rentedBuildings.Average(b => {
+                    var buildingApartments = apartments.Where(a => a.BuildingId == b.BuildingId).ToList();
+                    var buildingApartmentIds = buildingApartments.Select(a => a.ApartmentId).ToList();
+                    var buildingRentals = rentals.Where(r => buildingApartmentIds.Contains(r.ApartmentId) && r.IsConfirmed);
+                    return buildingRentals.Sum(r => r.Price);
+                });
+                avgGastos = rentedBuildings.Average(b => {
+                    var buildingCashflows = cashflows.Where(c => c.BuildingId == b.BuildingId);
+                    var buildingMaintenances = maintenances.Where(m => m.BuildingId == b.BuildingId);
+                    var gastosCashFlow = buildingCashflows.Where(c => c.Source != null && (c.Source.ToLower().Contains("compra") || c.Source.ToLower().Contains("reforma") || c.Source.ToLower().Contains("gasto"))).Sum(c => c.Amount);
+                    var gastosMantenimiento = buildingMaintenances.Sum(m => m.Cost);
+                    return gastosCashFlow + gastosMantenimiento;
+                });
+                avgInversion = rentedBuildings.Average(b => {
+                    var buildingCashflows = cashflows.Where(c => c.BuildingId == b.BuildingId);
+                    return buildingCashflows.Where(c => c.Source != null && c.Source.ToLower().Contains("compra")).OrderBy(c => c.Date).FirstOrDefault()?.Amount ?? 0;
+                });
+            }
+
+            // Lógica original: para cada edificio filtrado, calcular datos reales o dejar en 0 si no hay datos
             foreach (var building in filteredBuildings)
             {
                 var buildingApartments = apartments.Where(a => a.BuildingId == building.BuildingId).ToList();
@@ -397,38 +463,15 @@ namespace GeoCore.Controllers
                 var buildingCashflows = cashflows.Where(c => c.BuildingId == building.BuildingId);
                 var buildingMaintenances = maintenances.Where(m => m.BuildingId == building.BuildingId);
 
-                decimal ingresos = 0, gastos = 0, inversion = 0;
-                string rentabilidadFormatted = "0%";
-                string tipoRentabilidad = "Potencial";
-                if (building.Status == "Rented")
-                {
-                    ingresos = buildingRentals.Sum(r => r.Price);
-                    var gastosCashFlow = buildingCashflows.Where(c => c.Source != null && (c.Source.ToLower().Contains("compra") || c.Source.ToLower().Contains("reforma") || c.Source.ToLower().Contains("gasto"))).Sum(c => c.Amount);
-                    var gastosMantenimiento = buildingMaintenances.Sum(m => m.Cost);
-                    gastos = gastosCashFlow + gastosMantenimiento;
-                    inversion = buildingCashflows.Where(c => c.Source != null && c.Source.ToLower().Contains("compra")).OrderBy(c => c.Date).FirstOrDefault()?.Amount ?? 0;
-                    var rentabilidad = inversion > 0 ? (ingresos - gastos) / inversion : 0;
-                    rentabilidadFormatted = (rentabilidad * 100).ToString("0.##", CultureInfo.InvariantCulture) + "%";
-                    tipoRentabilidad = "Real";
-                    rentedBuildingsForAvg.Add(new ProfitabilityByLocationDetailDto {
-                        BuildingId = building.BuildingId,
-                        BuildingCode = building.BuildingCode,
-                        Name = building.Name,
-                        Address = building.Address,
-                        City = building.City,
-                        Latitude = building.Latitude,
-                        Longitude = building.Longitude,
-                        PurchaseDate = building.PurchaseDate,
-                        Status = building.Status,
-                        PostalCode = building.PostalCode,
-                        Ingresos = ingresos,
-                        Gastos = gastos,
-                        Inversion = inversion,
-                        Rentabilidad = rentabilidadFormatted,
-                        TipoRentabilidad = tipoRentabilidad
-                    });
-                }
-                resultados.Add(new ProfitabilityByLocationDetailDto
+                decimal ingresos = buildingRentals.Sum(r => r.Price);
+                decimal gastosCashFlow = buildingCashflows.Where(c => c.Source != null && (c.Source.ToLower().Contains("compra") || c.Source.ToLower().Contains("reforma") || c.Source.ToLower().Contains("gasto"))).Sum(c => c.Amount);
+                decimal gastosMantenimiento = buildingMaintenances.Sum(m => m.Cost);
+                decimal gastos = gastosCashFlow + gastosMantenimiento;
+                decimal inversion = buildingCashflows.Where(c => c.Source != null && c.Source.ToLower().Contains("compra")).OrderBy(c => c.Date).FirstOrDefault()?.Amount ?? 0;
+                decimal rentabilidad = inversion > 0 ? (ingresos - gastos) / inversion : 0;
+                string rentabilidadFormatted = (rentabilidad * 100).ToString("0.##", CultureInfo.InvariantCulture) + "%";
+
+                resultados.Add(new GeoCore.DTOs.ProfitabilityByLocationDetailDto
                 {
                     BuildingId = building.BuildingId,
                     BuildingCode = building.BuildingCode,
@@ -444,34 +487,21 @@ namespace GeoCore.Controllers
                     Gastos = gastos,
                     Inversion = inversion,
                     Rentabilidad = rentabilidadFormatted,
-                    TipoRentabilidad = tipoRentabilidad
+                    TipoRentabilidad = null,
+                    Baremo = null,
+                    Zone = GetZoneForBuilding(building) // Nuevo campo zone coherente
                 });
                 totalIngresos += ingresos;
                 totalGastos += gastos;
                 totalInversion += inversion;
-            }
-            // Ahora, para edificios no Rented, calcular rentabilidad potencial usando promedios de la localización
-            foreach (var detail in resultados.Where(r => r.TipoRentabilidad == "Potencial"))
-            {
-                // Buscar promedios de edificios Rented en la misma ciudad
-                var avg = rentedBuildingsForAvg.Where(x => x.City == detail.City);
-                if (avg.Any())
-                {
-                    detail.Ingresos = avg.Average(x => x.Ingresos);
-                    detail.Gastos = avg.Average(x => x.Gastos);
-                    detail.Inversion = avg.Average(x => x.Inversion);
-                    var rent = detail.Inversion > 0 ? (detail.Ingresos - detail.Gastos) / detail.Inversion : 0;
-                    detail.Rentabilidad = (rent * 100).ToString("0.##", CultureInfo.InvariantCulture) + "%";
-                }
             }
 
             var rentabilidadMedia = totalInversion > 0 ? (totalIngresos - totalGastos) / totalInversion : 0;
             var rentabilidadMediaFormatted = (rentabilidadMedia * 100).ToString("0.##", CultureInfo.InvariantCulture) + "%";
 
             // Agrupación y cálculo de rentabilidad por zona, ciudad y código postal (solo edificios Rented)
-            Func<decimal, string> getBaremo = r => r < 0.03m ? "Baja" : (r < 0.06m ? "Media" : "Alta");
-            var rentedBuildings = resultados.Where(r => r.Status == "Rented").ToList();
-            var rentabilidadPorZona = rentedBuildings
+            var rentedDetalles = resultados.Where(r => r.Status == "Rented").ToList();
+            var rentabilidadPorZona = rentedDetalles
                 .GroupBy(r => r.City + ":" + (r.Address ?? "").Split(' ').FirstOrDefault() ?? "")
                 .Select(g => {
                     var totalInv = g.Sum(x => x.Inversion);
@@ -484,7 +514,7 @@ namespace GeoCore.Controllers
                         Baremo = getBaremo(rent)
                     };
                 }).ToList();
-            var rentabilidadPorCiudad = rentedBuildings
+            var rentabilidadPorCiudad = rentedDetalles
                 .GroupBy(r => r.City)
                 .Select(g => {
                     var totalInv = g.Sum(x => x.Inversion);
@@ -497,7 +527,7 @@ namespace GeoCore.Controllers
                         Baremo = getBaremo(rent)
                     };
                 }).ToList();
-            var rentabilidadPorPostalCode = rentedBuildings
+            var rentabilidadPorPostalCode = rentedDetalles
                 .GroupBy(r => r.PostalCode)
                 .Select(g => {
                     var totalInv = g.Sum(x => x.Inversion);

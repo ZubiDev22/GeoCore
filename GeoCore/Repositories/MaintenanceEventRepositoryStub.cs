@@ -14,10 +14,12 @@ namespace GeoCore.Repositories
             new MaintenanceEvent { MaintenanceEventId = "MAE003", BuildingId = "BLD003", Description = "Cambio caldera", Cost = 1500, Date = DateTime.Parse("2023-03-05") },
             new MaintenanceEvent { MaintenanceEventId = "MAE004", BuildingId = "BLD011", Description = "Reparación tejado ático", Cost = 1200, Date = DateTime.Parse("2023-05-15") },
             new MaintenanceEvent { MaintenanceEventId = "MAE005", BuildingId = "BLD010", Description = "Reparación portal", Cost = 900, Date = DateTime.Parse("2023-06-10") },
-            // BLD004 (Valencia) - Rentabilidad BAJA
             new MaintenanceEvent { MaintenanceEventId = "MAE006", BuildingId = "BLD004", Description = "Reparación ascensor", Cost = 800, Date = DateTime.Parse("2023-07-10") },
-            // BLD006 (Granada) - Rentabilidad MEDIA
             new MaintenanceEvent { MaintenanceEventId = "MAE007", BuildingId = "BLD006", Description = "Pintura fachada", Cost = 1200, Date = DateTime.Parse("2023-08-10") },
+            new MaintenanceEvent { MaintenanceEventId = "MAE008", BuildingId = "BLD005", Description = "Revisión eléctrica", Cost = 600, Date = DateTime.Parse("2023-09-01") },
+            new MaintenanceEvent { MaintenanceEventId = "MAE009", BuildingId = "BLD007", Description = "Limpieza garaje", Cost = 300, Date = DateTime.Parse("2023-09-15") },
+            new MaintenanceEvent { MaintenanceEventId = "MAE010", BuildingId = "BLD008", Description = "Cambio portero automático", Cost = 450, Date = DateTime.Parse("2023-10-05") },
+            new MaintenanceEvent { MaintenanceEventId = "MAE011", BuildingId = "BLD009", Description = "Impermeabilización azotea", Cost = 1100, Date = DateTime.Parse("2023-10-20") },
         };
 
         public Task<IEnumerable<MaintenanceEvent>> GetAllAsync() => Task.FromResult(_maintenanceEvents.AsEnumerable());

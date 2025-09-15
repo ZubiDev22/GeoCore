@@ -12,6 +12,7 @@ namespace GeoCore.Entities
         public bool HasLift { get; set; }
         public bool HasGarage { get; set; }
         public DateTime CreatedDate { get; set; } = DateTime.UtcNow;
+        public string Status { get; set; } = string.Empty;
         public Building Building { get; set; } = null!;
     }
 }

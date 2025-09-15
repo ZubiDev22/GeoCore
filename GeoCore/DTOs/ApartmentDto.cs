@@ -22,5 +22,6 @@ namespace GeoCore.DTOs
         public bool HasLift { get; set; }
         public bool HasGarage { get; set; }
         public string CreatedDate { get; set; } = string.Empty;
+        public string Status { get; set; } = string.Empty;
     }
 }

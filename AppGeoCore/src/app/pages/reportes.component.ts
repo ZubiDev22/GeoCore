@@ -12,9 +12,15 @@ import { FormsModule } from '@angular/forms';
   template: `
     <div class="container mt-4">
       <h2>Reportes de Rentabilidad</h2>
+      <div *ngIf="profitByLocation?.EscalaBaremosDescripcion" class="alert alert-secondary mb-3">
+        <strong>Escala de baremos:</strong> {{ profitByLocation?.EscalaBaremosDescripcion }}
+      </div>
       <form class="row g-3 mb-4" (ngSubmit)="buscar()" autocomplete="off">
         <div class="col-md-4">
           <input type="text" class="form-control" placeholder="Ciudad" [(ngModel)]="city" name="city">
+        </div>
+        <div class="col-md-4">
+          <input type="text" class="form-control" placeholder="Zona" [(ngModel)]="zone" name="zone">
         </div>
         <div class="col-md-4">
           <input type="text" class="form-control" placeholder="Código Postal" [(ngModel)]="postalCode" name="postalCode">
@@ -41,6 +47,10 @@ import { FormsModule } from '@angular/forms';
                   <h5 class="card-title mb-2 text-primary">
                     {{ d.Address || '-' }}<span *ngIf="d.City">, {{ d.City }}</span><span *ngIf="d.PostalCode"> (CP: {{ d.PostalCode }})</span>
                   </h5>
+                    <div class="mb-1 small">
+                      <span *ngIf="d.TipoRentabilidad === 'Potencial' && d.Baremo" class="badge bg-info text-dark me-1">Rentabilidad potencial: {{ d.Baremo }}</span>
+                      <span *ngIf="d.TipoRentabilidad === 'Real' && d.Baremo" class="badge bg-success text-light me-1">Nivel de rentabilidad real: {{ d.Baremo }}</span>
+                    </div>
                   <div class="mb-2 small text-secondary">
                     <span class="fw-bold">Código:</span> {{ d.BuildingCode }}
                   </div>
@@ -48,7 +58,20 @@ import { FormsModule } from '@angular/forms';
                     <li><strong>Ingresos:</strong> <span class="text-success">{{ d.Ingresos | currency:'EUR' }}</span></li>
                     <li><strong>Gastos:</strong> <span class="text-danger">{{ d.Gastos | currency:'EUR' }}</span></li>
                     <li><strong>Inversión:</strong> <span>{{ d.Inversion | currency:'EUR' }}</span></li>
-                    <li><strong>Rentabilidad:</strong> <span class="fw-bold">{{ d.Rentabilidad }}</span></li>
+                    <li>
+                      <ng-container *ngIf="d.TipoRentabilidad === 'Real'">
+                        <strong>Rentabilidad real:</strong> <span class="fw-bold">{{ d.Rentabilidad }}</span>
+                        <span *ngIf="d.Baremo"> ({{ d.Baremo }})</span>
+                      </ng-container>
+                      <ng-container *ngIf="d.TipoRentabilidad === 'Potencial'">
+                        <strong>Rentabilidad potencial:</strong> <span class="fw-bold">{{ d.Rentabilidad }}</span>
+                        <span *ngIf="d.Baremo"> ({{ d.Baremo }})</span>
+                      </ng-container>
+                      <ng-container *ngIf="!d.TipoRentabilidad">
+                        <strong>Rentabilidad:</strong> <span class="fw-bold">{{ d.Rentabilidad }}</span>
+                        <span *ngIf="d.Baremo"> ({{ d.Baremo }})</span>
+                      </ng-container>
+                    </li>
                   </ul>
                 </div>
               </div>
@@ -87,13 +110,13 @@ export class ReportesComponent implements OnInit {
   }
 
   buscar() {
-    if (!this.city && !this.postalCode) {
+    if (!this.city && !this.zone && !this.postalCode) {
       this.error = 'Debes ingresar al menos un filtro.';
       return;
     }
     this.loading = true;
     this.error = '';
-    const variantes = this.city
+    const variantesCity = this.city
       ? [
           this.city,
           this.city.trim(),
@@ -103,16 +126,35 @@ export class ReportesComponent implements OnInit {
           this.city.replace(/\s+/g, ''),
         ]
       : [null];
+    const variantesZone = this.zone
+      ? [
+          this.zone,
+          this.zone.trim(),
+          this.zone.toLowerCase(),
+          this.zone.toUpperCase(),
+          this.zone.charAt(0).toUpperCase() + this.zone.slice(1).toLowerCase(),
+          this.zone.replace(/\s+/g, ''),
+        ]
+      : [null];
+
+    // Probar todas las combinaciones de variantes de ciudad y zona
+  const combinaciones: { city: string | null, zone: string | null }[] = [];
+    for (const c of variantesCity) {
+      for (const z of variantesZone) {
+        combinaciones.push({ city: c, zone: z });
+      }
+    }
+
     const probarSiguiente = (i: number) => {
-      if (i >= variantes.length) {
+      if (i >= combinaciones.length) {
         this.profitByLocation = null;
         this.loading = false;
-        this.error = 'No se encontraron datos para ninguna variante de ciudad.';
+        this.error = 'No se encontraron datos para ninguna variante de ciudad/zona.';
         return;
       }
       const params: any = {};
-      if (variantes[i]) params.city = variantes[i];
-  // zona eliminada
+      if (combinaciones[i].city) params.city = combinaciones[i].city;
+      if (combinaciones[i].zone) params.zone = combinaciones[i].zone;
       if (this.postalCode) params.postalCode = this.postalCode;
       this.buildingsService.getProfitabilityByLocation(params).subscribe({
         next: (data) => {
@@ -144,13 +186,15 @@ export class ReportesComponent implements OnInit {
 
   private adaptarProfitByLocation(data: any): ProfitabilityByLocationDto | null {
     if (!data) return null;
-    // Adaptar cada detalle para soportar claves en minúsculas o snake_case
+    // Adaptar cada detalle para soportar claves en minúsculas y variantes
     const adaptarDetalle = (d: any) => ({
-      BuildingCode: d.BuildingCode ?? d.buildingCode ?? d.building_code,
-      Ingresos: d.Ingresos ?? d.ingresos ?? d.Ingresos ?? d.ingresos,
-      Gastos: d.Gastos ?? d.gastos ?? d.Gastos ?? d.gastos,
-      Inversion: d.Inversion ?? d.inversion ?? d.Inversion ?? d.inversion,
-      Rentabilidad: d.Rentabilidad ?? d.rentabilidad ?? d.Rentabilidad ?? d.rentabilidad,
+      BuildingCode: d.BuildingCode ?? d.buildingCode ?? d.building_code ?? d.buildingcode,
+      Ingresos: d.Ingresos ?? d.ingresos,
+      Gastos: d.Gastos ?? d.gastos,
+      Inversion: d.Inversion ?? d.inversion,
+      Rentabilidad: d.Rentabilidad ?? d.rentabilidad,
+      TipoRentabilidad: d.TipoRentabilidad ?? d.tiporentabilidad,
+      Baremo: d.Baremo ?? d.baremo,
       Address: d.Address ?? d.address ?? d.direccion ?? d.Direccion,
       City: d.City ?? d.city ?? d.ciudad ?? d.Ciudad,
       PostalCode: d.PostalCode ?? d.postalCode ?? d.codigoPostal ?? d.CodigoPostal
@@ -161,12 +205,13 @@ export class ReportesComponent implements OnInit {
       TotalGastos: data.TotalGastos ?? data.totalGastos,
       TotalInversion: data.TotalInversion ?? data.totalInversion,
       RentabilidadMedia: data.RentabilidadMedia ?? data.rentabilidadMedia,
-      Detalle: (data.Detalle ?? data.detalle ?? []).map(adaptarDetalle)
+      Detalle: (data.Detalle ?? data.detalle ?? []).map(adaptarDetalle),
+      EscalaBaremosDescripcion: data.EscalaBaremosDescripcion ?? data.escalabaremosdescripcion
     };
   }
   resetFiltros() {
     this.city = '';
-  // zona eliminada
+    this.zone = '';
     this.postalCode = '';
     this.profitByLocation = null;
     this.error = '';

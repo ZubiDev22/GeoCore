@@ -53,12 +53,16 @@ import { CashFlowsService } from '../services/cashflows.service';
         <h4>Apartamentos asociados</h4>
         <div *ngIf="loadingApartments" class="text-center"><div class="spinner-border"></div></div>
         <table class="table table-sm" *ngIf="apartments.length">
-          <thead><tr><th>ID</th><th>Estado</th><th>Zona</th></tr></thead>
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Estado</th>
+            </tr>
+          </thead>
           <tbody>
             <tr *ngFor="let a of apartments">
-              <td>{{ a.apartmentId }}</td>
-              <td>{{ a.status }}</td>
-              <td>{{ a.zone }}</td>
+              <td>{{ a.apartmentId || a.ApartmentId }}</td>
+              <td>{{ a.status || '-' }}</td>
             </tr>
           </tbody>
         </table>
@@ -146,6 +150,7 @@ export class BuildingDetailComponent {
       }
     });
   }
+  
 
   isFiniteNumber(val: any): boolean {
     return (typeof val === 'number' && isFinite(val)) ||
@@ -182,6 +187,7 @@ export class BuildingDetailComponent {
     this.apartmentsService.getApartmentsByBuilding(code).subscribe({
       next: (data: any) => {
         this.apartments = data;
+        console.log('DEBUG apartamentos:', this.apartments);
         this.loadingApartments = false;
       },
       error: () => {
