@@ -209,5 +209,67 @@ namespace GeoCore.Controllers
                 return StatusCode(500, Result<object>.Failure(new UnexpectedError($"Unexpected error: {ex.Message}")));
             }
         }
+
+        [HttpGet("combined-rentals-cashflows")]
+        public async Task<ActionResult<Result<IEnumerable<object>>>> GetCombinedRentalsAndCashFlows()
+        {
+            var rentalRepo = HttpContext.RequestServices.GetService<IRentalRepository>();
+            var cashFlowRepo = HttpContext.RequestServices.GetService<ICashFlowRepository>();
+            var apartmentRepo = HttpContext.RequestServices.GetService<IApartmentRepository>();
+            var buildingRepo = HttpContext.RequestServices.GetService<IBuildingRepository>();
+            if (rentalRepo == null || cashFlowRepo == null || apartmentRepo == null || buildingRepo == null)
+                return StatusCode(500, Result<IEnumerable<object>>.Failure(new DataAccessError("Dependencias no disponibles")));
+
+            var rentals = await rentalRepo.GetAllAsync();
+            var cashflows = await cashFlowRepo.GetAllAsync();
+            var apartments = await apartmentRepo.GetAllAsync();
+            var buildings = await buildingRepo.GetAllAsync();
+
+            var alquilerSources = new[] { "alquiler", "renta", "rent" };
+            var cashFlowAlquiler = cashflows.Where(cf => alquilerSources.Any(s => cf.Source.ToLower().Contains(s)));
+
+            var combined = new List<object>();
+            foreach (var r in rentals.Where(r => r.IsConfirmed))
+            {
+                var apt = apartments.FirstOrDefault(a => a.ApartmentId == r.ApartmentId);
+                var building = apt != null ? buildings.FirstOrDefault(b => b.BuildingId == apt.BuildingId) : null;
+                combined.Add(new {
+                    Type = "Rental",
+                    RentalId = r.RentalId,
+                    ApartmentId = r.ApartmentId,
+                    BuildingId = apt?.BuildingId,
+                    BuildingCode = building?.BuildingCode,
+                    StartDate = r.StartDate,
+                    EndDate = r.EndDate,
+                    Price = r.Price,
+                    Zone = r.Zone,
+                    PostalCode = r.PostalCode
+                });
+            }
+            foreach (var cf in cashFlowAlquiler)
+            {
+                var building = buildings.FirstOrDefault(b => b.BuildingId == cf.BuildingId);
+                combined.Add(new {
+                    Type = "CashFlow",
+                    CashFlowId = cf.CashFlowId,
+                    BuildingId = cf.BuildingId,
+                    BuildingCode = building?.BuildingCode,
+                    Date = cf.Date,
+                    Amount = cf.Amount,
+                    Source = cf.Source
+                });
+            }
+            // Ordenar por fecha (Date para CashFlow, StartDate para Rental)
+            var ordered = combined.OrderByDescending(x =>
+            {
+                var t = x.GetType();
+                var dateProp = t.GetProperty("Date");
+                if (dateProp != null) return (DateTime)dateProp.GetValue(x);
+                var startDateProp = t.GetProperty("StartDate");
+                if (startDateProp != null) return (DateTime)startDateProp.GetValue(x);
+                return DateTime.MinValue;
+            });
+            return Ok(Result<IEnumerable<object>>.Success(ordered));
+        }
     }
 }
