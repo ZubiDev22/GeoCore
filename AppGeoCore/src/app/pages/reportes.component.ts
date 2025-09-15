@@ -48,8 +48,8 @@ import { FormsModule } from '@angular/forms';
                     {{ d.Address || '-' }}<span *ngIf="d.City">, {{ d.City }}</span><span *ngIf="d.PostalCode"> (CP: {{ d.PostalCode }})</span>
                   </h5>
                     <div class="mb-1 small">
-                      <span *ngIf="d.TipoRentabilidad === 'Potencial' && d.Baremo" class="badge bg-info text-dark me-1">Rentabilidad potencial: {{ d.Baremo }}</span>
-                      <span *ngIf="d.TipoRentabilidad === 'Real' && d.Baremo" class="badge bg-success text-light me-1">Nivel de rentabilidad real: {{ d.Baremo }}</span>
+                      <span *ngIf="d.TipoRentabilidad === 'Potencial' && d.Baremo" class="badge-baremo-potencial me-1">Rentabilidad potencial: {{ d.Baremo }}</span>
+                      <span *ngIf="d.TipoRentabilidad === 'Real' && d.Baremo" class="badge-baremo-real me-1">Nivel de rentabilidad real: {{ d.Baremo }}</span>
                     </div>
                   <div class="mb-2 small text-secondary">
                     <span class="fw-bold">Código:</span> {{ d.BuildingCode }}

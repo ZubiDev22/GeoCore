@@ -1,5 +1,177 @@
+
 @use 'bootstrap/scss/bootstrap' as *;
 @import 'bootstrap-icons/font/bootstrap-icons.css';
+/* Badges para baremo en reportes */
+.badge-baremo-potencial {
+	background: #e6f6fd;
+	color: #2196c9;
+	border: 1.5px solid #b6e6f7;
+	border-radius: 1.2em;
+	font-weight: 600;
+}
+.badge-baremo-real {
+	background: #e6f9ed;
+	color: #22a06b;
+	border: 1.5px solid #b6e7d2;
+	border-radius: 1.2em;
+	font-weight: 600;
+}
+/* Badges pastel, bordes redondeados, letra con color del estado */
+.badge-estado-ocupado, .badge-estado-activo {
+	background: #e6f9ed;
+	color: #22a06b;
+	border: 1.5px solid #b6e7d2;
+	border-radius: 1.2em;
+	font-weight: 600;
+}
+.badge-estado-libre {
+	background: #f3f4f6;
+	color: #6b7280;
+	border: 1.5px solid #e5e7eb;
+	border-radius: 1.2em;
+	font-weight: 600;
+}
+.badge-estado-reservado, .badge-estado-pendiente {
+	background: #fffbe6;
+	color: #b59f3b;
+	border: 1.5px solid #f7e7b6;
+	border-radius: 1.2em;
+	font-weight: 600;
+}
+.badge-tipo-ingreso {
+	background: #e6f6fd;
+	color: #2196c9;
+	border: 1.5px solid #b6e6f7;
+	border-radius: 1.2em;
+	font-weight: 600;
+}
+.badge-tipo-gasto, .badge-estado-vencido {
+	background: #fdeaea;
+	color: #d32f2f;
+	border: 1.5px solid #f7b6b6;
+	border-radius: 1.2em;
+	font-weight: 600;
+}
+/* Badges pastel, bordes redondeados, letra con color del estado, máxima prioridad */
+.badge-estado-ocupado, .badge-estado-activo, .badge-estado-libre, .badge-estado-reservado, .badge-estado-pendiente, .badge-tipo-ingreso, .badge-tipo-gasto, .badge-estado-vencido, .badge-baremo-potencial, .badge-baremo-real {
+  display: inline-block !important;
+  min-width: 80px;
+  padding: 0.35em 1.1em !important;
+  font-size: 1em !important;
+  font-weight: 600 !important;
+  border-radius: 1.2em !important;
+  border-width: 1.5px !important;
+  border-style: solid !important;
+  text-align: center;
+  letter-spacing: 0.01em;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.04) !important;
+}
+.badge-estado-ocupado, .badge-estado-activo {
+  background: #e6f9ed !important;
+  color: #22a06b !important;
+  border-color: #b6e7d2 !important;
+}
+.badge-estado-libre {
+  background: #f3f4f6 !important;
+  color: #6b7280 !important;
+  border-color: #e5e7eb !important;
+}
+.badge-estado-reservado, .badge-estado-pendiente {
+  background: #fffbe6 !important;
+  color: #b59f3b !important;
+  border-color: #f7e7b6 !important;
+}
+.badge-tipo-ingreso {
+  background: #e6f6fd !important;
+  color: #2196c9 !important;
+  border-color: #b6e6f7 !important;
+}
+.badge-tipo-gasto, .badge-estado-vencido {
+  background: #fdeaea !important;
+  color: #d32f2f !important;
+  border-color: #f7b6b6 !important;
+}
+.badge-baremo-potencial {
+  background: #e6f6fd !important;
+  color: #2196c9 !important;
+  border-color: #b6e6f7 !important;
+}
+.badge-baremo-real {
+  background: #e6f9ed !important;
+  color: #22a06b !important;
+  border-color: #b6e7d2 !important;
+}
+/* --- Estilos modernos y limpios para tablas y badges --- */
+table.table {
+	border-radius: 12px;
+	overflow: hidden;
+	box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+	background: #fff;
+}
+table.table thead th {
+	background: #f5f7fa;
+	color: #222;
+	font-weight: 600;
+	border-bottom: 2px solid #e3e6ec;
+	font-size: 1.05rem;
+	letter-spacing: 0.01em;
+}
+table.table tbody tr {
+	transition: background 0.2s;
+}
+table.table tbody tr:hover {
+	background: #f0f4fa;
+}
+table.table td, table.table th {
+	vertical-align: middle;
+	border-color: #e3e6ec;
+	padding-top: 0.65rem;
+	padding-bottom: 0.65rem;
+}
+table.table-striped > tbody > tr:nth-of-type(odd) {
+	background-color: #f8fafc;
+}
+
+/* Badges de estado/tipo personalizados */
+.badge {
+	border-radius: 0.75rem;
+	font-size: 0.98em;
+	font-weight: 500;
+	padding: 0.45em 1em;
+	letter-spacing: 0.01em;
+	box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+}
+.badge.bg-success {
+	background: linear-gradient(90deg, #4ade80 0%, #22c55e 100%);
+	color: #155724;
+	border: 1px solid #22c55e;
+}
+.badge.bg-secondary {
+	background: linear-gradient(90deg, #e5e7eb 0%, #cbd5e1 100%);
+	color: #374151;
+	border: 1px solid #cbd5e1;
+}
+.badge.bg-warning {
+	background: linear-gradient(90deg, #fde68a 0%, #fbbf24 100%);
+	color: #7c5700;
+	border: 1px solid #fbbf24;
+}
+.badge.bg-danger {
+	background: linear-gradient(90deg, #fca5a5 0%, #ef4444 100%);
+	color: #7f1d1d;
+	border: 1px solid #ef4444;
+}
+.badge.bg-info {
+	background: linear-gradient(90deg, #bae6fd 0%, #38bdf8 100%);
+	color: #0c4a6e;
+	border: 1px solid #38bdf8;
+}
+.badge.text-dark {
+	color: #222 !important;
+}
+.badge.text-light {
+	color: #fff !important;
+}
 /* Variables globales para temas y colores */
 :root {
 	--color-primary: #1976d2;

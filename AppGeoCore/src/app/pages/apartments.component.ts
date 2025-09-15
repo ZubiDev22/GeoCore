@@ -38,11 +38,11 @@ import { FormsModule } from '@angular/forms';
             <td>{{ apt.tenant }}</td>
             <td>{{ apt.area }}</td>
             <td>
-              <span [ngClass]="{
-                'badge bg-success': apt.status === 'ocupado',
-                'badge bg-secondary': apt.status === 'libre',
-                'badge bg-warning text-dark': apt.status === 'reservado'
-              }">{{ apt.status }}</span>
+              <span class="badge"
+             [class.badge-estado-ocupado]="apt.status === 'ocupado'"
+             [class.badge-estado-libre]="apt.status === 'libre'"
+             [class.badge-estado-reservado]="apt.status === 'reservado'"
+              >{{ apt.status }}</span>
             </td>
             <td>
               <button class="btn btn-outline-primary btn-sm" (click)="verDetalles(apt)"><i class="bi bi-eye"></i> Detalles</button>

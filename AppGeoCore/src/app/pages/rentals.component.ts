@@ -44,11 +44,11 @@ import { FormsModule } from '@angular/forms';
             <td>{{ rental.start | date:'dd/MM/yyyy' }}</td>
             <td>{{ rental.end | date:'dd/MM/yyyy' }}</td>
             <td>
-              <span [ngClass]="{
-                'badge bg-success': rental.status === 'activo',
-                'badge bg-warning text-dark': rental.status === 'pendiente',
-                'badge bg-danger': rental.status === 'vencido'
-              }">{{ rental.status }}</span>
+              <span class="badge"
+             [class.badge-estado-activo]="rental.status === 'activo'"
+             [class.badge-estado-pendiente]="rental.status === 'pendiente'"
+             [class.badge-estado-vencido]="rental.status === 'vencido'"
+              >{{ rental.status }}</span>
             </td>
             <td>
               <button class="btn btn-outline-primary btn-sm" (click)="verDetalles(rental)"><i class="bi bi-eye"></i> Detalles</button>

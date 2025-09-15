@@ -41,10 +41,10 @@ import { FormsModule } from '@angular/forms';
             <td>{{ cashflow.building }}</td>
             <td>{{ cashflow.concept }}</td>
             <td>
-              <span [ngClass]="{
-                'badge bg-success': cashflow.type === 'ingreso',
-                'badge bg-danger': cashflow.type === 'gasto'
-              }">{{ cashflow.type }}</span>
+              <span class="badge"
+             [class.badge-tipo-ingreso]="cashflow.type === 'ingreso'"
+             [class.badge-tipo-gasto]="cashflow.type === 'gasto'"
+              >{{ cashflow.type }}</span>
             </td>
             <td [ngClass]="{'text-success': cashflow.type === 'ingreso', 'text-danger': cashflow.type === 'gasto'}">
               {{ cashflow.amount | number:'1.0-2' }}
