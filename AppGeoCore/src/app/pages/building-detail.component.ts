@@ -198,10 +198,10 @@ export class BuildingDetailComponent {
 
   loadEvents(code: string) {
     this.loadingEvents = true;
-    // No hay un método getEventsByBuilding, así que filtramos por parámetro
+    // Adaptar para respuesta paginada (data.items)
     this.eventsService.getMaintenanceEvents({ buildingCode: code }).subscribe({
       next: (data: any) => {
-        this.events = data;
+        this.events = Array.isArray(data) ? data : (data.items || []);
         this.loadingEvents = false;
       },
       error: () => {
@@ -214,7 +214,10 @@ export class BuildingDetailComponent {
     this.loadingCashflows = true;
     this.cashflowsService.getCashFlowsByBuilding(code).subscribe({
       next: (data: any) => {
-        this.cashflows = data;
+        console.log('DEBUG cashflows:', data);
+        this.cashflows = Array.isArray(data)
+          ? data
+          : (data.items || data.value || []);
         this.loadingCashflows = false;
       },
       error: () => {
