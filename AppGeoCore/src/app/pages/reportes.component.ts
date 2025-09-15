@@ -20,16 +20,16 @@ import { FormsModule } from '@angular/forms';
           <input type="text" class="form-control" placeholder="Ciudad" [(ngModel)]="city" name="city">
         </div>
         <div class="col-md-4">
-          <select class="form-select" [(ngModel)]="zone" name="zone">
+          <select class="form-select" [(ngModel)]="selectedCityZone" name="cityZone">
             <option value="">Todas las zonas</option>
-            <option *ngFor="let z of zonas" [value]="z">{{ z }}</option>
+            <option *ngFor="let cz of cityZones" [value]="cz.city + '||' + cz.zone">{{ cz.city }} - {{ cz.zone }}</option>
           </select>
         </div>
         <div class="col-md-4">
           <input type="text" class="form-control" placeholder="Código Postal" [(ngModel)]="postalCode" name="postalCode">
         </div>
         <div class="col-12 d-flex gap-2">
-          <button class="btn btn-primary" type="submit" [disabled]="!city && !zone && !postalCode || loading">Buscar</button>
+          <button class="btn btn-primary" type="submit" [disabled]="!city && !selectedCityZone && !postalCode || loading">Buscar</button>
           <button class="btn btn-outline-secondary" type="button" (click)="resetFiltros()" [disabled]="loading">Resetear filtros</button>
         </div>
       </form>
@@ -109,59 +109,71 @@ export class ReportesComponent implements OnInit {
   loading = false;
   error = '';
   city = '';
-  zone = '';
-  zonas: string[] = [];
   postalCode = '';
+  // Para filtro compuesto ciudad-zona
+  cityZones: { city: string, zone: string }[] = [];
+  selectedCityZone: string = '';
 
   constructor(private buildingsService: BuildingsService) {}
 
   ngOnInit() {
     // Cargar zonas desde el backend
     this.buildingsService.getZones().subscribe({
-      next: (resp) => {
-        // Extraer zonas únicas del array buildings
-        const zonasSet = new Set<string>();
-        if (resp && Array.isArray(resp.buildings)) {
-          resp.buildings.forEach((b: any) => {
-            if (b.zone) zonasSet.add(b.zone);
+      next: (resp: any) => {
+        // Si cityZones es un array de strings tipo 'Ciudad - Zona'
+        if (Array.isArray(resp.cityZones) && typeof resp.cityZones[0] === 'string') {
+          this.cityZones = resp.cityZones.map((cz: string) => {
+            const [city, ...zoneArr] = cz.split(' - ');
+            return { city: city?.trim() || '', zone: zoneArr.join(' - ').trim() || '' };
           });
+        } else if (Array.isArray(resp.cityZones)) {
+          // Si cityZones es array de objetos (caso antiguo)
+          this.cityZones = resp.cityZones;
+        } else if (Array.isArray(resp.buildings)) {
+          // Si hay un array de buildings, construir cityZones únicas
+          const set = new Set<string>();
+          const combos: { city: string, zone: string }[] = [];
+          resp.buildings.forEach((b: any) => {
+            if (b.city && b.zone) {
+              const key = b.city + '||' + b.zone;
+              if (!set.has(key)) {
+                combos.push({ city: b.city, zone: b.zone });
+                set.add(key);
+              }
+            }
+          });
+          this.cityZones = combos;
+        } else if (Array.isArray(resp.zones)) {
+          // Si solo hay zones, usar como zona sin ciudad
+          this.cityZones = resp.zones.map((z: string) => ({ city: z, zone: z }));
+        } else {
+          this.cityZones = [];
         }
-        this.zonas = Array.from(zonasSet).sort();
       },
       error: () => {
-        this.zonas = [];
+        this.cityZones = [];
       }
     });
     // No cargar reportes hasta que el usuario filtre
   }
 
   buscar() {
-    if (!this.city && !this.zone && !this.postalCode) {
+    if (!this.city && !this.selectedCityZone && !this.postalCode) {
       this.error = 'Debes ingresar al menos un filtro.';
       return;
     }
     this.loading = true;
     this.error = '';
-    const variantesCity = this.city
-      ? [
-          this.city,
-          this.city.trim(),
-          this.city.toLowerCase(),
-          this.city.toUpperCase(),
-          this.city.charAt(0).toUpperCase() + this.city.slice(1).toLowerCase(),
-          this.city.replace(/\s+/g, ''),
-        ]
-      : [null];
-    const variantesZone = this.zone
-      ? [
-          this.zone,
-          this.zone.trim(),
-          this.zone.toLowerCase(),
-          this.zone.toUpperCase(),
-          this.zone.charAt(0).toUpperCase() + this.zone.slice(1).toLowerCase(),
-          this.zone.replace(/\s+/g, ''),
-        ]
-      : [null];
+    let variantesZone: (string | null)[] = [null];
+    let variantesCity: (string | null)[] = [null];
+    if (this.selectedCityZone) {
+      const [city, zone] = this.selectedCityZone.split('||');
+      variantesCity = city ? [city] : [null];
+      variantesZone = zone ? [zone] : [null];
+    } else {
+      variantesZone = [null];
+      variantesCity = this.city ? [this.city] : [null];
+    }
 
     // Probar todas las combinaciones de variantes de ciudad y zona
   const combinaciones: { city: string | null, zone: string | null }[] = [];
@@ -179,8 +191,8 @@ export class ReportesComponent implements OnInit {
         return;
       }
       const params: any = {};
-      if (combinaciones[i].city) params.city = combinaciones[i].city;
-      if (combinaciones[i].zone) params.zone = combinaciones[i].zone;
+  if (combinaciones[i].city && combinaciones[i].city !== 'undefined') params.city = combinaciones[i].city;
+  if (combinaciones[i].zone && combinaciones[i].zone !== 'undefined') params.zone = combinaciones[i].zone;
       if (this.postalCode) params.postalCode = this.postalCode;
       this.buildingsService.getProfitabilityByLocation(params).subscribe({
         next: (data) => {
@@ -237,7 +249,7 @@ export class ReportesComponent implements OnInit {
   }
   resetFiltros() {
     this.city = '';
-    this.zone = '';
+  this.selectedCityZone = '';
     this.postalCode = '';
     this.profitByLocation = null;
     this.error = '';

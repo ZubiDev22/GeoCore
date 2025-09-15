@@ -37,6 +37,27 @@ namespace GeoCore.Repositories
             new CashFlow { CashFlowId = "CAF017", BuildingId = "BLD007", Date = DateTime.Parse("2021-02-20"), Amount = 90000, Source = "Compra inicial" },
             new CashFlow { CashFlowId = "CAF018", BuildingId = "BLD008", Date = DateTime.Parse("2019-09-10"), Amount = 95000, Source = "Compra inicial" },
             new CashFlow { CashFlowId = "CAF019", BuildingId = "BLD009", Date = DateTime.Parse("2022-01-05"), Amount = 100000, Source = "Compra inicial" },
+            // BLD002 (Barcelona) - Rented
+            new CashFlow { CashFlowId = "CAF020", BuildingId = "BLD002", Date = DateTime.Parse("2023-01-01"), Amount = 1500, Source = "Alquiler mensual" },
+            new CashFlow { CashFlowId = "CAF021", BuildingId = "BLD002", Date = DateTime.Parse("2023-02-01"), Amount = 1500, Source = "Alquiler mensual" },
+            new CashFlow { CashFlowId = "CAF022", BuildingId = "BLD002", Date = DateTime.Parse("2023-03-01"), Amount = 1500, Source = "Alquiler mensual" },
+            new CashFlow { CashFlowId = "CAF023", BuildingId = "BLD002", Date = DateTime.Parse("2023-04-01"), Amount = 1500, Source = "Alquiler mensual" },
+            new CashFlow { CashFlowId = "CAF024", BuildingId = "BLD002", Date = DateTime.Parse("2023-05-01"), Amount = 1500, Source = "Alquiler mensual" },
+            new CashFlow { CashFlowId = "CAF025", BuildingId = "BLD002", Date = DateTime.Parse("2023-06-01"), Amount = 1500, Source = "Alquiler mensual" },
+            // BLD005 (Bilbao) - Rented
+            new CashFlow { CashFlowId = "CAF026", BuildingId = "BLD005", Date = DateTime.Parse("2023-01-01"), Amount = 1800, Source = "Alquiler mensual" },
+            new CashFlow { CashFlowId = "CAF027", BuildingId = "BLD005", Date = DateTime.Parse("2023-02-01"), Amount = 1800, Source = "Alquiler mensual" },
+            new CashFlow { CashFlowId = "CAF028", BuildingId = "BLD005", Date = DateTime.Parse("2023-03-01"), Amount = 1800, Source = "Alquiler mensual" },
+            new CashFlow { CashFlowId = "CAF029", BuildingId = "BLD005", Date = DateTime.Parse("2023-04-01"), Amount = 1800, Source = "Alquiler mensual" },
+            new CashFlow { CashFlowId = "CAF030", BuildingId = "BLD005", Date = DateTime.Parse("2023-05-01"), Amount = 1800, Source = "Alquiler mensual" },
+            new CashFlow { CashFlowId = "CAF031", BuildingId = "BLD005", Date = DateTime.Parse("2023-06-01"), Amount = 1800, Source = "Alquiler mensual" },
+            // BLD009 (Alicante) - Rented
+            new CashFlow { CashFlowId = "CAF032", BuildingId = "BLD009", Date = DateTime.Parse("2023-01-01"), Amount = 1200, Source = "Alquiler mensual" },
+            new CashFlow { CashFlowId = "CAF033", BuildingId = "BLD009", Date = DateTime.Parse("2023-02-01"), Amount = 1200, Source = "Alquiler mensual" },
+            new CashFlow { CashFlowId = "CAF034", BuildingId = "BLD009", Date = DateTime.Parse("2023-03-01"), Amount = 1200, Source = "Alquiler mensual" },
+            new CashFlow { CashFlowId = "CAF035", BuildingId = "BLD009", Date = DateTime.Parse("2023-04-01"), Amount = 1200, Source = "Alquiler mensual" },
+            new CashFlow { CashFlowId = "CAF036", BuildingId = "BLD009", Date = DateTime.Parse("2023-05-01"), Amount = 1200, Source = "Alquiler mensual" },
+            new CashFlow { CashFlowId = "CAF037", BuildingId = "BLD009", Date = DateTime.Parse("2023-06-01"), Amount = 1200, Source = "Alquiler mensual" },
         };
         public Task<IEnumerable<CashFlow>> GetAllAsync() => Task.FromResult(_cashFlows.AsEnumerable());
         public Task<CashFlow?> GetByIdAsync(string id) => Task.FromResult(_cashFlows.FirstOrDefault(c => c.CashFlowId == id));

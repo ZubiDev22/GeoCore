@@ -380,7 +380,7 @@ namespace GeoCore.Controllers
                 if (b.City.ToLower() == "pamplona")
                 {
                     if (b.Address.ToLower().Contains("estafeta")) return "Centro";
-                    if (b.Address.ToLower().Contains("p?rez goyena") || b.Address.ToLower().Contains("perez goyena")) return "Huarte";
+                    if (b.Address.ToLower().Contains("pérez goyena") || b.Address.ToLower().Contains("perez goyena")) return "Huarte";
                 }
                 // Para el resto de edificios, usar el nombre de la ciudad como zona
                 return b.City;
@@ -561,13 +561,13 @@ namespace GeoCore.Controllers
         public async Task<ActionResult<IEnumerable<object>>> GetZones()
         {
             var buildings = await _repository.GetAllAsync();
-            // Reutilizar la lógica de zone del endpoint de rentabilidad
+            // Lógica de zona coherente
             string GetZoneForBuilding(GeoCore.Entities.Building b)
             {
                 if (b.City.ToLower() == "pamplona")
                 {
                     if (b.Address.ToLower().Contains("estafeta")) return "Centro";
-                    if (b.Address.ToLower().Contains("p?rez goyena") || b.Address.ToLower().Contains("perez goyena")) return "Huarte";
+                    if (b.Address.ToLower().Contains("pérez goyena") || b.Address.ToLower().Contains("perez goyena")) return "Huarte";
                 }
                 return b.City;
             }
