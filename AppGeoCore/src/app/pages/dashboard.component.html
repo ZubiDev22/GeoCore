@@ -1,18 +1,38 @@
-<div class="dashboard-wrapper d-flex align-items-center justify-content-center">
-  <div class="dashboard-card text-center">
-    <i class="bi bi-geo-alt-fill display-1 text-primary mb-3"></i>
-    <h1 class="mb-3">Bienvenido a GeoCore</h1>
-    <p class="lead mb-4">Gestiona tus edificios, alquileres y reportes desde un solo lugar.</p>
-    <div class="row g-3 justify-content-center">
-      <div class="col-auto">
-        <a routerLink="/gestion" class="btn btn-success btn-lg"><i class="bi bi-gear"></i> Ir a Gestión</a>
-      </div>
-      <div class="col-auto">
-        <a routerLink="/rentals" class="btn btn-outline-primary btn-lg"><i class="bi bi-cash-coin"></i> Alquileres</a>
-      </div>
-      <div class="col-auto">
-        <a routerLink="/profitability" class="btn btn-outline-info btn-lg"><i class="bi bi-bar-chart"></i> Reportes</a>
+<div class="dashboard-main">
+  <div class="dashboard-header d-flex align-items-center justify-content-between mb-3">
+    <h2 class="mb-0">Dashboard de Edificios</h2>
+    <button class="btn btn-outline-secondary" routerLink="/presentacion"><i class="bi bi-easel"></i> Modo Presentación</button>
+  </div>
+  <div class="dashboard-kpis row mb-3">
+    <div class="col-md-3 col-6 mb-2">
+      <div class="kpi-card">
+        <div class="kpi-label">Edificios</div>
+        <div class="kpi-value">{{ totalBuildings || '-' }}</div>
       </div>
     </div>
+    <div class="col-md-3 col-6 mb-2">
+      <div class="kpi-card">
+        <div class="kpi-label">Ocupación</div>
+        <div class="kpi-value">{{ occupancyRate || '-' }}%</div>
+      </div>
+    </div>
+    <div class="col-md-3 col-6 mb-2">
+      <div class="kpi-card">
+        <div class="kpi-label">Ingresos totales</div>
+        <div class="kpi-value">{{ totalIncome | currency:'EUR' }}</div>
+      </div>
+    </div>
+    <div class="col-md-3 col-6 mb-2">
+      <div class="kpi-card">
+        <div class="kpi-label">Rentabilidad media</div>
+        <div class="kpi-value">{{ avgProfitability || '-' }}%</div>
+      </div>
+    </div>
+  </div>
+  <div class="dashboard-filtros mb-3">
+    <!-- Aquí irán los filtros rápidos (ciudad, zona, estado, etc.) -->
+  </div>
+  <div class="dashboard-mapa">
+    <app-dashboard-map></app-dashboard-map>
   </div>
 </div>

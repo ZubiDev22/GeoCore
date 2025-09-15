@@ -1,0 +1,14 @@
+<div class="parallax-container" [ngStyle]="{'background-image': 'url(' + currentImage + ')'}">
+  <div class="parallax-controls">
+    <button class="parallax-arrow left" (click)="prev()" aria-label="Anterior">&#10094;</button>
+    <button class="parallax-arrow right" (click)="next()" aria-label="Siguiente">&#10095;</button>
+  </div>
+  <div class="parallax-dots">
+    <span *ngFor="let img of images; let i = index" class="dot" [class.active]="i === current" (click)="setImage(i)"></span>
+  </div>
+  <div class="parallax-content">
+    <h1 class="parallax-title">GeoCore Overview</h1>
+    <p class="parallax-subtitle">Visualiza tu patrimonio inmobiliario con impacto y estilo</p>
+    <a routerLink="/dashboard" class="btn btn-primary mt-4">Ir al Dashboard Funcional</a>
+  </div>
+</div>
