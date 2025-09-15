@@ -380,7 +380,7 @@ namespace GeoCore.Controllers
                 if (b.City.ToLower() == "pamplona")
                 {
                     if (b.Address.ToLower().Contains("estafeta")) return "Centro";
-                    if (b.Address.ToLower().Contains("pérez goyena") || b.Address.ToLower().Contains("perez goyena")) return "Huarte";
+                    if (b.Address.ToLower().Contains("p?rez goyena") || b.Address.ToLower().Contains("perez goyena")) return "Huarte";
                 }
                 // Para el resto de edificios, usar el nombre de la ciudad como zona
                 return b.City;
@@ -555,6 +555,27 @@ namespace GeoCore.Controllers
                 EscalaBaremosDescripcion = "Baja < 3%, Media 3-6%, Alta > 6%"
             };
             return Ok(dto);
+        }
+
+        [HttpGet("zones")]
+        public async Task<ActionResult<IEnumerable<object>>> GetZones()
+        {
+            var buildings = await _repository.GetAllAsync();
+            // Reutilizar la lógica de zone del endpoint de rentabilidad
+            string GetZoneForBuilding(GeoCore.Entities.Building b)
+            {
+                if (b.City.ToLower() == "pamplona")
+                {
+                    if (b.Address.ToLower().Contains("estafeta")) return "Centro";
+                    if (b.Address.ToLower().Contains("p?rez goyena") || b.Address.ToLower().Contains("perez goyena")) return "Huarte";
+                }
+                return b.City;
+            }
+            var zones = buildings
+                .Select(b => new { b.BuildingId, b.Name, Zone = GetZoneForBuilding(b) })
+                .ToList();
+            var uniqueZones = zones.Select(z => z.Zone).Distinct().OrderBy(z => z).ToList();
+            return Ok(new { zones = uniqueZones, buildings = zones });
         }
     }
 }

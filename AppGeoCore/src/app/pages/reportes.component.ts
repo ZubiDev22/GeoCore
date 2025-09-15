@@ -20,7 +20,10 @@ import { FormsModule } from '@angular/forms';
           <input type="text" class="form-control" placeholder="Ciudad" [(ngModel)]="city" name="city">
         </div>
         <div class="col-md-4">
-          <input type="text" class="form-control" placeholder="Zona" [(ngModel)]="zone" name="zone">
+          <select class="form-select" [(ngModel)]="zone" name="zone">
+            <option value="">Todas las zonas</option>
+            <option *ngFor="let z of zonas" [value]="z">{{ z }}</option>
+          </select>
         </div>
         <div class="col-md-4">
           <input type="text" class="form-control" placeholder="Código Postal" [(ngModel)]="postalCode" name="postalCode">
@@ -38,7 +41,13 @@ import { FormsModule } from '@angular/forms';
           <div class="mb-2"><strong>Total edificios:</strong> {{ profitByLocation.TotalEdificios }}</div>
           <div class="mb-2"><strong>Total ingresos:</strong> {{ profitByLocation.TotalIngresos | currency:'EUR' }}</div>
           <div class="mb-2"><strong>Total gastos:</strong> {{ profitByLocation.TotalGastos | currency:'EUR' }}</div>
-          <div class="mb-2"><strong>Total inversión:</strong> {{ profitByLocation.TotalInversion | currency:'EUR' }}</div>
+          <div class="mb-2">
+            <strong>Total inversión:</strong>
+            <span class="ms-2 valor-euro">{{ profitByLocation.TotalInversion | number:'1.2-2' }} €</span>
+            <div class="form-text text-muted mt-1">
+              Corresponde a la suma de las inversiones iniciales de compra de cada edificio seleccionado. No incluye reformas ni gastos posteriores.
+            </div>
+          </div>
           <div class="mb-2"><strong>Rentabilidad media:</strong> {{ profitByLocation.RentabilidadMedia }}</div>
           <div class="row g-3 mt-3">
             <div class="col-md-6 col-lg-4" *ngFor="let d of profitByLocation.Detalle">
@@ -55,9 +64,9 @@ import { FormsModule } from '@angular/forms';
                     <span class="fw-bold">Código:</span> {{ d.BuildingCode }}
                   </div>
                   <ul class="list-unstyled mb-2">
-                    <li><strong>Ingresos:</strong> <span class="text-success">{{ d.Ingresos | currency:'EUR' }}</span></li>
-                    <li><strong>Gastos:</strong> <span class="text-danger">{{ d.Gastos | currency:'EUR' }}</span></li>
-                    <li><strong>Inversión:</strong> <span>{{ d.Inversion | currency:'EUR' }}</span></li>
+                    <li><strong>Ingresos:</strong> <span class="text-success ms-2 valor-euro">{{ d.Ingresos | number:'1.2-2' }} €</span></li>
+                    <li><strong>Gastos:</strong> <span class="text-danger ms-2 valor-euro">{{ d.Gastos | number:'1.2-2' }} €</span></li>
+                    <li><strong>Inversión:</strong> <span class="ms-2 valor-euro">{{ d.Inversion | number:'1.2-2' }} €</span></li>
                     <li>
                       <ng-container *ngIf="d.TipoRentabilidad === 'Real'">
                         <strong>Rentabilidad real:</strong> <span class="fw-bold">{{ d.Rentabilidad }}</span>
@@ -101,12 +110,29 @@ export class ReportesComponent implements OnInit {
   error = '';
   city = '';
   zone = '';
+  zonas: string[] = [];
   postalCode = '';
 
   constructor(private buildingsService: BuildingsService) {}
 
   ngOnInit() {
-    // No cargar nada hasta que el usuario filtre
+    // Cargar zonas desde el backend
+    this.buildingsService.getZones().subscribe({
+      next: (resp) => {
+        // Extraer zonas únicas del array buildings
+        const zonasSet = new Set<string>();
+        if (resp && Array.isArray(resp.buildings)) {
+          resp.buildings.forEach((b: any) => {
+            if (b.zone) zonasSet.add(b.zone);
+          });
+        }
+        this.zonas = Array.from(zonasSet).sort();
+      },
+      error: () => {
+        this.zonas = [];
+      }
+    });
+    // No cargar reportes hasta que el usuario filtre
   }
 
   buscar() {

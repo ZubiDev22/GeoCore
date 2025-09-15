@@ -6,11 +6,25 @@ import { Observable, throwError } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 import { ProfitabilityDto, ProfitabilityByLocationDto } from '../models/reportes.model';
 
+// Tipos para zonas
+export interface ZonesResponse {
+  zones: string[];
+  buildings: { [buildingCode: string]: string };
+}
+
 @Injectable({ providedIn: 'root' })
 export class BuildingsService {
   private apiUrl = `${environment.apiUrl}/api/buildings`;
 
+  private apiZonesUrl = `${environment.apiUrl}/api/buildings/zones`;
+
   constructor(private http: HttpClient) {}
+  // Obtener lista de zonas y asociación edificio-zona
+  getZones(): Observable<ZonesResponse> {
+    return this.http.get<ZonesResponse>(this.apiZonesUrl).pipe(
+      catchError(this.handleError)
+    );
+  }
 
   // Listado paginado y filtrado de edificios
   getBuildings(params?: any): Observable<any> {
