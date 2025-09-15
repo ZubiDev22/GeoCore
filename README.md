@@ -25,8 +25,7 @@ Puedes probar la aplicación directamente en:
 ## Instalación y uso local
 
 1. Clona el repositorio: git clone https://github.com/ZubiDev22/GeoCore.git
-2. 
-3. Accede al directorio del proyecto y sigue las instrucciones específicas de instalación y ejecución según la documentación técnica.
+2. Accede al directorio del proyecto y sigue las instrucciones específicas de instalación y ejecución según la documentación técnica.
 
 ## Contribuciones
 
