@@ -15,5 +15,5 @@ export class DashboardComponent {
   occupancyRate: number = 0;
   totalIncome: number = 0;
   avgProfitability: number = 0;
-  // Aquí luego se cargan los datos reales
+
 }

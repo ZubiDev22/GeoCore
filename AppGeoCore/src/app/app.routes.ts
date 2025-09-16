@@ -3,7 +3,6 @@ import { Routes } from '@angular/router';
 import { BuildingDetailComponent } from './pages/building-detail.component';
 import { BuildingFormComponent } from './pages/building-form.component';
 import { DashboardComponent } from './pages/dashboard.component';
-import { PresentacionComponent } from './pages/presentacion.component';
 import { BuildingsComponent } from './pages/buildings.component';
 import { ApartmentsComponent } from './pages/apartments.component';
 import { RentalsComponent } from './pages/rentals.component';
@@ -12,7 +11,6 @@ import { CashFlowsComponent } from './pages/cashflows.component';
 import { ReportesComponent } from './pages/reportes.component';
 
 export const routes: Routes = [
-	{ path: 'presentacion', component: PresentacionComponent },
 	{ path: 'gestion', component: GestionComponent },
 	{ path: 'dashboard', component: DashboardComponent },
 	{ path: 'buildings', component: BuildingsComponent },
