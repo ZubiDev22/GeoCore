@@ -520,10 +520,12 @@ namespace GeoCore.Controllers
                     Baremo = null,
                     Zone = GetZoneForBuilding(building) // Nuevo campo zone coherente
                 });
-                totalIngresos += ingresos;
-                totalGastos += gastos;
-                totalInversion += inversion;
             }
+
+            // Recalcular los totales a partir del detalle para evitar errores de suma
+            totalIngresos = resultados.Sum(r => r.Ingresos);
+            totalGastos = resultados.Sum(r => r.Gastos);
+            totalInversion = resultados.Sum(r => r.Inversion);
 
             var rentabilidadMedia = totalInversion > 0 ? (totalIngresos - totalGastos) / totalInversion : 0;
             var rentabilidadMediaFormatted = (rentabilidadMedia * 100).ToString("0.##", CultureInfo.InvariantCulture) + "%";
