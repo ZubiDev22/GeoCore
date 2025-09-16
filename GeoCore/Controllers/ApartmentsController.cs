@@ -4,6 +4,7 @@ using GeoCore.DTOs;
 using GeoCore.Repositories;
 using System.Globalization;
 using Microsoft.Extensions.Logging;
+using System.Linq;
 
 namespace GeoCore.Controllers
 {
@@ -20,12 +21,15 @@ namespace GeoCore.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<Result<IEnumerable<ApartmentDto>>>> GetAll()
+        public async Task<ActionResult<PagedResultDto<ApartmentDto>>> GetAll([FromQuery] int page = 1, [FromQuery] int pageSize = 10)
         {
             try
             {
                 var apartments = await _apartmentRepo.GetAllAsync();
-                var dtos = apartments.Select(a => new ApartmentDto
+                var totalItems = apartments.Count();
+                var totalPages = (int)Math.Ceiling(totalItems / (double)pageSize);
+                var paged = apartments.Skip((page - 1) * pageSize).Take(pageSize).ToList();
+                var dtos = paged.Select(a => new ApartmentDto
                 {
                     ApartmentId = a.ApartmentId,
                     ApartmentDoor = a.ApartmentDoor,
@@ -36,14 +40,15 @@ namespace GeoCore.Controllers
                     BuildingId = a.BuildingId,
                     HasLift = a.HasLift,
                     HasGarage = a.HasGarage,
-                    CreatedDate = a.CreatedDate.ToString("dd/MM/yyyy", CultureInfo.InvariantCulture)
+                    CreatedDate = a.CreatedDate.ToString("dd/MM/yyyy", CultureInfo.InvariantCulture),
+                    Status = a.Status
                 });
-                return Ok(Result<IEnumerable<ApartmentDto>>.Success(dtos));
+                return Ok(new PagedResultDto<ApartmentDto> { Items = dtos, TotalPages = totalPages });
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error inesperado al obtener apartments");
-                return StatusCode(500, Result<IEnumerable<ApartmentDto>>.Failure(new UnexpectedError($"Unexpected error: {ex.Message}")));
+                return StatusCode(500);
             }
         }
 
