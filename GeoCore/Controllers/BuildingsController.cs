@@ -350,12 +350,13 @@ namespace GeoCore.Controllers
         public async Task<ActionResult<ProfitabilityByLocationDto>> GetProfitabilityByLocation(
             [FromQuery] string? postalCode = null,
             [FromQuery] string? zone = null,
-            [FromQuery] string? city = null)
+            [FromQuery] string? city = null,
+            [FromQuery] bool debug = false)
         {
             // Declarar getBaremo al principio del método
             Func<decimal, string> getBaremo = r => r < 0.03m ? "Baja" : (r < 0.06m ? "Media" : "Alta");
 
-            _logger.LogInformation($"[BuildingsController] Calculando rentabilidad por localización: postalCode={postalCode}, zone={zone}, city={city}");
+            _logger.LogInformation($"[BuildingsController] Calculando rentabilidad por localización: postalCode={postalCode}, zone={zone}, city={city}, debug={debug}");
             var buildingRepo = _repository;
             var apartmentRepo = HttpContext.RequestServices.GetService<IApartmentRepository>();
             var rentalRepo = HttpContext.RequestServices.GetService<IRentalRepository>();
@@ -370,6 +371,9 @@ namespace GeoCore.Controllers
             var rentals = await rentalRepo.GetAllAsync();
             var cashflows = await cashFlowRepo.GetAllAsync();
             var maintenances = await maintenanceRepo.GetAllAsync();
+
+            // Para depuración: lista de rentals ignorados
+            var ignoredRentals = new List<object>();
 
             // Función para normalizar texto (quitar espacios y pasar a minúsculas)
             string Normalize(string? s) => string.IsNullOrWhiteSpace(s) ? string.Empty : string.Join(" ", s.Trim().ToLower().Split(' ', StringSplitOptions.RemoveEmptyEntries));
@@ -459,7 +463,32 @@ namespace GeoCore.Controllers
             {
                 var buildingApartments = apartments.Where(a => a.BuildingId == building.BuildingId).ToList();
                 var buildingApartmentIds = buildingApartments.Select(a => a.ApartmentId).ToList();
-                var buildingRentals = rentals.Where(r => buildingApartmentIds.Contains(r.ApartmentId) && r.IsConfirmed);
+                var buildingRentals = rentals.Where(r => buildingApartmentIds.Contains(r.ApartmentId) && r.IsConfirmed).ToList();
+
+                // DEBUG: Rentals ignorados
+                var rentalsForBuilding = rentals.Where(r => buildingApartmentIds.Contains(r.ApartmentId)).ToList();
+                foreach (var rental in rentalsForBuilding)
+                {
+                    if (!rental.IsConfirmed)
+                    {
+                        ignoredRentals.Add(new {
+                            RentalId = rental.RentalId,
+                            ApartmentId = rental.ApartmentId,
+                            Motivo = "IsConfirmed = false"
+                        });
+                    }
+                }
+                // Rentals con ApartmentId no asociado
+                var rentalsNotInBuilding = rentals.Where(r => !buildingApartmentIds.Contains(r.ApartmentId)).ToList();
+                foreach (var rental in rentalsNotInBuilding)
+                {
+                    ignoredRentals.Add(new {
+                        RentalId = rental.RentalId,
+                        ApartmentId = rental.ApartmentId,
+                        Motivo = "ApartmentId no pertenece al edificio"
+                    });
+                }
+
                 var buildingCashflows = cashflows.Where(c => c.BuildingId == building.BuildingId);
                 var buildingMaintenances = maintenances.Where(m => m.BuildingId == building.BuildingId);
 
@@ -554,6 +583,11 @@ namespace GeoCore.Controllers
                 RentabilidadPorPostalCode = rentabilidadPorPostalCode,
                 EscalaBaremosDescripcion = "Baja < 3%, Media 3-6%, Alta > 6%"
             };
+
+            if (debug)
+            {
+                return Ok(new { dto, RentalsIgnorados = ignoredRentals });
+            }
             return Ok(dto);
         }
 
