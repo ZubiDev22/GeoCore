@@ -115,4 +115,9 @@ export class BuildingsService {
     }
     return throwError(() => msg);
   }
+
+  // Lógica centralizada para Street View
+  getStreetViewUrl(lat: number, lng: number): string {
+    return `https://www.google.com/maps/@?api=1&map_action=pano&viewpoint=${lat},${lng}`;
+  }
 }

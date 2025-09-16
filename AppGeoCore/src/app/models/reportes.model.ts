@@ -79,9 +79,12 @@ export interface ProfitabilityByLocationDto {
   EscalaBaremosDescripcion?: string; // Descripción de la escala de baremos enviada por el backend
 }
 
-// Result wrapper según backend
+// Result wrapper según backend (ajustado para aceptar 'value' y 'data')
 export interface Result<T> {
-  success: boolean;
+  isSuccess?: boolean;
+  success?: boolean;
   message?: string;
-  data: T;
+  error?: any;
+  data?: T;
+  value?: T;
 }
