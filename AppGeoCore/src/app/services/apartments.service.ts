@@ -1,4 +1,3 @@
-
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { environment } from '../../environments/environment';
@@ -9,9 +8,17 @@ import { catchError } from 'rxjs/operators';
 export class ApartmentsService {
   constructor(private http: HttpClient) {}
 
+  // Listado global de apartamentos paginado
+  getApartments(params: { page: number; pageSize?: number }): Observable<any> {
+    const pageSize = params.pageSize || 50;
+    return this.http.get(`${environment.apiUrl}/api/apartments?page=${params.page}&pageSize=${pageSize}`).pipe(
+      catchError(this.handleError)
+    );
+  }
+
   // Listado de apartamentos por edificio
   getApartmentsByBuilding(code: string): Observable<any> {
-  return this.http.get(`${environment.apiUrl}/api/buildings/${code}/apartments`).pipe(
+    return this.http.get(`${environment.apiUrl}/api/buildings/${code}/apartments`).pipe(
       catchError(this.handleError)
     );
   }

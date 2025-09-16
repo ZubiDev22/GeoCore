@@ -1,4 +1,5 @@
 
+
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { environment } from '../../environments/environment';
@@ -8,6 +9,12 @@ import { RentalDto, Result } from '../models/reportes.model';
 
 @Injectable({ providedIn: 'root' })
 export class RentalsService {
+  // Obtener ingresos combinados de alquileres y cashflows
+  getCombinedRentalsCashflows(params?: any): Observable<any> {
+    return this.http.get<any>(`${environment.apiUrl}/api/rentals/combined-rentals-cashflows`, { params }).pipe(
+      catchError(this.handleError)
+    );
+  }
   constructor(private http: HttpClient) {}
 
   // Listado de alquileres con filtros

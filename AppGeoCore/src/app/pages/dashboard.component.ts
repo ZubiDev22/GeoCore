@@ -4,6 +4,7 @@ import { CurrencyPipe, CommonModule } from '@angular/common';
 import { DashboardMapComponent } from './dashboard-map.component';
 import { BuildingsService } from '../services/buildings.service';
 import { RentalsService } from '../services/rentals.service';
+import { ApartmentsService } from '../services/apartments.service';
 
 @Component({
   selector: 'app-dashboard',
@@ -23,7 +24,8 @@ export class DashboardComponent implements OnInit {
 
   constructor(
     private buildingsService: BuildingsService,
-    private rentalsService: RentalsService
+    private rentalsService: RentalsService,
+    private apartmentsService: ApartmentsService
   ) {}
 
   ngOnInit(): void {
@@ -43,15 +45,25 @@ export class DashboardComponent implements OnInit {
     this.kpiError = null;
     this.loadingKpis = true;
 
-    // 1. KPIs principales: total de edificios, ingresos y rentabilidad
+    // Inicializar todos los KPIs a cero
+    this.totalBuildings = 0;
+    this.totalIncome = 0;
+    this.avgProfitability = 0;
+    this.occupancyRate = 0;
+
+    // 1. Total de edificios: recorrer todas las páginas y sumar
+    this.getAllBuildings().then(total => {
+      this.totalBuildings = total;
+    }).catch(err => {
+      console.error('Error getAllBuildings:', err);
+      this.totalBuildings = 0;
+      this.kpiError = (this.kpiError ? this.kpiError + ' | ' : '') + 'No se pudo cargar el total de edificios.';
+    });
+
+    // 2. Ingresos y rentabilidad: usando profitability-by-location
     this.buildingsService.getProfitabilityByLocation().subscribe({
       next: (res) => {
-        console.log('getProfitabilityByLocation response:', res);
-        // Total de edificios
-        this.totalBuildings = res?.TotalEdificios ?? 0;
-        // Ingresos totales
         this.totalIncome = res?.TotalIngresos ?? 0;
-        // Rentabilidad media (puede venir como string con %)
         if (typeof res?.RentabilidadMedia === 'string') {
           this.avgProfitability = Number(res.RentabilidadMedia.replace('%', '').replace(',', '.'));
         } else if (typeof res?.RentabilidadMedia === 'number') {
@@ -60,37 +72,59 @@ export class DashboardComponent implements OnInit {
       },
       error: (err) => {
         console.error('Error getProfitabilityByLocation:', err);
-        this.kpiError = 'No se pudieron cargar los KPIs principales.';
+        this.kpiError = (this.kpiError ? this.kpiError + ' | ' : '') + 'No se pudieron cargar ingresos/rentabilidad.';
       }
     });
 
-    // 2. Ocupación: % de apartamentos con alquiler activo
+    // 3. Ocupación: % de apartamentos con alquiler activo
     try {
-      // Obtener alquileres activos
       this.rentalsService.getRentals({ status: 'active' }).subscribe({
         next: async (result) => {
           let rentals: any[] = Array.isArray(result?.value) ? result.value : [];
           const occupied = rentals.length;
-          // Obtener todos los apartamentos
-          const apartments = await this.getAllApartments();
-          const totalApartments = apartments.length;
-          this.occupancyRate = totalApartments > 0 ? Math.round((occupied / totalApartments) * 100) : 0;
+          try {
+            const apartments = await this.getAllApartments();
+            const totalApartments = apartments.length;
+            this.occupancyRate = totalApartments > 0 ? Math.round((occupied / totalApartments) * 100) : 0;
+          } catch (err) {
+            console.error('Error getAllApartments:', err);
+            this.occupancyRate = 0;
+            this.kpiError = (this.kpiError ? this.kpiError + ' | ' : '') + 'No se pudo calcular la ocupación.';
+          }
           this.loadingKpis = false;
         },
         error: (err) => {
           console.error('Error getRentals:', err);
           this.occupancyRate = 0;
+          this.kpiError = (this.kpiError ? this.kpiError + ' | ' : '') + 'No se pudieron cargar los alquileres.';
           this.loadingKpis = false;
-          this.kpiError = 'No se pudieron cargar los alquileres.';
         }
       });
     } catch (err) {
-      console.error('Error getAllApartments:', err);
+      console.error('Error rentalsService.getRentals:', err);
       this.occupancyRate = 0;
+      this.kpiError = (this.kpiError ? this.kpiError + ' | ' : '') + 'No se pudo calcular la ocupación.';
       this.loadingKpis = false;
-      this.kpiError = 'No se pudo calcular la ocupación.';
     }
   }
+
+  /**
+   * Obtiene todos los edificios paginados del backend y suma el total
+   */
+  private async getAllBuildings(): Promise<number> {
+    let total = 0;
+    let page = 1;
+    let totalPages = 1;
+    do {
+      const res = await this.buildingsService.getBuildings({ page }).toPromise();
+      const items = Array.isArray(res?.items) ? res.items : (Array.isArray(res?.data) ? res.data : Array.isArray(res) ? res : []);
+      total += items.length;
+      totalPages = res?.totalPages || res?.total_pages || 1;
+      page++;
+    } while (page <= totalPages);
+    return total;
+  }
+
 
   /**
    * Obtiene todos los apartamentos paginados del backend
@@ -100,8 +134,7 @@ export class DashboardComponent implements OnInit {
     let page = 1;
     let totalPages = 1;
     do {
-      // Suponiendo que hay un método getApartments en el servicio correspondiente
-      const res = await (this['apartmentsService']?.getApartments({ page })?.toPromise?.() ?? Promise.resolve({ items: [], totalPages: 1 }));
+      const res = await this.apartmentsService.getApartments({ page }).toPromise();
       const items = Array.isArray(res?.items) ? res.items : [];
       all = all.concat(items);
       totalPages = res?.totalPages || 1;

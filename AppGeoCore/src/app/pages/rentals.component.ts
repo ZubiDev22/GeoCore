@@ -1,6 +1,8 @@
-import { Component } from '@angular/core';
+
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { RentalsService } from '../services/rentals.service';
 
 @Component({
   selector: 'app-rentals',
@@ -27,6 +29,7 @@ import { FormsModule } from '@angular/forms';
       <table class="table table-striped table-hover">
         <thead>
           <tr>
+            <th>Tipo</th>
             <th>Inquilino</th>
             <th>Propiedad</th>
             <th>Precio (€)</th>
@@ -37,26 +40,31 @@ import { FormsModule } from '@angular/forms';
           </tr>
         </thead>
         <tbody>
-          <tr *ngFor="let rental of paginatedRentals()">
-            <td>{{ rental.tenant }}</td>
-            <td>{{ rental.property }}</td>
-            <td>{{ rental.price | number:'1.0-2' }}</td>
-            <td>{{ rental.start | date:'dd/MM/yyyy' }}</td>
-            <td>{{ rental.end | date:'dd/MM/yyyy' }}</td>
+          <tr *ngFor="let item of paginatedCombined()">
             <td>
-              <span class="badge"
-             [class.badge-estado-activo]="rental.status === 'activo'"
-             [class.badge-estado-pendiente]="rental.status === 'pendiente'"
-             [class.badge-estado-vencido]="rental.status === 'vencido'"
-              >{{ rental.status }}</span>
+              <span *ngIf="item.tipo === 'Rental'" class="badge bg-primary">Rental</span>
+              <span *ngIf="item.tipo === 'CashFlow'" class="badge bg-success">CashFlow</span>
+            </td>
+            <td>{{ item.tenant || '-' }}</td>
+            <td>{{ item.property || '-' }}</td>
+            <td>{{ item.price | number:'1.0-2' }}</td>
+            <td>{{ item.start | date:'dd/MM/yyyy' }}</td>
+            <td>{{ item.end | date:'dd/MM/yyyy' }}</td>
+            <td>
+              <span *ngIf="item.status" class="badge"
+                [class.badge-estado-activo]="item.status === 'activo'"
+                [class.badge-estado-pendiente]="item.status === 'pendiente'"
+                [class.badge-estado-vencido]="item.status === 'vencido'"
+              >{{ item.status }}</span>
+              <span *ngIf="!item.status">-</span>
             </td>
             <td>
-              <button class="btn btn-outline-primary btn-sm" (click)="verDetalles(rental)"><i class="bi bi-eye"></i> Detalles</button>
+              <button class="btn btn-outline-primary btn-sm" (click)="verDetalles(item)"><i class="bi bi-eye"></i> Detalles</button>
             </td>
           </tr>
         </tbody>
       </table>
-      <nav *ngIf="filteredRentals().length > pageSize" aria-label="Paginación de alquileres">
+  <nav *ngIf="filteredCombined().length > pageSize" aria-label="Paginación de ingresos">
         <ul class="pagination justify-content-center">
           <li class="page-item" [class.disabled]="currentPage === 1">
             <button class="page-link" (click)="prevPage()" [disabled]="currentPage === 1">Anterior</button>
@@ -73,55 +81,77 @@ import { FormsModule } from '@angular/forms';
   `,
   styleUrls: []
 })
-export class RentalsComponent {
+export class RentalsComponent implements OnInit {
   filterStatus = '';
   searchText = '';
   currentPage = 1;
   pageSize = 5;
-  rentals = [
-    {
-      tenant: 'Juan Pérez',
-      property: 'Apto. 1A - Edificio Sol',
-      price: 850,
-      start: new Date(2024, 0, 1),
-      end: new Date(2024, 11, 31),
-      status: 'activo'
-    },
-    {
-      tenant: 'María López',
-      property: 'Apto. 2B - Edificio Luna',
-      price: 950,
-      start: new Date(2024, 2, 15),
-      end: new Date(2025, 2, 14),
-      status: 'pendiente'
-    },
-    {
-      tenant: 'Carlos Ruiz',
-      property: 'Apto. 3C - Edificio Estrella',
-      price: 780,
-      start: new Date(2023, 5, 1),
-      end: new Date(2024, 4, 31),
-      status: 'vencido'
-    }
-  ];
+  combined: any[] = [];
+  loading = false;
+  error: string | null = null;
 
-  filteredRentals() {
-    return this.rentals.filter(rental => {
-      const matchesStatus = this.filterStatus ? rental.status === this.filterStatus : true;
+  constructor(private rentalsService: RentalsService) {}
+
+  ngOnInit(): void {
+    this.loading = true;
+    this.rentalsService.getCombinedRentalsCashflows().subscribe({
+      next: (data) => {
+        // Normalizar los datos para la tabla unificada
+        this.combined = (Array.isArray(data) ? data : (data?.value || data?.data || []))
+          .map((item: any) => {
+            if (item.RentalId) {
+              // Es un Rental
+              return {
+                tipo: 'Rental',
+                tenant: item.TenantName || item.tenant || '-',
+                property: item.PropertyName || item.property || '-',
+                price: item.Price || item.price || 0,
+                start: item.StartDate ? new Date(item.StartDate) : null,
+                end: item.EndDate ? new Date(item.EndDate) : null,
+                status: item.Status || item.status || '-',
+                ...item
+              };
+            } else if (item.CashFlowId) {
+              // Es un CashFlow
+              return {
+                tipo: 'CashFlow',
+                tenant: item.TenantName || '-',
+                property: item.PropertyName || '-',
+                price: item.Amount || 0,
+                start: item.Date ? new Date(item.Date) : null,
+                end: null,
+                status: null,
+                ...item
+              };
+            }
+            return item;
+          });
+        this.loading = false;
+      },
+      error: (err) => {
+        this.error = 'No se pudieron cargar los ingresos combinados.';
+        this.loading = false;
+      }
+    });
+  }
+
+  filteredCombined() {
+    return this.combined.filter(item => {
+      const matchesStatus = this.filterStatus ? item.status === this.filterStatus : true;
       const matchesText = this.searchText
-        ? (rental.tenant + ' ' + rental.property).toLowerCase().includes(this.searchText.toLowerCase())
+        ? ((item.tenant + ' ' + item.property).toLowerCase().includes(this.searchText.toLowerCase()))
         : true;
       return matchesStatus && matchesText;
     });
   }
 
-  paginatedRentals() {
+  paginatedCombined() {
     const start = (this.currentPage - 1) * this.pageSize;
-    return this.filteredRentals().slice(start, start + this.pageSize);
+    return this.filteredCombined().slice(start, start + this.pageSize);
   }
 
   totalPages() {
-    return Math.ceil(this.filteredRentals().length / this.pageSize) || 1;
+    return Math.ceil(this.filteredCombined().length / this.pageSize) || 1;
   }
 
   totalPagesArray() {
@@ -140,7 +170,7 @@ export class RentalsComponent {
     if (this.currentPage < this.totalPages()) this.currentPage++;
   }
 
-  verDetalles(rental: any) {
-    alert('Detalles de alquiler para: ' + rental.tenant + '\nPropiedad: ' + rental.property);
+  verDetalles(item: any) {
+    alert('Detalles para: ' + (item.tenant || '-') + '\nPropiedad: ' + (item.property || '-') + '\nTipo: ' + item.tipo);
   }
 }

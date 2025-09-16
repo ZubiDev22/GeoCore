@@ -49,6 +49,7 @@ import { CashFlowsService } from '../services/cashflows.service';
         </div>
         <!-- Mapa duplicado eliminado -->
       </div>
+
       <div class="mt-4">
         <h4>Apartamentos asociados</h4>
         <div *ngIf="loadingApartments" class="text-center"><div class="spinner-border"></div></div>
@@ -67,6 +68,94 @@ import { CashFlowsService } from '../services/cashflows.service';
           </tbody>
         </table>
         <div *ngIf="!loadingApartments && !apartments.length" class="text-muted">Sin apartamentos.</div>
+      </div>
+
+      <!-- KPIs de Rentabilidad e Ingresos -->
+      <div class="mt-4" *ngIf="profitability">
+        <h4>KPIs de Rentabilidad</h4>
+        <ul>
+          <li><strong>Ingresos:</strong> {{ profitability.ingresos | currency:'EUR' }}</li>
+          <li><strong>Gastos:</strong> {{ profitability.gastos | currency:'EUR' }}</li>
+          <li><strong>Inversión:</strong> {{ profitability.inversion | currency:'EUR' }}</li>
+          <li><strong>Rentabilidad:</strong> {{ profitability.rentabilidad }}</li>
+        </ul>
+      </div>
+
+      <!-- Tabla de Alquileres asociados -->
+      <div class="mt-4" *ngIf="profitability?.detalle?.alquileres?.length">
+        <h4>Alquileres asociados</h4>
+        <table class="table table-sm">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Apartamento</th>
+              <th>Precio</th>
+              <th>Inicio</th>
+              <th>Fin</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let r of profitability.detalle.alquileres">
+              <td>{{ r.rentalId || r.RentalId || '-' }}</td>
+              <td>{{ r.apartmentId || r.ApartmentId || '-' }}</td>
+              <td>{{ r.price || r.Price || '-' }}</td>
+              <td>{{ r.startDate || r.StartDate | date:'yyyy-MM-dd' }}</td>
+              <td>{{ r.endDate || r.EndDate | date:'yyyy-MM-dd' }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Tabla de CashFlows asociados -->
+      <div class="mt-4" *ngIf="profitability?.detalle?.cashFlows?.length">
+        <h4>Flujos de caja de alquiler</h4>
+        <table class="table table-sm">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Fuente</th>
+              <th>Monto</th>
+              <th>Fecha</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let c of profitability.detalle.cashFlows">
+              <td>{{ c.cashFlowId || c.CashFlowId || '-' }}</td>
+              <td>{{ c.source || c.Source || '-' }}</td>
+              <td>{{ c.amount || c.Amount || '-' }}</td>
+              <td>{{ c.date || c.Date | date:'yyyy-MM-dd' }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- NUEVA TABLA: Alquileres asociados si existen -->
+      <div class="mt-4" *ngIf="building?.alquileres?.length">
+        <h4>Alquileres asociados</h4>
+        <table class="table table-sm">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Inquilino</th>
+              <th>Propiedad</th>
+              <th>Precio</th>
+              <th>Inicio</th>
+              <th>Fin</th>
+              <th>Estado</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let r of building.alquileres">
+              <td>{{ r.RentalId || r.id || '-' }}</td>
+              <td>{{ r.TenantName || r.tenant || '-' }}</td>
+              <td>{{ r.PropertyName || r.property || '-' }}</td>
+              <td>{{ r.Price || r.price || '-' }}</td>
+              <td>{{ r.StartDate || r.start | date:'yyyy-MM-dd' }}</td>
+              <td>{{ r.EndDate || r.end | date:'yyyy-MM-dd' }}</td>
+              <td>{{ r.Status || r.status || '-' }}</td>
+            </tr>
+          </tbody>
+        </table>
       </div>
       <div class="mt-4">
         <h4>Eventos de mantenimiento</h4>
@@ -124,6 +213,7 @@ import { CashFlowsService } from '../services/cashflows.service';
 })
 export class BuildingDetailComponent {
   building: any = null;
+  profitability: any = null;
   apartments: any[] = [];
   events: any[] = [];
   cashflows: any[] = [];
@@ -136,17 +226,25 @@ export class BuildingDetailComponent {
   constructor(
     private route: ActivatedRoute,
     private buildingsService: BuildingsService,
-    private apartmentsService: ApartmentsService,
-    private eventsService: MaintenanceEventsService,
-    private cashflowsService: CashFlowsService
+    private apartmentsService: ApartmentsService
   ) {
     this.route.params.subscribe((params: any) => {
       const code = params['code'];
       if (code) {
         this.loadBuilding(code);
+        this.loadProfitability(code);
         this.loadApartments(code);
-        this.loadEvents(code);
-        this.loadCashflows(code);
+      }
+    });
+  }
+
+  loadProfitability(code: string) {
+    this.buildingsService.getProfitabilityByBuilding(code).subscribe({
+      next: (data: any) => {
+        this.profitability = data;
+      },
+      error: () => {
+        this.profitability = null;
       }
     });
   }
