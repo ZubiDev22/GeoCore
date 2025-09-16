@@ -7,6 +7,8 @@ namespace GeoCore.Persistence
     {
         public DbSet<CashFlow> CashFlows { get; set; }
         public DbSet<MaintenanceEvent> MaintenanceEvents { get; set; }
+        public DbSet<Rental> Rentals { get; set; }
+        public DbSet<Apartment> Apartments { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -16,6 +18,10 @@ namespace GeoCore.Persistence
 
             modelBuilder.Entity<MaintenanceEvent>()
                 .Property(m => m.Cost)
+                .HasPrecision(10, 2);
+
+            modelBuilder.Entity<Rental>()
+                .Property(r => r.Price)
                 .HasPrecision(10, 2);
 
             base.OnModelCreating(modelBuilder);
