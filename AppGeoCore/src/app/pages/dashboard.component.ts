@@ -72,7 +72,12 @@ export class DashboardComponent implements OnInit {
       },
       error: (err) => {
         console.error('Error getProfitabilityByLocation:', err);
-        this.kpiError = (this.kpiError ? this.kpiError + ' | ' : '') + 'No se pudieron cargar ingresos/rentabilidad.';
+        // Mostrar el mensaje exacto del backend si está disponible
+        let msg = 'No se pudieron cargar ingresos/rentabilidad.';
+        if (typeof err === 'string') {
+          msg += ` Detalle: ${err}`;
+        }
+        this.kpiError = (this.kpiError ? this.kpiError + ' | ' : '') + msg;
       }
     });
 

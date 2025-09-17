@@ -129,7 +129,11 @@ export class RentalsComponent implements OnInit {
         this.loading = false;
       },
       error: (err) => {
-        this.error = 'No se pudieron cargar los ingresos combinados.';
+        let msg = 'No se pudieron cargar los ingresos combinados.';
+        if (typeof err === 'string') {
+          msg += ` Detalle: ${err}`;
+        }
+        this.error = msg;
         this.loading = false;
       }
     });
