@@ -348,7 +348,7 @@ namespace GeoCore.Controllers
 
         /// <summary>
         /// Calcula la rentabilidad de edificios por localización.
-        /// Al menos uno de los parámetros 'postalCode', 'zone' o 'city' es obligatorio.
+        /// Si no se especifica ningún filtro (postalCode, zone o city), devuelve los KPIs globales de todos los edificios.
         /// Todos los errores se devuelven como un objeto JSON estructurado con los campos: message, code y details.
         /// </summary>
         [HttpGet("profitability-by-location")]
@@ -388,17 +388,8 @@ namespace GeoCore.Controllers
                 return b.City;
             }
 
-            // Validación de parámetros obligatorios
-            if (string.IsNullOrWhiteSpace(postalCode) && string.IsNullOrWhiteSpace(zone) && string.IsNullOrWhiteSpace(city))
-            {
-                return BadRequest(new {
-                    message = "Debe especificar al menos uno de los parámetros: postalCode, zone o city.",
-                    code = "MISSING_PARAMETER",
-                    details = "Se requiere al menos uno de los parámetros: postalCode, zone o city."
-                });
-            }
-
-            IEnumerable<string> buildingIds = Enumerable.Empty<string>();
+            // Si no hay filtros, usar todos los edificios (visión global)
+            IEnumerable<string> buildingIds;
             try
             {
                 if (!string.IsNullOrWhiteSpace(postalCode))
@@ -430,6 +421,11 @@ namespace GeoCore.Controllers
                         .Select(b => b.BuildingId)
                         .ToList();
                     _logger.LogDebug($"BuildingIds encontrados por city: {string.Join(",", buildingIds)}");
+                }
+                else
+                {
+                    // Sin filtros: usar todos los edificios
+                    buildingIds = buildings.Select(b => b.BuildingId).ToList();
                 }
             }
             catch (Exception ex)

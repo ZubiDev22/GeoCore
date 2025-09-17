@@ -61,7 +61,8 @@ export class DashboardComponent implements OnInit {
     });
 
     // 2. Ingresos y rentabilidad: usando profitability-by-location
-    this.buildingsService.getProfitabilityByLocation().subscribe({
+  // Enviar parámetro zone para cumplir con la validación del backend
+  this.buildingsService.getProfitabilityByLocation({ zone: 'Centro' }).subscribe({
       next: (res) => {
         this.totalIncome = res?.TotalIngresos ?? 0;
         if (typeof res?.RentabilidadMedia === 'string') {
