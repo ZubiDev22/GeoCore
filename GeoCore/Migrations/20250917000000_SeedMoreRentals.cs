@@ -24,8 +24,8 @@ namespace GeoCore.Migrations
                     { "REN102", "APT007", new DateTime(2024, 1, 1), new DateTime(2024, 12, 31), true, 1500m, "Abando", "48009" },
                     // BLD009 (Edificio Maisonnave, Alicante) - si tienes un apartamento, por ejemplo APT010
                     { "REN103", "APT010", new DateTime(2024, 1, 1), new DateTime(2024, 12, 31), true, 1100m, "Centro", "03003" },
-                    // BLD011 (Huarte, Pamplona, Pérez Goyena) - si tienes un apartamento, por ejemplo APT011
-                    { "REN104", "APT011", new DateTime(2024, 1, 1), new DateTime(2024, 12, 31), true, 1250m, "Huarte", "31012" }
+                    // BLD011 (Huarte, Pamplona, Pérez Goyena) - usa APT031
+                    { "REN104", "APT031", new DateTime(2024, 1, 1), new DateTime(2024, 12, 31), true, 1250m, "Huarte", "31012" }
                 }
             );
         }
