@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace GeoCore.Migrations
 {
     [DbContext(typeof(GeoCoreDbContext))]
-    [Migration("20250913163052_Initial")]
-    partial class Initial
+    [Migration("20250917121429_InitialCreate")]
+    partial class InitialCreate
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -60,11 +60,15 @@ namespace GeoCore.Migrations
                     b.Property<int>("NumberOfRooms")
                         .HasColumnType("int");
 
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
                     b.HasKey("ApartmentId");
 
                     b.HasIndex("BuildingId");
 
-                    b.ToTable("Apartment");
+                    b.ToTable("Apartments");
                 });
 
             modelBuilder.Entity("GeoCore.Entities.Building", b =>
@@ -162,6 +166,39 @@ namespace GeoCore.Migrations
                     b.HasIndex("BuildingId");
 
                     b.ToTable("MaintenanceEvents");
+                });
+
+            modelBuilder.Entity("GeoCore.Entities.Rental", b =>
+                {
+                    b.Property<string>("RentalId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("ApartmentId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("EndDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<bool>("IsConfirmed")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("PostalCode")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<decimal>("Price")
+                        .HasPrecision(10, 2)
+                        .HasColumnType("decimal(10,2)");
+
+                    b.Property<DateTime>("StartDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Zone")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("RentalId");
+
+                    b.ToTable("Rentals");
                 });
 
             modelBuilder.Entity("GeoCore.Entities.Apartment", b =>
