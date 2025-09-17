@@ -130,7 +130,17 @@ export class RentalsComponent implements OnInit {
       },
       error: (err) => {
         let msg = 'No se pudieron cargar los ingresos combinados.';
-        if (typeof err === 'string') {
+        if (err && typeof err === 'object') {
+          if (err.message) {
+            msg += `\nMensaje: ${err.message}`;
+          }
+          if (err.code) {
+            msg += `\nCódigo: ${err.code}`;
+          }
+          if (err.details) {
+            msg += `\nDetalles: ${err.details}`;
+          }
+        } else if (typeof err === 'string') {
           msg += ` Detalle: ${err}`;
         }
         this.error = msg;

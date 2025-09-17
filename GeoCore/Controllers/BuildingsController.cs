@@ -346,6 +346,11 @@ namespace GeoCore.Controllers
             return Ok(dto);
         }
 
+        /// <summary>
+        /// Calcula la rentabilidad de edificios por localización.
+        /// Al menos uno de los parámetros 'postalCode', 'zone' o 'city' es obligatorio.
+        /// Todos los errores se devuelven como un objeto JSON estructurado con los campos: message, code y details.
+        /// </summary>
         [HttpGet("profitability-by-location")]
         public async Task<ActionResult<ProfitabilityByLocationDto>> GetProfitabilityByLocation(
             [FromQuery] string? postalCode = null,
@@ -353,7 +358,6 @@ namespace GeoCore.Controllers
             [FromQuery] string? city = null,
             [FromQuery] bool debug = false)
         {
-            // Declarar getBaremo al principio del método
             Func<decimal, string> getBaremo = r => r < 0.03m ? "Baja" : (r < 0.06m ? "Media" : "Alta");
 
             _logger.LogInformation($"[BuildingsController] Calculando rentabilidad por localización: postalCode={postalCode}, zone={zone}, city={city}, debug={debug}");
@@ -364,7 +368,7 @@ namespace GeoCore.Controllers
             var maintenanceRepo = HttpContext.RequestServices.GetService<IMaintenanceEventRepository>();
 
             if (apartmentRepo == null || rentalRepo == null || cashFlowRepo == null || maintenanceRepo == null)
-                return StatusCode(500, "Dependencias no disponibles");
+                return StatusCode(500, new { message = "Dependencias no disponibles", code = "DEPENDENCY_ERROR" });
 
             var buildings = await buildingRepo.GetAllAsync();
             var apartments = await apartmentRepo.GetAllAsync();
@@ -372,13 +376,8 @@ namespace GeoCore.Controllers
             var cashflows = await cashFlowRepo.GetAllAsync();
             var maintenances = await maintenanceRepo.GetAllAsync();
 
-            // Para depuración: lista de rentals ignorados
             var ignoredRentals = new List<object>();
-
-            // Función para normalizar texto (quitar espacios y pasar a minúsculas)
             string Normalize(string? s) => string.IsNullOrWhiteSpace(s) ? string.Empty : string.Join(" ", s.Trim().ToLower().Split(' ', StringSplitOptions.RemoveEmptyEntries));
-
-            // Asignar zone representativo a cada edificio
             string GetZoneForBuilding(GeoCore.Entities.Building b)
             {
                 if (b.City.ToLower() == "pamplona")
@@ -386,51 +385,71 @@ namespace GeoCore.Controllers
                     if (b.Address.ToLower().Contains("estafeta")) return "Centro";
                     if (b.Address.ToLower().Contains("pérez goyena") || b.Address.ToLower().Contains("perez goyena")) return "Huarte";
                 }
-                // Para el resto de edificios, usar el nombre de la ciudad como zona
                 return b.City;
             }
 
-            // Filtrado de edificios según prioridad: postalCode > zone > city
+            // Validación de parámetros obligatorios
+            if (string.IsNullOrWhiteSpace(postalCode) && string.IsNullOrWhiteSpace(zone) && string.IsNullOrWhiteSpace(city))
+            {
+                return BadRequest(new {
+                    message = "Debe especificar al menos uno de los parámetros: postalCode, zone o city.",
+                    code = "MISSING_PARAMETER",
+                    details = "Se requiere al menos uno de los parámetros: postalCode, zone o city."
+                });
+            }
+
             IEnumerable<string> buildingIds = Enumerable.Empty<string>();
-            if (!string.IsNullOrWhiteSpace(postalCode))
+            try
             {
-                var normalizedPostal = Normalize(postalCode);
-                _logger.LogDebug($"Filtro postalCode normalizado: '{normalizedPostal}'");
-                buildingIds = buildings
-                    .Where(b => Normalize(b.PostalCode).Contains(normalizedPostal))
-                    .Select(b => b.BuildingId)
-                    .ToList();
-                _logger.LogDebug($"BuildingIds encontrados por postalCode: {string.Join(",", buildingIds)}");
+                if (!string.IsNullOrWhiteSpace(postalCode))
+                {
+                    var normalizedPostal = Normalize(postalCode);
+                    _logger.LogDebug($"Filtro postalCode normalizado: '{normalizedPostal}'");
+                    buildingIds = buildings
+                        .Where(b => Normalize(b.PostalCode).Contains(normalizedPostal))
+                        .Select(b => b.BuildingId)
+                        .ToList();
+                    _logger.LogDebug($"BuildingIds encontrados por postalCode: {string.Join(",", buildingIds)}");
+                }
+                else if (!string.IsNullOrWhiteSpace(zone))
+                {
+                    var normalizedZone = Normalize(zone);
+                    _logger.LogDebug($"Filtro zone normalizado: '{normalizedZone}'");
+                    buildingIds = buildings
+                        .Where(b => Normalize(GetZoneForBuilding(b)).Contains(normalizedZone))
+                        .Select(b => b.BuildingId)
+                        .ToList();
+                    _logger.LogDebug($"BuildingIds encontrados por zone: {string.Join(",", buildingIds)}");
+                }
+                else if (!string.IsNullOrWhiteSpace(city))
+                {
+                    var normalizedCity = Normalize(city);
+                    _logger.LogDebug($"Filtro city normalizado: '{normalizedCity}'");
+                    buildingIds = buildings
+                        .Where(b => Normalize(b.City).Contains(normalizedCity))
+                        .Select(b => b.BuildingId)
+                        .ToList();
+                    _logger.LogDebug($"BuildingIds encontrados por city: {string.Join(",", buildingIds)}");
+                }
             }
-            else if (!string.IsNullOrWhiteSpace(zone))
+            catch (Exception ex)
             {
-                var normalizedZone = Normalize(zone);
-                _logger.LogDebug($"Filtro zone normalizado: '{normalizedZone}'");
-                buildingIds = buildings
-                    .Where(b => Normalize(GetZoneForBuilding(b)).Contains(normalizedZone))
-                    .Select(b => b.BuildingId)
-                    .ToList();
-                _logger.LogDebug($"BuildingIds encontrados por zone: {string.Join(",", buildingIds)}");
-            }
-            else if (!string.IsNullOrWhiteSpace(city))
-            {
-                var normalizedCity = Normalize(city);
-                _logger.LogDebug($"Filtro city normalizado: '{normalizedCity}'");
-                buildingIds = buildings
-                    .Where(b => Normalize(b.City).Contains(normalizedCity))
-                    .Select(b => b.BuildingId)
-                    .ToList();
-                _logger.LogDebug($"BuildingIds encontrados por city: {string.Join(",", buildingIds)}");
-            }
-            else
-            {
-                return BadRequest("Debe especificar al menos uno de los parámetros: postalCode, zone o city.");
+                _logger.LogError(ex, "Error al procesar los parámetros de localización");
+                return BadRequest(new {
+                    message = "Error al procesar los parámetros de localización.",
+                    code = "PARAMETER_FORMAT_ERROR",
+                    details = ex.Message
+                });
             }
 
             var filteredBuildings = buildings.Where(b => buildingIds.Contains(b.BuildingId)).ToList();
             _logger.LogDebug($"Total edificios filtrados: {filteredBuildings.Count}");
             if (!filteredBuildings.Any())
-                return NotFound("No se encontraron edificios para la localización indicada.");
+                return NotFound(new {
+                    message = "No se encontraron edificios para la localización indicada.",
+                    code = "NOT_FOUND",
+                    details = "No hay edificios que coincidan con los parámetros proporcionados."
+                });
 
             var resultados = new List<ProfitabilityByLocationDetailDto>();
             decimal totalIngresos = 0, totalGastos = 0, totalInversion = 0;

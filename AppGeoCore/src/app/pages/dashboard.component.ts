@@ -72,9 +72,19 @@ export class DashboardComponent implements OnInit {
       },
       error: (err) => {
         console.error('Error getProfitabilityByLocation:', err);
-        // Mostrar el mensaje exacto del backend si está disponible
         let msg = 'No se pudieron cargar ingresos/rentabilidad.';
-        if (typeof err === 'string') {
+        // Si el error es un objeto estructurado, mostrar sus campos
+        if (err && typeof err === 'object') {
+          if (err.message) {
+            msg += `\nMensaje: ${err.message}`;
+          }
+          if (err.code) {
+            msg += `\nCódigo: ${err.code}`;
+          }
+          if (err.details) {
+            msg += `\nDetalles: ${err.details}`;
+          }
+        } else if (typeof err === 'string') {
           msg += ` Detalle: ${err}`;
         }
         this.kpiError = (this.kpiError ? this.kpiError + ' | ' : '') + msg;
