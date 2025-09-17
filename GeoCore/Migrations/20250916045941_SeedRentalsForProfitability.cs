@@ -68,7 +68,15 @@ namespace GeoCore.Migrations
                 {
                     { "REN001", "APT001", new DateTime(2024, 1, 1), new DateTime(2024, 12, 31), true, 1200m, "Eixample", "08025" },
                     { "REN002", "APT002", new DateTime(2024, 2, 1), new DateTime(2024, 12, 31), true, 1300m, "Eixample", "08025" },
-                    { "REN003", "APT001", new DateTime(2025, 1, 1), new DateTime(2025, 12, 31), true, 1250m, "Eixample", "08025" }
+                    { "REN003", "APT001", new DateTime(2025, 1, 1), new DateTime(2025, 12, 31), true, 1250m, "Eixample", "08025" },
+                    // Rentals para edificios rentados y Huarte (BLD011)
+                    { "REN004", "APT003", new DateTime(2024, 1, 1), new DateTime(2024, 12, 31), true, 1400m, "Eixample", "08018" },
+                    { "REN005", "APT004", new DateTime(2024, 2, 1), new DateTime(2024, 12, 31), true, 1350m, "Eixample", "08018" },
+                    { "REN006", "APT007", new DateTime(2024, 1, 1), new DateTime(2024, 12, 31), true, 1500m, "Abando", "48009" },
+                    // BLD009 (Edificio Maisonnave, Alicante) - suponer APT011 si existe
+                    // { "REN007", "APT011", new DateTime(2024, 1, 1), new DateTime(2024, 12, 31), true, 1100m, "Centro", "03003" },
+                    // BLD011 (Huarte, Pamplona, Pérez Goyena) - suponer APT012 si existe
+                    // { "REN008", "APT012", new DateTime(2024, 1, 1), new DateTime(2024, 12, 31), true, 1250m, "Huarte", "31012" },
                 }
             );
         }
