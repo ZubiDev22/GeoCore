@@ -66,6 +66,36 @@ namespace GeoCore.Migrations
                     b.HasIndex("BuildingId");
 
                     b.ToTable("Apartments");
+
+                    b.HasData(
+                        new
+                        {
+                            ApartmentId = "APT001",
+                            ApartmentDoor = "1A",
+                            ApartmentFloor = "1",
+                            ApartmentPrice = 1000m,
+                            BuildingId = "BLD002",
+                            CreatedDate = new DateTime(2021, 5, 15, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            HasGarage = false,
+                            HasLift = true,
+                            NumberOfBathrooms = 1,
+                            NumberOfRooms = 2,
+                            Status = "Rented"
+                        },
+                        new
+                        {
+                            ApartmentId = "APT002",
+                            ApartmentDoor = "2A",
+                            ApartmentFloor = "2",
+                            ApartmentPrice = 1200m,
+                            BuildingId = "BLD002",
+                            CreatedDate = new DateTime(2021, 5, 15, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            HasGarage = true,
+                            HasLift = true,
+                            NumberOfBathrooms = 2,
+                            NumberOfRooms = 3,
+                            Status = "Rented"
+                        });
                 });
 
             modelBuilder.Entity("GeoCore.Entities.Building", b =>
@@ -109,6 +139,21 @@ namespace GeoCore.Migrations
                     b.HasKey("BuildingId");
 
                     b.ToTable("Buildings");
+
+                    b.HasData(
+                        new
+                        {
+                            BuildingId = "BLD002",
+                            Address = "Carrer de Sardenya 350",
+                            BuildingCode = "BLD002",
+                            City = "Barcelona",
+                            Latitude = 41.404319999999998,
+                            Longitude = 2.1740300000000001,
+                            Name = "Edificio Diagonal",
+                            PostalCode = "08025",
+                            PurchaseDate = new DateTime(2021, 5, 15, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Status = "Rented"
+                        });
                 });
 
             modelBuilder.Entity("GeoCore.Entities.CashFlow", b =>
@@ -196,6 +241,30 @@ namespace GeoCore.Migrations
                     b.HasKey("RentalId");
 
                     b.ToTable("Rentals");
+
+                    b.HasData(
+                        new
+                        {
+                            RentalId = "REN001",
+                            ApartmentId = "APT001",
+                            EndDate = new DateTime(2024, 12, 31, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            IsConfirmed = true,
+                            PostalCode = "08025",
+                            Price = 1200m,
+                            StartDate = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Zone = "Eixample"
+                        },
+                        new
+                        {
+                            RentalId = "REN002",
+                            ApartmentId = "APT002",
+                            EndDate = new DateTime(2024, 12, 31, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            IsConfirmed = true,
+                            PostalCode = "08025",
+                            Price = 1300m,
+                            StartDate = new DateTime(2024, 2, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Zone = "Eixample"
+                        });
                 });
 
             modelBuilder.Entity("GeoCore.Entities.Apartment", b =>

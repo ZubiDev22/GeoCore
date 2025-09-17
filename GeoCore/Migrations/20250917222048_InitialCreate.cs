@@ -3,6 +3,8 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
+#pragma warning disable CA1814 // Prefer jagged arrays over multidimensional
+
 namespace GeoCore.Migrations
 {
     /// <inheritdoc />
@@ -116,6 +118,29 @@ namespace GeoCore.Migrations
                         principalTable: "Buildings",
                         principalColumn: "BuildingId",
                         onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.InsertData(
+                table: "Buildings",
+                columns: new[] { "BuildingId", "Address", "BuildingCode", "City", "Latitude", "Longitude", "Name", "PostalCode", "PurchaseDate", "Status" },
+                values: new object[] { "BLD002", "Carrer de Sardenya 350", "BLD002", "Barcelona", 41.404319999999998, 2.1740300000000001, "Edificio Diagonal", "08025", new DateTime(2021, 5, 15, 0, 0, 0, 0, DateTimeKind.Unspecified), "Rented" });
+
+            migrationBuilder.InsertData(
+                table: "Rentals",
+                columns: new[] { "RentalId", "ApartmentId", "EndDate", "IsConfirmed", "PostalCode", "Price", "StartDate", "Zone" },
+                values: new object[,]
+                {
+                    { "REN001", "APT001", new DateTime(2024, 12, 31, 0, 0, 0, 0, DateTimeKind.Unspecified), true, "08025", 1200m, new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), "Eixample" },
+                    { "REN002", "APT002", new DateTime(2024, 12, 31, 0, 0, 0, 0, DateTimeKind.Unspecified), true, "08025", 1300m, new DateTime(2024, 2, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), "Eixample" }
+                });
+
+            migrationBuilder.InsertData(
+                table: "Apartments",
+                columns: new[] { "ApartmentId", "ApartmentDoor", "ApartmentFloor", "ApartmentPrice", "BuildingId", "CreatedDate", "HasGarage", "HasLift", "NumberOfBathrooms", "NumberOfRooms", "Status" },
+                values: new object[,]
+                {
+                    { "APT001", "1A", "1", 1000m, "BLD002", new DateTime(2021, 5, 15, 0, 0, 0, 0, DateTimeKind.Unspecified), false, true, 1, 2, "Rented" },
+                    { "APT002", "2A", "2", 1200m, "BLD002", new DateTime(2021, 5, 15, 0, 0, 0, 0, DateTimeKind.Unspecified), true, true, 2, 3, "Rented" }
                 });
 
             migrationBuilder.CreateIndex(
