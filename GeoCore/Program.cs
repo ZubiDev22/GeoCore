@@ -32,12 +32,12 @@ namespace GeoCore
             builder.Services.AddDbContext<GeoCore.Persistence.GeoCoreDbContext>(options =>
                 options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-            // Registro de repositorios simulados como Singleton para mantener los datos en memoria
-            builder.Services.AddSingleton<IBuildingRepository, BuildingRepositoryStub>();
-            builder.Services.AddSingleton<IMaintenanceEventRepository, MaintenanceEventRepositoryStub>();
-            builder.Services.AddSingleton<ICashFlowRepository, CashFlowRepositoryStub>();
-            builder.Services.AddSingleton<IApartmentRepository, ApartmentRepositoryStub>();
-            builder.Services.AddSingleton<IRentalRepository, RentalRepositoryStub>();
+            // Cambia los repositorios Stub por los repositorios reales que usan Entity Framework
+            builder.Services.AddScoped<IBuildingRepository, BuildingRepository>();
+            builder.Services.AddScoped<IMaintenanceEventRepository, MaintenanceEventRepository>();
+            builder.Services.AddScoped<ICashFlowRepository, CashFlowRepository>();
+            builder.Services.AddScoped<IApartmentRepository, ApartmentRepository>();
+            builder.Services.AddScoped<IRentalRepository, RentalRepository>();
 
             // Registro de MediatR
             builder.Services.AddMediatR(typeof(Program).Assembly);

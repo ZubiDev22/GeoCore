@@ -197,14 +197,14 @@ export class ReportesComponent implements OnInit {
       this.buildingsService.getProfitabilityByLocation(params).subscribe({
         next: (data) => {
           // LOG: Verificar cómo llegan los campos de rentabilidad y escalas
-          console.log('Respuesta API reportes:', data);
+          // ...
           if (data && data.Detalle) {
             data.Detalle.forEach((d: any) => {
-              console.log('Edificio:', d.BuildingCode, '| TipoRentabilidad:', d.TipoRentabilidad);
+              // ...
             });
           }
           if (data && data.EscalaBaremosDescripcion) {
-            console.log('EscalaBaremosDescripcion:', data.EscalaBaremosDescripcion);
+            // ...
           }
           const adaptado = this.adaptarProfitByLocation(data);
           if (adaptado && adaptado.Detalle && adaptado.Detalle.length > 0) {

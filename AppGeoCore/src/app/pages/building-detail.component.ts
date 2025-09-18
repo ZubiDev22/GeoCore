@@ -217,7 +217,6 @@ export class BuildingDetailComponent {
     this.buildingsService.getBuildingDetailsByCode(code).subscribe({
       next: (data: any) => {
         this.building = data;
-        console.log('DEBUG building:', this.building);
         this.loading = false;
       },
       error: (err: any) => {
@@ -233,13 +232,15 @@ export class BuildingDetailComponent {
       next: (data: any) => {
         this.apartments = data;
         console.log('DEBUG apartamentos:', this.apartments);
-        this.loadingApartments = false;
-      },
-      error: () => {
-        this.loadingApartments = false;
-      }
-    });
-  }
-
-  // Métodos legacy de eventos y cashflows eliminados
-}
+        this.loadingApartments = true;
+        this.errorApartments = '';
+        this.buildingsService.getApartmentsByBuilding(code).subscribe({
+          next: (data: any) => {
+            this.apartments = data;
+            this.loadingApartments = false;
+          },
+          error: (err: any) => {
+            this.errorApartments = 'Error cargando apartamentos';
+            this.loadingApartments = false;
+          }
+        });
