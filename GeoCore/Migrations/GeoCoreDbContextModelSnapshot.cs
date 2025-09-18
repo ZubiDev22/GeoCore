@@ -221,6 +221,62 @@ namespace GeoCore.Migrations
                             NumberOfBathrooms = 2,
                             NumberOfRooms = 3,
                             Status = "libre"
+                        },
+                        new
+                        {
+                            ApartmentId = "APT040",
+                            ApartmentDoor = "1A",
+                            ApartmentFloor = "1",
+                            ApartmentPrice = 185000m,
+                            BuildingId = "BLD012",
+                            CreatedDate = new DateTime(2021, 3, 16, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            HasGarage = true,
+                            HasLift = true,
+                            NumberOfBathrooms = 2,
+                            NumberOfRooms = 3,
+                            Status = "ocupado"
+                        },
+                        new
+                        {
+                            ApartmentId = "APT041",
+                            ApartmentDoor = "2B",
+                            ApartmentFloor = "2",
+                            ApartmentPrice = 175000m,
+                            BuildingId = "BLD012",
+                            CreatedDate = new DateTime(2021, 3, 17, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            HasGarage = false,
+                            HasLift = true,
+                            NumberOfBathrooms = 1,
+                            NumberOfRooms = 2,
+                            Status = "libre"
+                        },
+                        new
+                        {
+                            ApartmentId = "APT050",
+                            ApartmentDoor = "1C",
+                            ApartmentFloor = "1",
+                            ApartmentPrice = 210000m,
+                            BuildingId = "BLD013",
+                            CreatedDate = new DateTime(2022, 5, 11, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            HasGarage = true,
+                            HasLift = true,
+                            NumberOfBathrooms = 2,
+                            NumberOfRooms = 4,
+                            Status = "ocupado"
+                        },
+                        new
+                        {
+                            ApartmentId = "APT051",
+                            ApartmentDoor = "3A",
+                            ApartmentFloor = "3",
+                            ApartmentPrice = 160000m,
+                            BuildingId = "BLD013",
+                            CreatedDate = new DateTime(2022, 5, 12, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            HasGarage = false,
+                            HasLift = false,
+                            NumberOfBathrooms = 1,
+                            NumberOfRooms = 2,
+                            Status = "reservado"
                         });
                 });
 
@@ -409,6 +465,32 @@ namespace GeoCore.Migrations
                             PostalCode = "31620",
                             PurchaseDate = new DateTime(2023, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Status = "Rented"
+                        },
+                        new
+                        {
+                            BuildingId = "BLD012",
+                            Address = "Avenida de la Alameda 10",
+                            BuildingCode = "BLD012",
+                            City = "Valencia",
+                            Latitude = 39.474800000000002,
+                            Longitude = -0.35699999999999998,
+                            Name = "Edificio Alameda",
+                            PostalCode = "46023",
+                            PurchaseDate = new DateTime(2021, 3, 15, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Status = "Active"
+                        },
+                        new
+                        {
+                            BuildingId = "BLD013",
+                            Address = "Calle Tomás Heredia 22",
+                            BuildingCode = "BLD013",
+                            City = "Malaga",
+                            Latitude = 36.715600000000002,
+                            Longitude = -4.4231999999999996,
+                            Name = "Edificio Soho",
+                            PostalCode = "29001",
+                            PurchaseDate = new DateTime(2022, 5, 10, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Status = "Rented"
                         });
                 });
 
@@ -437,6 +519,312 @@ namespace GeoCore.Migrations
                     b.HasIndex("BuildingId");
 
                     b.ToTable("CashFlows");
+
+                    b.HasData(
+                        new
+                        {
+                            CashFlowId = "CAF001",
+                            Amount = 350000m,
+                            BuildingId = "BLD001",
+                            Date = new DateTime(2020, 1, 10, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Source = "Compra inicial"
+                        },
+                        new
+                        {
+                            CashFlowId = "CAF002",
+                            Amount = 20000m,
+                            BuildingId = "BLD001",
+                            Date = new DateTime(2021, 1, 10, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Source = "Alquiler anual"
+                        },
+                        new
+                        {
+                            CashFlowId = "CAF003",
+                            Amount = 5000m,
+                            BuildingId = "BLD001",
+                            Date = new DateTime(2021, 6, 10, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Source = "Reforma cocina"
+                        },
+                        new
+                        {
+                            CashFlowId = "CAF004",
+                            Amount = 21000m,
+                            BuildingId = "BLD001",
+                            Date = new DateTime(2022, 1, 10, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Source = "Alquiler anual"
+                        },
+                        new
+                        {
+                            CashFlowId = "CAF005",
+                            Amount = 1200m,
+                            BuildingId = "BLD001",
+                            Date = new DateTime(2022, 6, 10, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Source = "Seguro edificio"
+                        },
+                        new
+                        {
+                            CashFlowId = "CAF006",
+                            Amount = 22000m,
+                            BuildingId = "BLD001",
+                            Date = new DateTime(2023, 1, 10, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Source = "Alquiler anual"
+                        },
+                        new
+                        {
+                            CashFlowId = "CAF007",
+                            Amount = 320000m,
+                            BuildingId = "BLD002",
+                            Date = new DateTime(2021, 5, 20, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Source = "Compra inicial"
+                        },
+                        new
+                        {
+                            CashFlowId = "CAF008",
+                            Amount = 18000m,
+                            BuildingId = "BLD002",
+                            Date = new DateTime(2022, 1, 10, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Source = "Alquiler anual"
+                        },
+                        new
+                        {
+                            CashFlowId = "CAF009",
+                            Amount = 3000m,
+                            BuildingId = "BLD002",
+                            Date = new DateTime(2022, 6, 10, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Source = "Reforma baño"
+                        },
+                        new
+                        {
+                            CashFlowId = "CAF010",
+                            Amount = 18500m,
+                            BuildingId = "BLD002",
+                            Date = new DateTime(2023, 1, 10, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Source = "Alquiler anual"
+                        },
+                        new
+                        {
+                            CashFlowId = "CAF011",
+                            Amount = 950m,
+                            BuildingId = "BLD002",
+                            Date = new DateTime(2023, 3, 10, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Source = "Impuesto IBI"
+                        },
+                        new
+                        {
+                            CashFlowId = "CAF012",
+                            Amount = 280000m,
+                            BuildingId = "BLD003",
+                            Date = new DateTime(2022, 3, 15, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Source = "Compra inicial"
+                        },
+                        new
+                        {
+                            CashFlowId = "CAF013",
+                            Amount = 17000m,
+                            BuildingId = "BLD003",
+                            Date = new DateTime(2023, 1, 10, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Source = "Alquiler anual"
+                        },
+                        new
+                        {
+                            CashFlowId = "CAF014",
+                            Amount = 2500m,
+                            BuildingId = "BLD003",
+                            Date = new DateTime(2023, 6, 10, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Source = "Gasto extraordinario"
+                        },
+                        new
+                        {
+                            CashFlowId = "CAF015",
+                            Amount = 250000m,
+                            BuildingId = "BLD004",
+                            Date = new DateTime(2019, 7, 22, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Source = "Compra inicial"
+                        },
+                        new
+                        {
+                            CashFlowId = "CAF016",
+                            Amount = 16000m,
+                            BuildingId = "BLD004",
+                            Date = new DateTime(2020, 1, 10, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Source = "Alquiler anual"
+                        },
+                        new
+                        {
+                            CashFlowId = "CAF017",
+                            Amount = 1100m,
+                            BuildingId = "BLD004",
+                            Date = new DateTime(2020, 6, 10, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Source = "Limpieza fachada"
+                        },
+                        new
+                        {
+                            CashFlowId = "CAF018",
+                            Amount = 400000m,
+                            BuildingId = "BLD005",
+                            Date = new DateTime(2018, 11, 30, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Source = "Compra inicial"
+                        },
+                        new
+                        {
+                            CashFlowId = "CAF019",
+                            Amount = 19000m,
+                            BuildingId = "BLD005",
+                            Date = new DateTime(2019, 1, 10, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Source = "Alquiler anual"
+                        },
+                        new
+                        {
+                            CashFlowId = "CAF020",
+                            Amount = 4000m,
+                            BuildingId = "BLD005",
+                            Date = new DateTime(2019, 6, 10, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Source = "Reforma eléctrica"
+                        },
+                        new
+                        {
+                            CashFlowId = "CAF021",
+                            Amount = 20000m,
+                            BuildingId = "BLD005",
+                            Date = new DateTime(2020, 1, 10, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Source = "Alquiler anual"
+                        },
+                        new
+                        {
+                            CashFlowId = "CAF022",
+                            Amount = 950m,
+                            BuildingId = "BLD005",
+                            Date = new DateTime(2020, 6, 10, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Source = "Impuesto IBI"
+                        },
+                        new
+                        {
+                            CashFlowId = "CAF023",
+                            Amount = 210000m,
+                            BuildingId = "BLD006",
+                            Date = new DateTime(2020, 6, 15, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Source = "Compra inicial"
+                        },
+                        new
+                        {
+                            CashFlowId = "CAF024",
+                            Amount = 14000m,
+                            BuildingId = "BLD006",
+                            Date = new DateTime(2021, 1, 10, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Source = "Alquiler anual"
+                        },
+                        new
+                        {
+                            CashFlowId = "CAF025",
+                            Amount = 90000m,
+                            BuildingId = "BLD007",
+                            Date = new DateTime(2021, 2, 20, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Source = "Compra inicial"
+                        },
+                        new
+                        {
+                            CashFlowId = "CAF026",
+                            Amount = 95000m,
+                            BuildingId = "BLD008",
+                            Date = new DateTime(2019, 9, 10, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Source = "Compra inicial"
+                        },
+                        new
+                        {
+                            CashFlowId = "CAF027",
+                            Amount = 100000m,
+                            BuildingId = "BLD009",
+                            Date = new DateTime(2022, 1, 5, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Source = "Compra inicial"
+                        },
+                        new
+                        {
+                            CashFlowId = "CAF028",
+                            Amount = 300000m,
+                            BuildingId = "BLD010",
+                            Date = new DateTime(2020, 3, 18, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Source = "Compra inicial"
+                        },
+                        new
+                        {
+                            CashFlowId = "CAF029",
+                            Amount = 24000m,
+                            BuildingId = "BLD010",
+                            Date = new DateTime(2021, 1, 10, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Source = "Alquiler anual"
+                        },
+                        new
+                        {
+                            CashFlowId = "CAF030",
+                            Amount = 270000m,
+                            BuildingId = "BLD011",
+                            Date = new DateTime(2021, 9, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Source = "Compra inicial"
+                        },
+                        new
+                        {
+                            CashFlowId = "CAF031",
+                            Amount = 22000m,
+                            BuildingId = "BLD011",
+                            Date = new DateTime(2022, 1, 10, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Source = "Alquiler anual"
+                        },
+                        new
+                        {
+                            CashFlowId = "CAF032",
+                            Amount = 1200m,
+                            BuildingId = "BLD011",
+                            Date = new DateTime(2022, 6, 10, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Source = "Seguro edificio"
+                        },
+                        new
+                        {
+                            CashFlowId = "CAF040",
+                            Amount = 320000m,
+                            BuildingId = "BLD012",
+                            Date = new DateTime(2021, 3, 15, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Source = "Compra inicial"
+                        },
+                        new
+                        {
+                            CashFlowId = "CAF041",
+                            Amount = 12000m,
+                            BuildingId = "BLD012",
+                            Date = new DateTime(2022, 1, 10, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Source = "Alquiler anual"
+                        },
+                        new
+                        {
+                            CashFlowId = "CAF042",
+                            Amount = 2500m,
+                            BuildingId = "BLD012",
+                            Date = new DateTime(2022, 6, 10, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Source = "Reforma fachada"
+                        },
+                        new
+                        {
+                            CashFlowId = "CAF050",
+                            Amount = 410000m,
+                            BuildingId = "BLD013",
+                            Date = new DateTime(2022, 5, 10, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Source = "Compra inicial"
+                        },
+                        new
+                        {
+                            CashFlowId = "CAF051",
+                            Amount = 15000m,
+                            BuildingId = "BLD013",
+                            Date = new DateTime(2023, 1, 10, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Source = "Alquiler anual"
+                        },
+                        new
+                        {
+                            CashFlowId = "CAF052",
+                            Amount = 1800m,
+                            BuildingId = "BLD013",
+                            Date = new DateTime(2023, 6, 10, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Source = "Gasto comunidad"
+                        });
                 });
 
             modelBuilder.Entity("GeoCore.Entities.MaintenanceEvent", b =>
@@ -464,6 +852,112 @@ namespace GeoCore.Migrations
                     b.HasIndex("BuildingId");
 
                     b.ToTable("MaintenanceEvents");
+
+                    b.HasData(
+                        new
+                        {
+                            MaintenanceEventId = "MAE001",
+                            BuildingId = "BLD001",
+                            Cost = 1000m,
+                            Date = new DateTime(2023, 1, 15, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Description = "Revisión ascensor"
+                        },
+                        new
+                        {
+                            MaintenanceEventId = "MAE002",
+                            BuildingId = "BLD001",
+                            Cost = 1200m,
+                            Date = new DateTime(2023, 6, 10, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Description = "Cambio de caldera"
+                        },
+                        new
+                        {
+                            MaintenanceEventId = "MAE003",
+                            BuildingId = "BLD002",
+                            Cost = 900m,
+                            Date = new DateTime(2023, 2, 10, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Description = "Pintura fachada"
+                        },
+                        new
+                        {
+                            MaintenanceEventId = "MAE004",
+                            BuildingId = "BLD002",
+                            Cost = 1100m,
+                            Date = new DateTime(2023, 5, 15, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Description = "Reparación tejado"
+                        },
+                        new
+                        {
+                            MaintenanceEventId = "MAE005",
+                            BuildingId = "BLD003",
+                            Cost = 1200m,
+                            Date = new DateTime(2023, 3, 5, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Description = "Cambio caldera"
+                        },
+                        new
+                        {
+                            MaintenanceEventId = "MAE006",
+                            BuildingId = "BLD004",
+                            Cost = 1100m,
+                            Date = new DateTime(2023, 5, 15, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Description = "Reparación tejado"
+                        },
+                        new
+                        {
+                            MaintenanceEventId = "MAE007",
+                            BuildingId = "BLD005",
+                            Cost = 900m,
+                            Date = new DateTime(2023, 6, 10, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Description = "Revisión eléctrica"
+                        },
+                        new
+                        {
+                            MaintenanceEventId = "MAE008",
+                            BuildingId = "BLD005",
+                            Cost = 1200m,
+                            Date = new DateTime(2024, 1, 10, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Description = "Cambio caldera"
+                        },
+                        new
+                        {
+                            MaintenanceEventId = "MAE009",
+                            BuildingId = "BLD006",
+                            Cost = 800m,
+                            Date = new DateTime(2023, 8, 10, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Description = "Pintura fachada"
+                        },
+                        new
+                        {
+                            MaintenanceEventId = "MAE010",
+                            BuildingId = "BLD010",
+                            Cost = 1000m,
+                            Date = new DateTime(2023, 9, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Description = "Reparación portal"
+                        },
+                        new
+                        {
+                            MaintenanceEventId = "MAE011",
+                            BuildingId = "BLD011",
+                            Cost = 900m,
+                            Date = new DateTime(2023, 10, 5, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Description = "Reparación tejado ático"
+                        },
+                        new
+                        {
+                            MaintenanceEventId = "MAE020",
+                            BuildingId = "BLD012",
+                            Cost = 950m,
+                            Date = new DateTime(2022, 4, 15, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Description = "Revisión ascensor"
+                        },
+                        new
+                        {
+                            MaintenanceEventId = "MAE021",
+                            BuildingId = "BLD013",
+                            Cost = 1100m,
+                            Date = new DateTime(2023, 7, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Description = "Reparación portal"
+                        });
                 });
 
             modelBuilder.Entity("GeoCore.Entities.Rental", b =>
@@ -619,6 +1113,28 @@ namespace GeoCore.Migrations
                             Price = 16500m,
                             StartDate = new DateTime(2023, 2, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Zone = "Iturrama"
+                        },
+                        new
+                        {
+                            RentalId = "REN020",
+                            ApartmentId = "APT040",
+                            EndDate = new DateTime(2022, 12, 31, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            IsConfirmed = true,
+                            PostalCode = "46023",
+                            Price = 12000m,
+                            StartDate = new DateTime(2022, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Zone = "Camins al Grau"
+                        },
+                        new
+                        {
+                            RentalId = "REN021",
+                            ApartmentId = "APT050",
+                            EndDate = new DateTime(2023, 12, 31, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            IsConfirmed = true,
+                            PostalCode = "29001",
+                            Price = 15000m,
+                            StartDate = new DateTime(2023, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Zone = "Soho"
                         });
                 });
 

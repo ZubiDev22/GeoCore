@@ -135,7 +135,9 @@ namespace GeoCore.Migrations
                     { "BLD008", "Calle Marqués de Larios 4", "BLD008", "Malaga", 36.719647999999999, -4.421265, "Edificio Larios", "29005", new DateTime(2019, 9, 10, 0, 0, 0, 0, DateTimeKind.Unspecified), "Active" },
                     { "BLD009", "Calle Pintor Aparicio 16", "BLD009", "Alicante", 38.344900000000003, -0.49080000000000001, "Edificio Maisonnave", "03003", new DateTime(2022, 1, 5, 0, 0, 0, 0, DateTimeKind.Unspecified), "Rented" },
                     { "BLD010", "Calle Estafeta 1", "BLD010", "Pamplona", 42.818452999999998, -1.6441319999999999, "Edificio Estafeta", "31001", new DateTime(2020, 3, 18, 0, 0, 0, 0, DateTimeKind.Unspecified), "Active" },
-                    { "BLD011", "Calle Pérez Goyena 28", "BLD011", "Pamplona", 42.800899999999999, -1.6168, "Edificio Pérez Goyena", "31620", new DateTime(2023, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), "Rented" }
+                    { "BLD011", "Calle Pérez Goyena 28", "BLD011", "Pamplona", 42.800899999999999, -1.6168, "Edificio Pérez Goyena", "31620", new DateTime(2023, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), "Rented" },
+                    { "BLD012", "Avenida de la Alameda 10", "BLD012", "Valencia", 39.474800000000002, -0.35699999999999998, "Edificio Alameda", "46023", new DateTime(2021, 3, 15, 0, 0, 0, 0, DateTimeKind.Unspecified), "Active" },
+                    { "BLD013", "Calle Tomás Heredia 22", "BLD013", "Malaga", 36.715600000000002, -4.4231999999999996, "Edificio Soho", "29001", new DateTime(2022, 5, 10, 0, 0, 0, 0, DateTimeKind.Unspecified), "Rented" }
                 });
 
             migrationBuilder.InsertData(
@@ -153,7 +155,9 @@ namespace GeoCore.Migrations
                     { "REN008", "APT026", new DateTime(2023, 12, 31, 0, 0, 0, 0, DateTimeKind.Unspecified), true, "03003", 13500m, new DateTime(2023, 2, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), "Centro" },
                     { "REN009", "APT027", new DateTime(2023, 12, 31, 0, 0, 0, 0, DateTimeKind.Unspecified), true, "03003", 13000m, new DateTime(2023, 3, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), "Centro" },
                     { "REN010", "APT031", new DateTime(2023, 12, 31, 0, 0, 0, 0, DateTimeKind.Unspecified), true, "31620", 17000m, new DateTime(2023, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), "Iturrama" },
-                    { "REN011", "APT032", new DateTime(2023, 12, 31, 0, 0, 0, 0, DateTimeKind.Unspecified), true, "31620", 16500m, new DateTime(2023, 2, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), "Iturrama" }
+                    { "REN011", "APT032", new DateTime(2023, 12, 31, 0, 0, 0, 0, DateTimeKind.Unspecified), true, "31620", 16500m, new DateTime(2023, 2, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), "Iturrama" },
+                    { "REN020", "APT040", new DateTime(2022, 12, 31, 0, 0, 0, 0, DateTimeKind.Unspecified), true, "46023", 12000m, new DateTime(2022, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), "Camins al Grau" },
+                    { "REN021", "APT050", new DateTime(2023, 12, 31, 0, 0, 0, 0, DateTimeKind.Unspecified), true, "29001", 15000m, new DateTime(2023, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), "Soho" }
                 });
 
             migrationBuilder.InsertData(
@@ -171,7 +175,76 @@ namespace GeoCore.Migrations
                     { "APT014", "2A", "2", 130000m, "BLD005", new DateTime(2023, 1, 14, 0, 0, 0, 0, DateTimeKind.Unspecified), false, true, 2, 4, "libre" },
                     { "APT015", "3A", "3", 135000m, "BLD005", new DateTime(2023, 1, 15, 0, 0, 0, 0, DateTimeKind.Unspecified), true, false, 1, 2, "reservado" },
                     { "APT031", "1A", "1", 150000m, "BLD011", new DateTime(2023, 2, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), true, true, 2, 3, "ocupado" },
-                    { "APT032", "2A", "2", 155000m, "BLD011", new DateTime(2023, 2, 2, 0, 0, 0, 0, DateTimeKind.Unspecified), false, true, 2, 3, "libre" }
+                    { "APT032", "2A", "2", 155000m, "BLD011", new DateTime(2023, 2, 2, 0, 0, 0, 0, DateTimeKind.Unspecified), false, true, 2, 3, "libre" },
+                    { "APT040", "1A", "1", 185000m, "BLD012", new DateTime(2021, 3, 16, 0, 0, 0, 0, DateTimeKind.Unspecified), true, true, 2, 3, "ocupado" },
+                    { "APT041", "2B", "2", 175000m, "BLD012", new DateTime(2021, 3, 17, 0, 0, 0, 0, DateTimeKind.Unspecified), false, true, 1, 2, "libre" },
+                    { "APT050", "1C", "1", 210000m, "BLD013", new DateTime(2022, 5, 11, 0, 0, 0, 0, DateTimeKind.Unspecified), true, true, 2, 4, "ocupado" },
+                    { "APT051", "3A", "3", 160000m, "BLD013", new DateTime(2022, 5, 12, 0, 0, 0, 0, DateTimeKind.Unspecified), false, false, 1, 2, "reservado" }
+                });
+
+            migrationBuilder.InsertData(
+                table: "CashFlows",
+                columns: new[] { "CashFlowId", "Amount", "BuildingId", "Date", "Source" },
+                values: new object[,]
+                {
+                    { "CAF001", 350000m, "BLD001", new DateTime(2020, 1, 10, 0, 0, 0, 0, DateTimeKind.Unspecified), "Compra inicial" },
+                    { "CAF002", 20000m, "BLD001", new DateTime(2021, 1, 10, 0, 0, 0, 0, DateTimeKind.Unspecified), "Alquiler anual" },
+                    { "CAF003", 5000m, "BLD001", new DateTime(2021, 6, 10, 0, 0, 0, 0, DateTimeKind.Unspecified), "Reforma cocina" },
+                    { "CAF004", 21000m, "BLD001", new DateTime(2022, 1, 10, 0, 0, 0, 0, DateTimeKind.Unspecified), "Alquiler anual" },
+                    { "CAF005", 1200m, "BLD001", new DateTime(2022, 6, 10, 0, 0, 0, 0, DateTimeKind.Unspecified), "Seguro edificio" },
+                    { "CAF006", 22000m, "BLD001", new DateTime(2023, 1, 10, 0, 0, 0, 0, DateTimeKind.Unspecified), "Alquiler anual" },
+                    { "CAF007", 320000m, "BLD002", new DateTime(2021, 5, 20, 0, 0, 0, 0, DateTimeKind.Unspecified), "Compra inicial" },
+                    { "CAF008", 18000m, "BLD002", new DateTime(2022, 1, 10, 0, 0, 0, 0, DateTimeKind.Unspecified), "Alquiler anual" },
+                    { "CAF009", 3000m, "BLD002", new DateTime(2022, 6, 10, 0, 0, 0, 0, DateTimeKind.Unspecified), "Reforma baño" },
+                    { "CAF010", 18500m, "BLD002", new DateTime(2023, 1, 10, 0, 0, 0, 0, DateTimeKind.Unspecified), "Alquiler anual" },
+                    { "CAF011", 950m, "BLD002", new DateTime(2023, 3, 10, 0, 0, 0, 0, DateTimeKind.Unspecified), "Impuesto IBI" },
+                    { "CAF012", 280000m, "BLD003", new DateTime(2022, 3, 15, 0, 0, 0, 0, DateTimeKind.Unspecified), "Compra inicial" },
+                    { "CAF013", 17000m, "BLD003", new DateTime(2023, 1, 10, 0, 0, 0, 0, DateTimeKind.Unspecified), "Alquiler anual" },
+                    { "CAF014", 2500m, "BLD003", new DateTime(2023, 6, 10, 0, 0, 0, 0, DateTimeKind.Unspecified), "Gasto extraordinario" },
+                    { "CAF015", 250000m, "BLD004", new DateTime(2019, 7, 22, 0, 0, 0, 0, DateTimeKind.Unspecified), "Compra inicial" },
+                    { "CAF016", 16000m, "BLD004", new DateTime(2020, 1, 10, 0, 0, 0, 0, DateTimeKind.Unspecified), "Alquiler anual" },
+                    { "CAF017", 1100m, "BLD004", new DateTime(2020, 6, 10, 0, 0, 0, 0, DateTimeKind.Unspecified), "Limpieza fachada" },
+                    { "CAF018", 400000m, "BLD005", new DateTime(2018, 11, 30, 0, 0, 0, 0, DateTimeKind.Unspecified), "Compra inicial" },
+                    { "CAF019", 19000m, "BLD005", new DateTime(2019, 1, 10, 0, 0, 0, 0, DateTimeKind.Unspecified), "Alquiler anual" },
+                    { "CAF020", 4000m, "BLD005", new DateTime(2019, 6, 10, 0, 0, 0, 0, DateTimeKind.Unspecified), "Reforma eléctrica" },
+                    { "CAF021", 20000m, "BLD005", new DateTime(2020, 1, 10, 0, 0, 0, 0, DateTimeKind.Unspecified), "Alquiler anual" },
+                    { "CAF022", 950m, "BLD005", new DateTime(2020, 6, 10, 0, 0, 0, 0, DateTimeKind.Unspecified), "Impuesto IBI" },
+                    { "CAF023", 210000m, "BLD006", new DateTime(2020, 6, 15, 0, 0, 0, 0, DateTimeKind.Unspecified), "Compra inicial" },
+                    { "CAF024", 14000m, "BLD006", new DateTime(2021, 1, 10, 0, 0, 0, 0, DateTimeKind.Unspecified), "Alquiler anual" },
+                    { "CAF025", 90000m, "BLD007", new DateTime(2021, 2, 20, 0, 0, 0, 0, DateTimeKind.Unspecified), "Compra inicial" },
+                    { "CAF026", 95000m, "BLD008", new DateTime(2019, 9, 10, 0, 0, 0, 0, DateTimeKind.Unspecified), "Compra inicial" },
+                    { "CAF027", 100000m, "BLD009", new DateTime(2022, 1, 5, 0, 0, 0, 0, DateTimeKind.Unspecified), "Compra inicial" },
+                    { "CAF028", 300000m, "BLD010", new DateTime(2020, 3, 18, 0, 0, 0, 0, DateTimeKind.Unspecified), "Compra inicial" },
+                    { "CAF029", 24000m, "BLD010", new DateTime(2021, 1, 10, 0, 0, 0, 0, DateTimeKind.Unspecified), "Alquiler anual" },
+                    { "CAF030", 270000m, "BLD011", new DateTime(2021, 9, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), "Compra inicial" },
+                    { "CAF031", 22000m, "BLD011", new DateTime(2022, 1, 10, 0, 0, 0, 0, DateTimeKind.Unspecified), "Alquiler anual" },
+                    { "CAF032", 1200m, "BLD011", new DateTime(2022, 6, 10, 0, 0, 0, 0, DateTimeKind.Unspecified), "Seguro edificio" },
+                    { "CAF040", 320000m, "BLD012", new DateTime(2021, 3, 15, 0, 0, 0, 0, DateTimeKind.Unspecified), "Compra inicial" },
+                    { "CAF041", 12000m, "BLD012", new DateTime(2022, 1, 10, 0, 0, 0, 0, DateTimeKind.Unspecified), "Alquiler anual" },
+                    { "CAF042", 2500m, "BLD012", new DateTime(2022, 6, 10, 0, 0, 0, 0, DateTimeKind.Unspecified), "Reforma fachada" },
+                    { "CAF050", 410000m, "BLD013", new DateTime(2022, 5, 10, 0, 0, 0, 0, DateTimeKind.Unspecified), "Compra inicial" },
+                    { "CAF051", 15000m, "BLD013", new DateTime(2023, 1, 10, 0, 0, 0, 0, DateTimeKind.Unspecified), "Alquiler anual" },
+                    { "CAF052", 1800m, "BLD013", new DateTime(2023, 6, 10, 0, 0, 0, 0, DateTimeKind.Unspecified), "Gasto comunidad" }
+                });
+
+            migrationBuilder.InsertData(
+                table: "MaintenanceEvents",
+                columns: new[] { "MaintenanceEventId", "BuildingId", "Cost", "Date", "Description" },
+                values: new object[,]
+                {
+                    { "MAE001", "BLD001", 1000m, new DateTime(2023, 1, 15, 0, 0, 0, 0, DateTimeKind.Unspecified), "Revisión ascensor" },
+                    { "MAE002", "BLD001", 1200m, new DateTime(2023, 6, 10, 0, 0, 0, 0, DateTimeKind.Unspecified), "Cambio de caldera" },
+                    { "MAE003", "BLD002", 900m, new DateTime(2023, 2, 10, 0, 0, 0, 0, DateTimeKind.Unspecified), "Pintura fachada" },
+                    { "MAE004", "BLD002", 1100m, new DateTime(2023, 5, 15, 0, 0, 0, 0, DateTimeKind.Unspecified), "Reparación tejado" },
+                    { "MAE005", "BLD003", 1200m, new DateTime(2023, 3, 5, 0, 0, 0, 0, DateTimeKind.Unspecified), "Cambio caldera" },
+                    { "MAE006", "BLD004", 1100m, new DateTime(2023, 5, 15, 0, 0, 0, 0, DateTimeKind.Unspecified), "Reparación tejado" },
+                    { "MAE007", "BLD005", 900m, new DateTime(2023, 6, 10, 0, 0, 0, 0, DateTimeKind.Unspecified), "Revisión eléctrica" },
+                    { "MAE008", "BLD005", 1200m, new DateTime(2024, 1, 10, 0, 0, 0, 0, DateTimeKind.Unspecified), "Cambio caldera" },
+                    { "MAE009", "BLD006", 800m, new DateTime(2023, 8, 10, 0, 0, 0, 0, DateTimeKind.Unspecified), "Pintura fachada" },
+                    { "MAE010", "BLD010", 1000m, new DateTime(2023, 9, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), "Reparación portal" },
+                    { "MAE011", "BLD011", 900m, new DateTime(2023, 10, 5, 0, 0, 0, 0, DateTimeKind.Unspecified), "Reparación tejado ático" },
+                    { "MAE020", "BLD012", 950m, new DateTime(2022, 4, 15, 0, 0, 0, 0, DateTimeKind.Unspecified), "Revisión ascensor" },
+                    { "MAE021", "BLD013", 1100m, new DateTime(2023, 7, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), "Reparación portal" }
                 });
 
             migrationBuilder.CreateIndex(

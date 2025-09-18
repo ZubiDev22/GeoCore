@@ -49,10 +49,8 @@ import { ApartmentsService } from '../services/apartments.service';
             <div class="mb-2"><strong>Estado:</strong> {{ building.status }}</div>
             <div class="mb-2"><strong>Fecha de compra:</strong> {{ building.purchaseDate | date:'yyyy-MM-dd' }}</div>
             <div class="mb-2 text-muted small">Lat: {{ building.latitude }} | Lng: {{ building.longitude }}</div>
-            <!-- DEBUG visual eliminado -->
           </div>
         </div>
-        <!-- Mapa duplicado eliminado -->
       </div>
 
       <div class="mt-4">
@@ -73,9 +71,9 @@ import { ApartmentsService } from '../services/apartments.service';
           </tbody>
         </table>
         <div *ngIf="!loadingApartments && !apartments.length" class="text-muted">Sin apartamentos.</div>
+        <div *ngIf="errorApartments" class="alert alert-danger mt-2">{{ errorApartments }}</div>
       </div>
 
-      <!-- KPIs de Rentabilidad e Ingresos -->
       <div class="mt-4" *ngIf="profitability">
         <h4>KPIs de Rentabilidad</h4>
         <ul>
@@ -86,7 +84,6 @@ import { ApartmentsService } from '../services/apartments.service';
         </ul>
       </div>
 
-      <!-- Tabla de detalle de ingresos por edificio -->
       <div class="mt-4" *ngIf="profitability?.detalle?.length">
         <h4>Detalle de ingresos por edificio</h4>
         <table class="table table-sm">
@@ -111,7 +108,6 @@ import { ApartmentsService } from '../services/apartments.service';
         </table>
       </div>
 
-      <!-- NUEVA TABLA: Alquileres asociados si existen -->
       <div class="mt-4" *ngIf="building?.alquileres?.length">
         <h4>Alquileres asociados</h4>
         <table class="table table-sm">
@@ -139,7 +135,6 @@ import { ApartmentsService } from '../services/apartments.service';
           </tbody>
         </table>
       </div>
-      <!-- Secciones legacy de eventos y cashflows eliminadas -->
     </div>
     <div *ngIf="error" class="alert alert-danger container mt-4">{{ error }}</div>
   `,
@@ -169,6 +164,7 @@ export class BuildingDetailComponent {
   loading = true;
   loadingApartments = true;
   error = '';
+  errorApartments: string = '';
 
   constructor(
     private route: ActivatedRoute,
@@ -195,7 +191,6 @@ export class BuildingDetailComponent {
       }
     });
   }
-  
 
   isFiniteNumber(val: any): boolean {
     return (typeof val === 'number' && isFinite(val)) ||
@@ -228,19 +223,16 @@ export class BuildingDetailComponent {
 
   loadApartments(code: string) {
     this.loadingApartments = true;
+    this.errorApartments = '';
     this.apartmentsService.getApartmentsByBuilding(code).subscribe({
       next: (data: any) => {
         this.apartments = data;
-        console.log('DEBUG apartamentos:', this.apartments);
-        this.loadingApartments = true;
-        this.errorApartments = '';
-        this.buildingsService.getApartmentsByBuilding(code).subscribe({
-          next: (data: any) => {
-            this.apartments = data;
-            this.loadingApartments = false;
-          },
-          error: (err: any) => {
-            this.errorApartments = 'Error cargando apartamentos';
-            this.loadingApartments = false;
-          }
-        });
+        this.loadingApartments = false;
+      },
+      error: (err: any) => {
+        this.errorApartments = 'Error cargando apartamentos';
+        this.loadingApartments = false;
+      }
+    });
+  }
+}
